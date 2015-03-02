@@ -1,4 +1,4 @@
-package sim.app.episim.tissueimport;
+package sim.app.episim.model;
 
 
 
@@ -13,8 +13,7 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimProgressWindow;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
-import sim.app.episim.model.AbstractCell;
-import sim.app.episim.model.UniversalCell;
+import sim.app.episim.model.AbtractTissue.SchedulePriority;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractBiomechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel;
@@ -40,6 +39,8 @@ import sim.field.continuous.*;
 
 //Charts
 import org.jfree.chart.JFreeChart;
+
+
 
 
 
@@ -93,7 +94,7 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
-public class UniversalTissue extends TissueType implements CellDeathListener
+public class UniversalTissue extends AbtractTissue implements CellDeathListener
 {
 
 //	---------------------------------------------------------------------------------------------------------------------------------------------------

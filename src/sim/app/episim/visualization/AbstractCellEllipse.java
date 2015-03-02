@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
-import sim.app.episim.tissueimport.TissueController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.IntersectionPoints;
 import sim.portrayal.DrawInfo2D;

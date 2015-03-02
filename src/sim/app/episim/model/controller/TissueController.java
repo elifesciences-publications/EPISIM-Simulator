@@ -1,4 +1,4 @@
-package sim.app.episim.tissueimport;
+package sim.app.episim.model.controller;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -7,6 +7,12 @@ import java.util.concurrent.Semaphore;
 
 import episimexceptions.NoEpidermalTissueAvailableException;
 import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbtractTissue;
+import sim.app.episim.model.UniversalTissue;
+import sim.app.episim.model.tissue.TissueBorder;
+import sim.app.episim.model.tissue.TissueServer;
+import sim.app.episim.tissueimport.ImportedTissue;
+import sim.app.episim.tissueimport.TissueImporter;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.visualization.*;
@@ -36,11 +42,11 @@ public class TissueController implements ClassLoaderChangeListener{
 		return TissueServer.getInstance().getActEpidermalTissue();
 	}
 	
-	public TissueType getActTissue(){
+	public AbtractTissue getActTissue(){
 		return TissueServer.getInstance().getActTissue();
 	}
 	
-	public void registerTissue(TissueType tissue){
+	public void registerTissue(AbtractTissue tissue){
 		TissueServer.getInstance().registerTissue(tissue);
 		notifyAllTissueRegistrationListener();
 	}

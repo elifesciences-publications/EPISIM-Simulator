@@ -3,13 +3,13 @@ package sim.app.episim.model.biomechanics.vertexbased2D;
 import java.util.ArrayList;
 
 import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.AbtractTissue;
 import sim.app.episim.model.biomechanics.vertexbased2D.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased2D.geom.ContinuousVertexField;
 import sim.app.episim.model.biomechanics.vertexbased2D.util.CellCanvas;
-import sim.app.episim.tissueimport.TissueController;
-import sim.app.episim.tissueimport.TissueType;
-import sim.app.episim.tissueimport.TissueController.TissueRegistrationListener;
+import sim.app.episim.model.controller.TissueController;
+import sim.app.episim.model.controller.TissueController.TissueRegistrationListener;
 import sim.app.episim.util.BagChangeEvent;
 import sim.app.episim.util.BagChangeListener;
 import sim.app.episim.util.ClassLoaderChangeListener;
@@ -59,14 +59,14 @@ public class VertexBasedModelController implements TissueRegistrationListener, B
 	}
 	
 	private void refreshCellPolygonArrayInCalculator(){
-		TissueType tissue = TissueController.getInstance().getActTissue();
+		AbtractTissue tissue = TissueController.getInstance().getActTissue();
 		if(tissue != null && tissue.getAllCells() != null){
 			this.calculator.setCellPolygons(getAllCellPolygons(tissue.getAllCells()));
 		}
 	}	
 	
 	public void newTissueWasRegistered(){
-		TissueType tissue = TissueController.getInstance().getActTissue();
+		AbtractTissue tissue = TissueController.getInstance().getActTissue();
 		if(tissue != null && tissue.getAllCells() != null){
 			tissue.getAllCells().addBagChangeListener(this);
 			refreshCellPolygonArrayInCalculator();

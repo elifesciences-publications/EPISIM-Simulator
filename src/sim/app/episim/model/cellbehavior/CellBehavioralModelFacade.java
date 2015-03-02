@@ -18,9 +18,9 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episimmcc.EpisimModelConnector;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
+import sim.app.episim.model.UniversalTissue;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.tissueimport.UniversalTissue;
 
 
 

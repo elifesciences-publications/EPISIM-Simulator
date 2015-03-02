@@ -56,7 +56,7 @@ import sim.app.episim.model.biomechanics.vertexbased2D.util.GlobalBiomechanicalS
 import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ModelParameterModifier;
-import sim.app.episim.tissueimport.TissueController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
 
 

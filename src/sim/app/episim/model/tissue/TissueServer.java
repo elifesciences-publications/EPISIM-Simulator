@@ -1,8 +1,10 @@
-package sim.app.episim.tissueimport;
+package sim.app.episim.model.tissue;
 
 import java.util.concurrent.Semaphore;
 
 import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbtractTissue;
+import sim.app.episim.model.UniversalTissue;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.NoEpidermalTissueAvailableException;
@@ -10,7 +12,7 @@ import episimexceptions.NoEpidermalTissueAvailableException;
 
 public class TissueServer implements ClassLoaderChangeListener{
 	
-	private TissueType actTissue;
+	private AbtractTissue actTissue;
 	
 	private static TissueServer instance;
 	private static Semaphore sem = new Semaphore(1);
@@ -18,7 +20,7 @@ public class TissueServer implements ClassLoaderChangeListener{
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
 	
-	protected static TissueServer getInstance(){
+	public static TissueServer getInstance(){
 		if(instance==null){
 			try{
 	         sem.acquire();
@@ -33,7 +35,7 @@ public class TissueServer implements ClassLoaderChangeListener{
 		return instance;
 	}
 	
-	public void registerTissue(TissueType tissue){
+	public void registerTissue(AbtractTissue tissue){
 		this.actTissue = tissue;
 	}
 
@@ -42,7 +44,7 @@ public class TissueServer implements ClassLoaderChangeListener{
 		else throw new NoEpidermalTissueAvailableException("There is no epidermal tissue registered!");
 	}
 	
-	public TissueType getActTissue(){
+	public AbtractTissue getActTissue(){
 		return actTissue;
 	}
 	

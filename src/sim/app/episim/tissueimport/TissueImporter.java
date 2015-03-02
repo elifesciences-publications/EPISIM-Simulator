@@ -102,7 +102,7 @@ public class TissueImporter{
 	
 	public static final double ELLIPSE_AXIS_LENGHT_CORR_FACTOR = 1.2;
 	
-	protected TissueImporter(){
+	public TissueImporter(){
 		
 	} 
 		

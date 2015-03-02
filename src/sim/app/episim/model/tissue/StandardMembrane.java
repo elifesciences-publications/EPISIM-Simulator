@@ -1,4 +1,4 @@
-package sim.app.episim.tissueimport;
+package sim.app.episim.model.tissue;
 
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;

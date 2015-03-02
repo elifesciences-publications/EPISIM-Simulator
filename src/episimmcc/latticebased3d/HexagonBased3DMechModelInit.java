@@ -9,10 +9,10 @@ import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModel;
 import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModelGP;
 import sim.app.episim.model.biomechanics.latticebased3D.LatticeCellField3D;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.tissueimport.TissueController;
 import sim.util.Double3D;
 import sim.util.Int3D;
 

@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.AbtractTissue;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissueimport.TissueType;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
@@ -25,7 +25,7 @@ public class CompatibilityChecker {
 	}
 	
 	
-	public void checkEpisimChartSetForCompatibility(EpisimChartSet chartSet, TissueType actTissue) throws ModelCompatibilityException{
+	public void checkEpisimChartSetForCompatibility(EpisimChartSet chartSet, AbtractTissue actTissue) throws ModelCompatibilityException{
 		classNameHashValueMap.clear();
 		if(chartSet == null) throw new IllegalArgumentException("Chart-Set for Compatibility-Check must not be null!");
 		for(EpisimChart actChart: chartSet.getEpisimCharts()){
@@ -37,7 +37,7 @@ public class CompatibilityChecker {
 		checkCellBehavioralAndMechanicalModelClasses();		
 	}
 	
-	public void checkEpisimDataExportDefinitionSetForCompatibility(EpisimDataExportDefinitionSet exportDefinitionSet, TissueType actTissue) throws ModelCompatibilityException{
+	public void checkEpisimDataExportDefinitionSetForCompatibility(EpisimDataExportDefinitionSet exportDefinitionSet, AbtractTissue actTissue) throws ModelCompatibilityException{
 		classNameHashValueMap.clear();
 		if(exportDefinitionSet == null) throw new IllegalArgumentException("Data-Export-Definition-Set for Compatibility-Check must not be null!");
 		

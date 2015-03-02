@@ -15,10 +15,10 @@ import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel;
 import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
-import sim.app.episim.tissueimport.TissueController;
 import sim.portrayal.Portrayal;
 import sim.util.Double2D;
 

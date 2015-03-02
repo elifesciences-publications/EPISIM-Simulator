@@ -9,6 +9,7 @@ import sim.app.episim.SimStateServer;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -18,7 +19,6 @@ import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArra
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
-import sim.app.episim.tissueimport.TissueController;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModel;

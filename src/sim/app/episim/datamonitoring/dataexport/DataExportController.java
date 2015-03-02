@@ -30,7 +30,7 @@ import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.model.AbstractCell;
-import sim.app.episim.tissueimport.TissueType;
+import sim.app.episim.model.AbtractTissue;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.EnhancedSteppable;
@@ -71,7 +71,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 	
 	private long nextDataExportId = 0;
 	
-	private TissueType dataExportMonitoredTissue;
+	private AbtractTissue dataExportMonitoredTissue;
 	private static EpisimDataExportDefinitionSet actLoadedDataExportSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
@@ -127,7 +127,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 		return instance;
 	}
 	   
-	public void setDataExportMonitoredTissue(TissueType tissue){
+	public void setDataExportMonitoredTissue(AbtractTissue tissue){
 		this.dataExportMonitoredTissue = tissue;
 	}
 	

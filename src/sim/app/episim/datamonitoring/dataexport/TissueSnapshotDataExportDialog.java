@@ -33,10 +33,10 @@ import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
+import sim.app.episim.model.AbtractTissue;
+import sim.app.episim.model.UniversalTissue;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.persistence.SimulationStateFile;
-import sim.app.episim.tissueimport.TissueController;
-import sim.app.episim.tissueimport.TissueType;
-import sim.app.episim.tissueimport.UniversalTissue;
 
 
 public class TissueSnapshotDataExportDialog extends JDialog {
@@ -221,7 +221,7 @@ public class TissueSnapshotDataExportDialog extends JDialog {
 						loadSnapshotCompletedLabel.setVisible(true);
 						snapshotPathTextField.setText(SimulationStateFile.getTissueExportPath().getAbsolutePath());
 						state=new UniversalTissue(System.currentTimeMillis());
-						if(state instanceof TissueType) TissueController.getInstance().registerTissue(((TissueType) state));
+						if(state instanceof AbtractTissue) TissueController.getInstance().registerTissue(((AbtractTissue) state));
 					}
 				}
 				public void executeTask() {

@@ -21,6 +21,8 @@ import javax.vecmath.Vector3d;
 
 
 
+
+
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -31,8 +33,8 @@ import sim.app.episim.model.biomechanics.Episim3DCellShape;
 import sim.app.episim.model.biomechanics.centerbased3D.AbstractCenterBased3DModel;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissueimport.StandardMembrane;
-import sim.app.episim.tissueimport.TissueController;
+import sim.app.episim.model.controller.TissueController;
+import sim.app.episim.model.tissue.StandardMembrane;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.engine.SimState;

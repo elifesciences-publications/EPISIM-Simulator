@@ -1,4 +1,4 @@
-package sim.app.episim.tissueimport;
+package sim.app.episim.model.tissue;
 
 
 import java.awt.geom.GeneralPath;
@@ -24,7 +24,8 @@ import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.tissueimport.StandardMembrane.StandardMembrane3DCoordinates;
+import sim.app.episim.model.tissue.StandardMembrane.StandardMembrane3DCoordinates;
+import sim.app.episim.tissueimport.ImportedTissue;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.PointSorter;
@@ -374,7 +375,7 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		return standardMembrane.getStandardMembraneCoordinates3D(update, optimized);
 	}
 	
-	protected static TissueBorder getInstance(){
+	public static TissueBorder getInstance(){
 		if(instance==null){
 			try{
 	         sem.acquire();

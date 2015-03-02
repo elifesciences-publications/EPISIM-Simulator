@@ -34,9 +34,9 @@ import javax.swing.event.ListSelectionListener;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionType;
 import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.AbtractTissue;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissueimport.TissueType;
 import episiminterfaces.*;
 
 public class TissueCellDataFieldsInspector {
@@ -80,7 +80,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private Set<Class<?>> requiredClasses;
 	
-	private TissueType inspectedTissue;
+	private AbtractTissue inspectedTissue;
 	
 	private JComboBox levelSelectionCombo;
 	
@@ -92,7 +92,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private ExpressionType expressionType = ExpressionType.MATHEMATICAL_EXPRESSION;
 	
-	public TissueCellDataFieldsInspector(TissueType tissue, Set<String> markerPrefixes, Set<Class<?>> validTypes) {
+	public TissueCellDataFieldsInspector(AbtractTissue tissue, Set<String> markerPrefixes, Set<Class<?>> validTypes) {
 			UNIVERSALCELLNAME= (new UniversalCell(false)).getCellName();
 			this.markerPrefixes = markerPrefixes;
 			this.validTypes = validTypes;

@@ -8,9 +8,9 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.tissueimport.TissueController;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.IntGrid2D;
 

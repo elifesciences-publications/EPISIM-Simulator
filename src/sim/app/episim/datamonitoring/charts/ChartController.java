@@ -45,7 +45,7 @@ import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.model.AbstractCell;
-import sim.app.episim.tissueimport.TissueType;
+import sim.app.episim.model.AbtractTissue;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.EnhancedSteppable;
@@ -72,7 +72,7 @@ public class ChartController implements ClassLoaderChangeListener{
 	
 	private long nextChartId = 0;
 	
-	private TissueType chartMonitoredTissue;
+	private AbtractTissue chartMonitoredTissue;
 	private static EpisimChartSet actLoadedChartSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
@@ -134,7 +134,7 @@ public class ChartController implements ClassLoaderChangeListener{
 		return instance;
 	}
 	   
-	public void setChartMonitoredTissue(TissueType tissue){
+	public void setChartMonitoredTissue(AbtractTissue tissue){
 		this.chartMonitoredTissue = tissue;
 	}
 	

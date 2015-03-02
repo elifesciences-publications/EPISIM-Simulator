@@ -54,7 +54,7 @@ import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissueimport.TissueController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;

@@ -1,4 +1,4 @@
-package sim.app.episim.tissueimport;
+package sim.app.episim.model;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +18,6 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
-import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.TissueCrossSectionPortrayal3D;
@@ -29,7 +28,7 @@ import sim.engine.Steppable;
 import sim.engine.SimStateHack.TimeSteps;
 
 
-public abstract class TissueType extends SimStateHack implements java.io.Serializable, ChartSetChangeListener, DataExportChangeListener{
+public abstract class AbtractTissue extends SimStateHack implements java.io.Serializable, ChartSetChangeListener, DataExportChangeListener{
 	
 	
 	public enum SchedulePriority{		
@@ -48,7 +47,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	private GenericBag<AbstractCell> allCells=new GenericBag<AbstractCell>(3000); //all cells will be stored in this bag
 	private TimeSteps timeStepsAfterSnapshotReload = null;
 	
-	public TissueType(long seed){ 
+	public AbtractTissue(long seed){ 
 		super(new ec.util.MersenneTwisterFast(seed), new Schedule());
 		registeredCellTypes = new HashMap<EpisimCellType, Class<? extends AbstractCell>>();
 		

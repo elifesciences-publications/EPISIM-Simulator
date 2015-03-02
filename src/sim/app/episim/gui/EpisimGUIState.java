@@ -12,17 +12,17 @@ import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.charts.EpisimChartPanel;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
+import sim.app.episim.model.AbtractTissue;
 import sim.app.episim.model.UniversalCell;
+import sim.app.episim.model.UniversalTissue;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
+import sim.app.episim.model.tissue.TissueBorder;
+import sim.app.episim.model.tissue.TissueServer;
 import sim.app.episim.persistence.SimulationStateFile;
-import sim.app.episim.tissueimport.TissueBorder;
-import sim.app.episim.tissueimport.TissueController;
-import sim.app.episim.tissueimport.TissueServer;
-import sim.app.episim.tissueimport.TissueType;
-import sim.app.episim.tissueimport.UniversalTissue;
 import sim.app.episim.util.CellInspector;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.EpisimDrawInfo;
@@ -163,7 +163,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		
 		SimStateServer.getInstance().setEpisimGUIState(this);
-		if(state instanceof TissueType) TissueController.getInstance().registerTissue(((TissueType) state));
+		if(state instanceof AbtractTissue) TissueController.getInstance().registerTissue(((AbtractTissue) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;		

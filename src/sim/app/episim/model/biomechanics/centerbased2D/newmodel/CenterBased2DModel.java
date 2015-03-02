@@ -40,8 +40,8 @@ import sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DMod
 import sim.app.episim.model.biomechanics.centerbased2D.newmodel.chemotaxis.ChemotaxisCenterBased2DModelGP;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
-import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;

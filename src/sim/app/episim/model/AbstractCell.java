@@ -22,7 +22,7 @@ import sim.app.episim.model.biomechanics.AbstractBiomechanicalModel;
 import sim.app.episim.model.biomechanics.AbstractCenterBased2DModel;
 import sim.app.episim.model.biomechanics.AbstractCenterBased3DModel;
 import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel;
-import sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel;
 import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModel;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellType;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;

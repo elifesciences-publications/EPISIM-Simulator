@@ -150,8 +150,8 @@ public class UniversalCell extends AbstractCell
     }
    private boolean isDemoModel(UniversalCell cell){
    	boolean isDemoModel = false;
-   	if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModel){
-   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
+   	if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel){
+   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
    	}
    	else if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel){
    		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();

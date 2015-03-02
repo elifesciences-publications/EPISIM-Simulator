@@ -17,8 +17,9 @@ import sim.app.episim.EpisimExceptionHandler;
 
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased3D.fisheye.DummyCell;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound.AdhesiveCenterBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
@@ -35,7 +36,6 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.DummyCell;
 
 public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	
@@ -76,11 +76,11 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
 				optimizedGraphicsActivated = true;
 			}
-		if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP)
+		if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModelGP)
 		{
-			standardCellRadius = (float)(sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT/2d);
+			standardCellRadius = (float)(sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel.INITIAL_KERATINO_HEIGHT/2d);
 		}
-		else if(globalParameters instanceof AdhesiveCenterBased3DMechanicalModelGP){
+		else if(globalParameters instanceof AdhesiveCenterBased3DModelGP){
 			try{
 		      Field field = cbGP.getClass().getDeclaredField("BASAL_CELL_WIDTH");
 		      standardCellRadius = (float)field.getDouble(cbGP);
@@ -99,7 +99,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	      	EpisimExceptionHandler.getInstance().displayException(e);
 	      }	
 		}
-		else if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModelGP ||globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP){
+		else if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3D.fisheye.FishEyeCenterBased3DModelGP ||globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DMechanicalModelGP){
 			try{
 		      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
 		      standardCellRadius = (float)field.getDouble(cbGP);
@@ -190,9 +190,9 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 		       }
 		   	 boolean isNucleated = true;
 	      	 boolean isViable = true;
-	      	 if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){
-	      		 isNucleated=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasNucleus();
-	      		 isViable=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasViablility();
+	      	 if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DModel){
+	      		 isNucleated=((CenterBased3DModel)universalCell.getEpisimBioMechanicalModelObject()).hasNucleus();
+	      		 isViable=((CenterBased3DModel)universalCell.getEpisimBioMechanicalModelObject()).hasViablility();
 	      	 }
 		       Shape3D shape = getShape(j3dModel, 0);
 		       shape.setAppearance(appearance);		       
@@ -229,9 +229,9 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 			}
 			 boolean isNucleated = true;
 			 boolean isViable = true;
-      	 if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){
-      		 isNucleated=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasNucleus();
-      		 isViable=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasViablility();
+      	 if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DModel){
+      		 isNucleated=((CenterBased3DModel)universalCell.getEpisimBioMechanicalModelObject()).hasNucleus();
+      		 isViable=((CenterBased3DModel)universalCell.getEpisimBioMechanicalModelObject()).hasViablility();
       	 }
 			Color cellColor =universalCell.getCellColoring();
 			Shape3D shapeCell = getShape(j3dModel, 0);

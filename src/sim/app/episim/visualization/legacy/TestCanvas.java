@@ -13,12 +13,12 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
-import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
-import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
-import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
-import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
-import sim.app.episim.model.biomechanics.vertexbased.util.CellCanvas;
+import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModelController;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygonNetworkBuilder;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.ContinuousVertexField;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased2D.util.CellCanvas;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;

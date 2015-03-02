@@ -10,7 +10,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
@@ -145,8 +145,8 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 				EpisimBiomechanicalModel bm = cellsInCrossSection.get(i).getEpisimBioMechanicalModelObject();
 				CellBoundaries boundariesCell =cellsBoundariesInCrossSection.get(i);
 				CellBoundaries boundariesNucleus=null;
-				if(bm instanceof CenterBased3DMechanicalModel){
-					boundariesNucleus =((CenterBased3DMechanicalModel)bm).getNucleusBoundariesInMikron(0);					
+				if(bm instanceof CenterBased3DModel){
+					boundariesNucleus =((CenterBased3DModel)bm).getNucleusBoundariesInMikron(0);					
 				}
 				if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.X_Y_PLANE){					
 					if(positionInMikrometer >= (boundariesCell.getMinZInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxZInMikron()*1.1)){

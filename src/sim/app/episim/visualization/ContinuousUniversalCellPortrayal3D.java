@@ -14,8 +14,9 @@ import javax.vecmath.Vector3d;
 
 
 
+
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.AbstractCenterBased3DModel;
 import sim.display3d.Display3DHack;
 import sim.field.SparseField;
 import sim.portrayal.Portrayal;
@@ -191,9 +192,9 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
    }
 	
 	private void manipulateTransformationRegardingCellSize(UniversalCell cell, Transform3D trans){
-		if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBasedMechanical3DModel){
+		if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBased3DModel){
 			
-			AbstractCenterBasedMechanical3DModel mechModel = (AbstractCenterBasedMechanical3DModel) cell.getEpisimBioMechanicalModelObject();
+			AbstractCenterBased3DModel mechModel = (AbstractCenterBased3DModel) cell.getEpisimBioMechanicalModelObject();
 			 double width = mechModel.getCellWidth();
 		 	 double height = mechModel.getCellHeight();
 		 	 double length = mechModel.getCellLength();

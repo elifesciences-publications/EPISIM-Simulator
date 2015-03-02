@@ -5,9 +5,9 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
-import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
+import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.wound.AdhesiveCenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.wound.AdhesiveCenterBased2DModelGP;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.CellInspector;
@@ -87,19 +87,19 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
             if (object instanceof UniversalCell)
             {                
                 final UniversalCell universalCell = ((UniversalCell)object);
-                AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel) universalCell.getEpisimBioMechanicalModelObject();
+                AbstractBiomechanical2DModel mechModel = (AbstractBiomechanical2DModel) universalCell.getEpisimBioMechanicalModelObject();
          		 mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
                 		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height))); 
-                if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP){
-               	 drawCellEllipses = ((sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
+                if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModelGP){
+               	 drawCellEllipses = ((sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                	 centerBasedModel = true;
                 }
-                else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof AdhesiveCenterBasedMechanicalModelGP){
-               	 drawCellEllipses = ((AdhesiveCenterBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
+                else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof AdhesiveCenterBased2DModelGP){
+               	 drawCellEllipses = ((AdhesiveCenterBased2DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                	 centerBasedModel = true;
                 }
-                else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP){
-               	 drawCellEllipses = ((sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
+                else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModelGP){
+               	 drawCellEllipses = ((sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                	 centerBasedModel = true;
                 }
                 drawFrame=true;
@@ -151,22 +151,22 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
  	}
 
 	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
-		if(universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel
-				|| universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel
-				|| universalCell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBasedMechanicalModel){
-		    AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)universalCell.getEpisimBioMechanicalModelObject();
+		if(universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel
+				|| universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel
+				|| universalCell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBased2DModel){
+		    AbstractBiomechanical2DModel mechModel = (AbstractBiomechanical2DModel)universalCell.getEpisimBioMechanicalModelObject();
 		    CellEllipse cellEllipseObject = null;
-		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel){
-				((sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
-					cellEllipseObject = ((sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
+		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel){
+				((sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
+					cellEllipseObject = ((sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 		    }
-		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel){
-					((sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
-					cellEllipseObject = ((sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
+		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel){
+					((sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
+					cellEllipseObject = ((sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			 }
-		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBasedMechanicalModel){
-					((AdhesiveCenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
-					cellEllipseObject = ((AdhesiveCenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
+		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBased2DModel){
+					((AdhesiveCenterBased2DModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
+					cellEllipseObject = ((AdhesiveCenterBased2DModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			 }
 			if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PAUSE || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STOP){ 
 				SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
@@ -227,7 +227,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    public boolean hitObject(Object object, DrawInfo2D range)
    {       
       if (object instanceof UniversalCell){
-      	 AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)((UniversalCell)object).getEpisimBioMechanicalModelObject();
+      	 AbstractBiomechanical2DModel mechModel = (AbstractBiomechanical2DModel)((UniversalCell)object).getEpisimBioMechanicalModelObject();
       //	 Shape pol = mechModel.getPolygonCell().getCellShape();
       	 Shape pol = mechModel.getPolygonCell(new EpisimDrawInfo<DrawInfo2D>(mechModel.getLastDrawInfo2D())).getCellShape();
       	

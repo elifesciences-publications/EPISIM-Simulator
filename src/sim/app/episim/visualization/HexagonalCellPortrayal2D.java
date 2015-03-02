@@ -25,9 +25,9 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
-import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
+import sim.app.episim.model.biomechanics.latticebased2D.AbstractLatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2D.AbstractLatticeBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.tissue.TissueController;
@@ -84,8 +84,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    		actSimStepNo = SimStateServer.getInstance().getSimStepNumber();  		  		 
    		 
    		filled = true;
-   		AbstractHexagonBasedMechanicalModel mechModel = (AbstractHexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
-   		AbstractHexagonBasedMechanicalModelGP globalParameters = (AbstractHexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+   		AbstractLatticeBased2DModel mechModel = (AbstractLatticeBased2DModel)cell.getEpisimBioMechanicalModelObject();
+   		AbstractLatticeBased2DModelGP globalParameters = (AbstractLatticeBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    			
    		mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
 		        		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
@@ -145,8 +145,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
     public boolean hitObject(Object object, DrawInfo2D range)
     {       
        if (object instanceof UniversalCell){
-      	AbstractHexagonBasedMechanicalModel mechModel = (AbstractHexagonBasedMechanicalModel)((UniversalCell) object).getEpisimBioMechanicalModelObject();
-    		AbstractHexagonBasedMechanicalModelGP globalParameters = (AbstractHexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+      	AbstractLatticeBased2DModel mechModel = (AbstractLatticeBased2DModel)((UniversalCell) object).getEpisimBioMechanicalModelObject();
+    		AbstractLatticeBased2DModelGP globalParameters = (AbstractLatticeBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
     			
        	double[] coordinatesAndDimensions = new double[]{mechModel.getLocationInMikron().x,mechModel.getLocationInMikron().y,
 	      			globalParameters.getOuter_hexagonal_radius()*2,

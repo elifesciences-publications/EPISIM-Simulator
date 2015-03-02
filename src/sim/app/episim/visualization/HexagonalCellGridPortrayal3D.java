@@ -15,10 +15,11 @@ import javax.vecmath.Vector3f;
 
 
 
+
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModel;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModelGP;
 import sim.display3d.Display3DHack;
 import sim.field.SparseField;
 import sim.portrayal.Portrayal;
@@ -49,7 +50,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 		polygonAttributes.setPolygonOffsetFactor(1.2f);
 		setPortrayalForAll(new HexagonalCellPortrayal3D(polygonAttributes));
 		
-		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.hexagonal_radius;
+		standardCellRadius = (float)LatticeBased3DModelGP.hexagonal_radius;
 		
 	}
 	
@@ -70,7 +71,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	   {
 	   	 tmpLocalT = new Transform3D();
 	   	 if(objects.objs[z] instanceof UniversalCell){
-	   		 HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)objects.objs[z]).getEpisimBioMechanicalModelObject());
+	   		 LatticeBased3DModel mechModel = ((LatticeBased3DModel) ((UniversalCell)objects.objs[z]).getEpisimBioMechanicalModelObject());
 	   		 mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
 	   			Vector3d scales =new Vector3d();
             	tmpLocalT.getScale(scales);
@@ -140,7 +141,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
             TransformGroup localTG2 = p3d.getModel(fieldObj, localTG);
             tmpLocalT = new Transform3D();
             if(fieldObj instanceof UniversalCell){
-            	HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
+            	LatticeBased3DModel mechModel = ((LatticeBased3DModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
             	mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
             	Vector3d scales =new Vector3d();
             	tmpLocalT.getScale(scales);
@@ -190,7 +191,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	            tmpLocalT = new Transform3D();
 	            if(fieldObj instanceof UniversalCell){
 	            	
-	            	HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
+	            	LatticeBased3DModel mechModel = ((LatticeBased3DModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
 	            	mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
 	            	Vector3d scales =new Vector3d();
 	            	tmpLocalT.getScale(scales);

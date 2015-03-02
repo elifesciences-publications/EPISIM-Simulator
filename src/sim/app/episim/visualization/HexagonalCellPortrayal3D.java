@@ -27,8 +27,8 @@ import com.sun.j3d.utils.geometry.Sphere;
 import episiminterfaces.EpisimCellBehavioralModel;
 import sim.app.episim.gui.EpisimAboutDialog;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModel;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.visualization.threedim.Episim3DAppearanceFactory;
 import sim.display3d.Display3DHack;
@@ -57,7 +57,7 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	private float standardCellRadius =1;
 	
 	
-	private HexagonBased3DMechanicalModelGP globalParameters;
+	private LatticeBased3DModelGP globalParameters;
 	private PolygonAttributes polygonAttributes;
 	
 	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes)
@@ -68,8 +68,8 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	
 	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
    {
-		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.hexagonal_radius;
+		globalParameters = (LatticeBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		standardCellRadius = (float)LatticeBased3DModelGP.hexagonal_radius;
 		this.polygonAttributes = polygonAttributes;
 		float transparencyFactor = 1.0f;
 		if(getCurrentDisplay() instanceof Display3DHack){

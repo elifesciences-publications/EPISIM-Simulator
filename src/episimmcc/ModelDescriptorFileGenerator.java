@@ -76,7 +76,7 @@ public class ModelDescriptorFileGenerator {
 		if(selectedModelConnector != null){
 			String modelConnectorName = null;
 			do{
-			 modelConnectorName = JOptionPane.showInputDialog(parentFrame, "Please provide a name for this Model Connector", "Model Descriptor File Generator", JOptionPane.PLAIN_MESSAGE);
+			 modelConnectorName = JOptionPane.showInputDialog(parentFrame, "Please provide a name for this Model Connector:\n"+selectedModelConnector.getCanonicalName(), "Model Descriptor File Generator", JOptionPane.PLAIN_MESSAGE);
 			}
 			while(modelConnectorName == null || modelConnectorName.trim().isEmpty());
 			Document document = null;
@@ -104,7 +104,7 @@ public class ModelDescriptorFileGenerator {
 					if(file.isDirectory() && file.exists()) write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
 				
 					ExtendedFileChooser chooser = new ExtendedFileChooser(".jar");					
-					chooser.setDialogTitle("Save Model Connector");				
+					chooser.setDialogTitle("Save Model Connector: "+modelConnectorName);				
 					if(chooser.showSaveDialog(parentFrame) == ExtendedFileChooser.APPROVE_OPTION){
 						writeJarFile(selectedModelConnector, chooser.getSelectedFile());
 					}			

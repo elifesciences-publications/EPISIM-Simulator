@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2012-07-09_episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC"/>
-  <visiblename name="Lattice-Based Cell Model 2D - Chemotaxis Demo "/>
+  <modelid id="2012-07-09_episimmcc.latticebased2d.EpisimLatticeBased2DMC"/>
+  <visiblename name="Lattice Based 2D Model"/>
   <modelname name="Hexagon Grid Based Biomechanical Model Single Surface"/>
-  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC"/>
+  <modelconnectorclass name="episimmcc.latticebased2d.EpisimLatticeBased2DMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSpreading"
       pairwise="false" readonly="false"/>

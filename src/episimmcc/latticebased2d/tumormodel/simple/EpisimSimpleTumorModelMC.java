@@ -7,11 +7,11 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 import episimmcc.EpisimModelConnector.Hidden;
-import episimmcc.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
+import episimmcc.latticebased2d.EpisimLatticeBased2DMC;
 import episimmcc.latticebased2d.LatticeBased2DMechModelSingleSurfaceInit;
 
 
-public class EpisimSimpleTumorModelMC extends EpisimLatticeBased2DSingleSurfaceMC {
+public class EpisimSimpleTumorModelMC extends EpisimLatticeBased2DMC {
 	
 	private static final String ID = "2012-03-26";
 	private static final String NAME = "Simple Hexagon Grid Based Biomechanical Tumor Model";

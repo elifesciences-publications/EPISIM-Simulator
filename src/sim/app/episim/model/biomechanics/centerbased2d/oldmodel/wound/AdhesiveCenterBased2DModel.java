@@ -22,7 +22,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
-import episimmcc.centerbased.adhesion.EpisimAdhesiveCenterBasedMC;
+import episimmcc.centerbased2d.oldmodel.wound.EpisimAdhesiveCenterBasedMC;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;

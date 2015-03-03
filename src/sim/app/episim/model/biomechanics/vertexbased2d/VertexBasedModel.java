@@ -39,8 +39,8 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
-import episimmcc.vertexbased.EpisimVertexBasedMC;
-import episimmcc.vertexbased.VertexBasedMechModelInit;
+import episimmcc.vertexbased2d.EpisimVertexBasedMC;
+import episimmcc.vertexbased2d.VertexBasedMechModelInit;
 
 
 public class VertexBasedModel extends AbstractBiomechanical2DModel implements CellPolygonProliferationSuccessListener{

@@ -8,10 +8,10 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 import episimmcc.EpisimModelConnector.Hidden;
-import episimmcc.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
+import episimmcc.latticebased2d.EpisimLatticeBased2DMC;
 
 
-public class EpisimChemokineTumorModelMC extends EpisimLatticeBased2DSingleSurfaceMC {
+public class EpisimChemokineTumorModelMC extends EpisimLatticeBased2DMC {
 	
 	private static final String ID = "2013-08-29";
 	private static final String NAME = "Simple Hexagon Grid Based Chemokine Tumor Model";

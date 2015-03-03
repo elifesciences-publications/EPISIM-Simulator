@@ -42,7 +42,9 @@ public class BiomechanicalModelLoader{
 	
 	private EpisimModelConnector findModelConnector(String modelConnectorId) throws ModelCompatibilityException{
 		ArrayList<EpisimModelConnector> foundModelConnectors = new ArrayList<EpisimModelConnector>();
-		
+		if(OldModelConnectorNameRegistry.isIDOfOldMCC(modelConnectorId)){
+			modelConnectorId = OldModelConnectorNameRegistry.getNewIDOfMCC(modelConnectorId);
+		}
 		for(Class<? extends EpisimModelConnector> actModelConnectorClass : EpisimModelConnector.getAvailableModelConnectors()){
 			try{
 			

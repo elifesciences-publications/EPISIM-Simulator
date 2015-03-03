@@ -324,8 +324,15 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	          public void repaint(){
 	         	
 	         	 int val = -1;
+	         	
 	         	  try{
-                   val = (int) cellColoringGetterMethod.invoke(globalCBMParameters, null);
+                   Object object = cellColoringGetterMethod.invoke(globalCBMParameters, null);
+                   if(object instanceof Integer){
+                  	 val = ((Integer)object).intValue();
+                   }
+                   if(object instanceof Double){
+                  	 val =(int)((Double)object).doubleValue();
+                   }
            		  }
            		  catch (Exception e){
                  	 EpisimExceptionHandler.getInstance().displayException(e);

@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelExt;
@@ -17,6 +19,8 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
+import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.AbstractBiomechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased2d.AbstractCenterBased2DModel;
@@ -79,7 +83,13 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	}else{
    		final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
       	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
-      	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
+      	try{
+      		this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
+      	}
+      	catch(java.lang.AbstractMethodError e){
+      		if(ModeServer.guiMode())JOptionPane.showMessageDialog(SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), "The model simulation cannot be started because of outdated model file version. Re-compilation of the graphical model with the latest version of EPISIM Modeller might solve the problem. EPISIM Simulator will halt.", "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+      		System.exit(-1);
+      	}
    	}
    	if(this.motherCell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBased3DModel){
    		AbstractCenterBased3DModel motherMech = (AbstractCenterBased3DModel)this.motherCell.getEpisimBioMechanicalModelObject();

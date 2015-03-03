@@ -18,7 +18,7 @@ import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
-import episimmcc.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
+import episimmcc.latticebased2d.EpisimLatticeBased2DMC;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -41,7 +41,7 @@ import sim.util.IntBag;
 
 public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 	
-	private EpisimLatticeBased2DSingleSurfaceMC modelConnector;
+	private EpisimLatticeBased2DMC modelConnector;
 	
 	private static ObjectGrid2D cellField;
 	
@@ -93,8 +93,8 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
    }
 
 	 public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-	   	if(modelConnector instanceof EpisimLatticeBased2DSingleSurfaceMC){
-	   		this.modelConnector = (EpisimLatticeBased2DSingleSurfaceMC) modelConnector;
+	   	if(modelConnector instanceof EpisimLatticeBased2DMC){
+	   		this.modelConnector = (EpisimLatticeBased2DMC) modelConnector;
 	   	}
 	   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimHexagonBasedModelConnector");
 	 }

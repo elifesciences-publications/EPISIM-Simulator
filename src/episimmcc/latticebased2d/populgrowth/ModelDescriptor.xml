@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2012-11-11_episimbiomechanics.hexagonbased2d.singlesurface.populgrowth.EpisimPopulationGrowthMC"/>
+  <modelid id="2012-11-11_episimmcc.latticebased2d.populgrowth.EpisimPopulationGrowthMC"/>
+  <visiblename name="Population Growth Model 2D"/>
   <modelname name="Episim Population Growth Test Model"/>
-  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.singlesurface.populgrowth.EpisimPopulationGrowthMC"/>
+  <modelconnectorclass name="episimmcc.latticebased2d.populgrowth.EpisimPopulationGrowthMC"/>
   <modelparameters>
-    <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isSpreading"
+      pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.7"
-      name="cellCellInteractionEnergy" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
-    <parameter datatype="double" default="1.0" name="lambdaChem" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
-    <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
+      name="cellCellInteractionEnergy" pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="1.0" name="lambdaChem"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="String" default="" name="chemotacticField"
+      pairwise="false" readonly="false"/>
   </modelparameters>
 </modeldescriptor>

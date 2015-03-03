@@ -23,7 +23,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
-import episimmcc.centerbased3d.EpisimCenterBased3DMC;
+import episimmcc.centerbased3d.oldmodel.EpisimCenterBased3DMC;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;

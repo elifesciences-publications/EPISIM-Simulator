@@ -606,6 +606,10 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 	        if(ModeServer.guiMode())JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
 	        success = false;
          }
+			catch(NoClassDefFoundError e2){
+				if(ModeServer.guiMode())JOptionPane.showMessageDialog(mainFrame, "The model file cannot be opened. Re-compilation of the graphical model with the latest version of EPISIM Modeller might solve the problem", "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+				success = false;
+			}
 			
 			
 			//System.out.println(success);

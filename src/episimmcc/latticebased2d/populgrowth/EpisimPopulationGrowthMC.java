@@ -7,11 +7,11 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 import episimmcc.EpisimModelConnector.Hidden;
-import episimmcc.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
+import episimmcc.latticebased2d.EpisimLatticeBased2DMC;
 import episimmcc.latticebased2d.bactmacro.EpisimBacteriaMacrophageModelInit;
 
 
-public class EpisimPopulationGrowthMC extends EpisimLatticeBased2DSingleSurfaceMC {
+public class EpisimPopulationGrowthMC extends EpisimLatticeBased2DMC {
 	
 	private static final String ID = "2012-11-11";
 	private static final String NAME = "Episim Population Growth Test Model";

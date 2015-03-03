@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2012-01-16_episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC"/>
-  <visiblename name="Lattice-Based Cell Model 3D - Chemotaxis Demo"/>
+  <modelid id="2012-01-16_episimmcc.latticebased3d.EpisimLatticeBased3DMC"/>
+  <visiblename name="Lattice Based Model 3D"/>
   <modelname name="Hexagon Grid Based Biomechanical Model 3D"/>
-  <modelconnectorclass name="episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC"/>
+  <modelconnectorclass name="episimmcc.latticebased3d.EpisimLatticeBased3DMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSpreading"
       pairwise="false" readonly="false"/>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2013-03-27_episimmcc.centerbased3d.oldmodel.wound.EpisimAdhesiveCenterBased3DMC"/>
+  <visiblename name="Wound Model 3D - Old Center Based Model"/>
+  <modelname name="Adhesive Center Based 3D Biomechanical Model"/>
+  <modelconnectorclass name="episimmcc.centerbased3d.oldmodel.wound.EpisimAdhesiveCenterBased3DMC"/>
+  <modelparameters>
+    <parameter datatype="double" default="1.0" name="adhesionBasalCell"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isSurface"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="1.0"
+      name="adhesionFastDividingCell" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="height"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="String" default=""
+      name="nameDiffLevelFastDividingCell" pairwise="false" readonly="false"/>
+    <parameter datatype="String" default=""
+      name="nameDiffLevelEarlySuprabasalCell" pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isMigratory"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="String" default=""
+      name="nameDiffLevelSuprabasalCell" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="1.0"
+      name="adhesionSuprabasalCell" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="length"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isBasal"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="1.0"
+      name="adhesionEarlySuprabasalCell" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="width"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="String" default=""
+      name="nameDiffLevelBasalCell" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
+    <parameter datatype="boolean" default="false" name="hasCollision"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="1.0"
+      name="adhesionBasalMembrane" pairwise="false" readonly="false"/>
+  </modelparameters>
+</modeldescriptor>

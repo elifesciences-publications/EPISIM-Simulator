@@ -4,7 +4,7 @@ package sim.portrayal;
 import javax.swing.Box;
 import javax.swing.JPanel;
 
-import sim.app.episim.util.EpisimProperties;
+import sim.app.episim.util.EpisimInspectorProperties;
 import sim.display.GUIState;
 import sim.util.Interval;
 import sim.util.Properties;

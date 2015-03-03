@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2010-05-13_episimmcc.centerbased2d.oldmodel.EpisimCenterBasedMC"/>
+  <visiblename name="Old Center Based Model 2D"/>
+  <modelname name="Center Based Biomechanical Model"/>
+  <modelconnectorclass name="episimmcc.centerbased2d.oldmodel.EpisimCenterBasedMC"/>
+  <modelparameters>
+    <parameter datatype="boolean" default="false" name="isMembrane"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="boolean" default="false" name="isSurface"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
+    <parameter datatype="boolean" default="false" name="hasCollision"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
+  </modelparameters>
+</modeldescriptor>

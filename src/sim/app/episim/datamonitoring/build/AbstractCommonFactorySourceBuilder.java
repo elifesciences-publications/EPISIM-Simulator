@@ -37,10 +37,9 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("import episiminterfaces.monitoring.*;\n");
 		this.factorySource.append("import episimexceptions.*;\n");
 		this.factorySource.append("import episimfactories.*;\n");
-		this.factorySource.append("import sim.engine.Steppable;\n");
-		this.factorySource.append("import sim.app.episim.util.EnhancedSteppable;\n");
-		this.factorySource.append("import sim.app.episim.util.GenericBag;\n");
-		this.factorySource.append("import sim.app.episim.AbstractCell;\n");
+		this.factorySource.append("import sim.engine.*;\n");
+		this.factorySource.append("import sim.app.episim.util.*;\n");
+		this.factorySource.append("import sim.app.episim.model.*;\n");		
 	}
 	
 	protected void appendDataFields(){

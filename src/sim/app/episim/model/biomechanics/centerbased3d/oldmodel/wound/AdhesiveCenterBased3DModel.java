@@ -25,6 +25,7 @@ import javax.vecmath.Vector3d;
 
 
 
+
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -49,7 +50,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
-import episimmcc.centerbased3d.adhesion.EpisimAdhesiveCenterBased3DMC;
+import episimmcc.centerbased3d.oldmodel.wound.EpisimAdhesiveCenterBased3DMC;
 
 public class AdhesiveCenterBased3DModel extends AbstractCenterBased3DModel {
 	
@@ -853,7 +854,7 @@ public class AdhesiveCenterBased3DModel extends AbstractCenterBased3DModel {
    }
 
    public double getCellLength() {
-	   return getCellLength();
+	   return getKeratinoLength();
    }
    
    //--------------------------------------------------------------------------------------------------------------------------------------------------------------

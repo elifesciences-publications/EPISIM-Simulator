@@ -128,19 +128,15 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import java.io.*;\n");
 		generatedSourceCode.append("import java.util.*;\n");
 		generatedSourceCode.append("import java.lang.*;\n");
-		generatedSourceCode.append("import sim.*;\n");
+		generatedSourceCode.append("import sim.engine.*;\n");
 		generatedSourceCode.append("import sim.app.episim.*;\n");
-		generatedSourceCode.append("import sim.app.episim.model.biomechanics.*;\n");
 		generatedSourceCode.append("import sim.app.episim.util.*;\n");
-		generatedSourceCode.append("import sim.engine.Steppable;\n");
-		generatedSourceCode.append("import sim.app.episim.util.GenericBag;\n");
-		generatedSourceCode.append("import sim.app.episim.datamonitoring.GlobalStatistics;\n");
+		generatedSourceCode.append("import sim.app.episim.model.*;\n");
+		generatedSourceCode.append("import sim.app.episim.model.biomechanics.*;\n");		
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.*;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.charts.io.*;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.charts.*;\n");
-		generatedSourceCode.append("import sim.app.episim.AbstractCell;\n");
-		generatedSourceCode.append("import sim.app.episim.EpisimProperties;\n");
-		generatedSourceCode.append("import sim.engine.SimState;\n");	
 		for(Class<?> actClass: requiredClasses){
 			generatedSourceCode.append("import " + actClass.getCanonicalName()+";\n");	
 		}		

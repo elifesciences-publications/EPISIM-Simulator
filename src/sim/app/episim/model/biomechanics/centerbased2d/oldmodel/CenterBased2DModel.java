@@ -35,6 +35,8 @@ import javax.vecmath.Vector3d;
 
 
 
+
+
 import ec.util.MersenneTwisterFast;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimBiomechanicalModel;
@@ -45,8 +47,8 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
-import episimmcc.centerbased.CenterBasedMechModelInit;
-import episimmcc.centerbased.EpisimCenterBasedMC;
+import episimmcc.centerbased2d.oldmodel.CenterBasedMechModelInit;
+import episimmcc.centerbased2d.oldmodel.EpisimCenterBasedMC;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;

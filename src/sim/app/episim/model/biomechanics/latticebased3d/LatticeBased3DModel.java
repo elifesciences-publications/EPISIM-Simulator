@@ -30,7 +30,7 @@ import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import episimmcc.EpisimModelConnector;
-import episimmcc.latticebased3d.EpisimHexagonBased3DMC;
+import episimmcc.latticebased3d.EpisimLatticeBased3DMC;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
@@ -52,7 +52,7 @@ import sim.util.IntBag;
 
 public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 
-	private EpisimHexagonBased3DMC modelConnector;
+	private EpisimLatticeBased3DMC modelConnector;
 	
 	private static LatticeCellField3D cellField;
 	
@@ -99,8 +99,8 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 	   }
 	}
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-	   	if(modelConnector instanceof EpisimHexagonBased3DMC){
-	   		this.modelConnector = (EpisimHexagonBased3DMC) modelConnector;
+	   	if(modelConnector instanceof EpisimLatticeBased3DMC){
+	   		this.modelConnector = (EpisimLatticeBased3DMC) modelConnector;
 	   	}
 	   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimHexagonBased3DModelConnector");
 	 }

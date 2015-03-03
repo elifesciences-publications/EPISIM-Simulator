@@ -8,10 +8,10 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 import episimmcc.EpisimModelConnector.Hidden;
-import episimmcc.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
+import episimmcc.latticebased2d.EpisimLatticeBased2DMC;
 
 
-public class EpisimBacteriaMacrophageModelMC extends EpisimLatticeBased2DSingleSurfaceMC {
+public class EpisimBacteriaMacrophageModelMC extends EpisimLatticeBased2DMC {
 	
 	private static final String ID = "2012-07-05";
 	private static final String NAME = "Simple Hexagon Grid Based Biomechanical Bacteria Macrophage Model";

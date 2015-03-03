@@ -63,7 +63,7 @@ import sim.app.episim.util.EpisimMovieMaker;
 import ec.util.MersenneTwisterFast;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
-import episimmcc.vertexbased.EpisimVertexBasedMC;
+import episimmcc.vertexbased2d.EpisimVertexBasedMC;
 
 
 public class TestVisualizationBiomechanics implements CellPolygonProliferationSuccessListener, TestVisualizationPanelPaintListener{

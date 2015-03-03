@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2012-03-26_episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.simple.EpisimSimpleTumorModelMC"/>
-  <visiblename name="Test"/>
+  <modelid id="2012-03-26_episimmcc.latticebased2d.tumormodel.simple.EpisimSimpleTumorModelMC"/>
+  <visiblename name="Simple Tumor Model 2D"/>
   <modelname name="Simple Hexagon Grid Based Biomechanical Tumor Model"/>
-  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.simple.EpisimSimpleTumorModelMC"/>
+  <modelconnectorclass name="episimmcc.latticebased2d.tumormodel.simple.EpisimSimpleTumorModelMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSpreading"
       pairwise="false" readonly="false"/>

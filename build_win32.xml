@@ -198,7 +198,7 @@
 				<include name="**/*"/>
 				<exclude name="calculationalgorithms/**/*"/>
 				<exclude name="sendreceive/**/*"/>
-				<exclude name="episimbiomechanics/**/*"/>
+				<exclude name="episimmcc/**/*"/>
 				<exclude name="**/${destjarfile}"/>
 			</fileset>
 		</delete>

@@ -59,6 +59,8 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("import sim.app.episim.*;\n");
 		generatedSourceCode.append("import sim.app.episim.model.*;\n");
 		generatedSourceCode.append("import sim.app.episim.util.*;\n");
+		generatedSourceCode.append("import sim.app.episim.util.ObservedDataCollection.ObservedDataCollectionType;\n");
+		generatedSourceCode.append("import sim.app.episim.util.ObservedDataCollection;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
 		generatedSourceCode.append("import sim.app.episim.EpisimProperties;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.io.*;\n");

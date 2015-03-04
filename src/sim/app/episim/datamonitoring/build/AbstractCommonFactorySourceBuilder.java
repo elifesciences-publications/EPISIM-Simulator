@@ -39,6 +39,8 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("import episimfactories.*;\n");
 		this.factorySource.append("import sim.engine.*;\n");
 		this.factorySource.append("import sim.app.episim.util.*;\n");
+		this.factorySource.append("import sim.app.episim.util.ObservedDataCollection.ObservedDataCollectionType;\n");
+		this.factorySource.append("import sim.app.episim.util.ObservedDataCollection;\n");
 		this.factorySource.append("import sim.app.episim.model.*;\n");		
 	}
 	

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
 import episimexceptions.NoEpidermalTissueAvailableException;
+import episiminterfaces.NoExport;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.AbtractTissue;
 import sim.app.episim.model.UniversalTissue;
@@ -76,7 +77,7 @@ public class TissueController implements ClassLoaderChangeListener{
 		
 		return null;
 	}
-	
+	@NoExport
 	public TissueBorder getTissueBorder(){
 		return TissueBorder.getInstance();
 	}

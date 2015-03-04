@@ -194,7 +194,34 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
-		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();	
+		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
+		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
+		try{
+	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
+	      CELL_WIDTH = field.getDouble(cbGP);
+	      
+	      field = cbGP.getClass().getDeclaredField("HEIGHT_DEFAULT");
+	      CELL_HEIGHT = field.getDouble(cbGP);
+	      
+	      field = cbGP.getClass().getDeclaredField("LENGTH_DEFAULT");
+	      CELL_LENGTH = field.getDouble(cbGP);   
+      }
+      catch (NoSuchFieldException e){
+      	EpisimExceptionHandler.getInstance().displayException(e);
+      }
+      catch (SecurityException e){
+      	EpisimExceptionHandler.getInstance().displayException(e);
+      }
+      catch (IllegalArgumentException e){
+      	EpisimExceptionHandler.getInstance().displayException(e);
+      }
+      catch (IllegalAccessException e){
+      	EpisimExceptionHandler.getInstance().displayException(e);
+      }			
+		double cellSize = Math.max(CELL_WIDTH, CELL_HEIGHT);
+		cellSize = Math.max(cellSize, CELL_LENGTH);
+		FishEyeCenterBased3DModel.setDummyCellSize(cellSize);
+		
 		return loadedCells;
 	}
 

@@ -374,7 +374,7 @@ public class TissueBorder implements ClassLoaderChangeListener{
 	public StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update, boolean optimized){
 		return standardMembrane.getStandardMembraneCoordinates3D(update, optimized);
 	}
-	
+	@NoExport
 	public static TissueBorder getInstance(){
 		if(instance==null){
 			try{

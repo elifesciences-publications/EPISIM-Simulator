@@ -123,9 +123,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
       directNeighbourIDs = new HashSet<Long>();
       lostNeighbourContactInSimSteps=new HashMap<Long, Integer>();
    }
+   @NoExport
    public static Continuous3D getDummyCellField(){
    	return dummyCellField;
    }
+   @NoExport
    public static void setDummyCellSize(double dummyCellSize){
    	if(dummyCellSize >0){
    		dummyCellField	= new Continuous3DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 

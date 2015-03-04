@@ -11,6 +11,7 @@ import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ObjectManipulations;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoExport;
 import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
@@ -40,6 +41,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	public void setHighlightTrackedCells(boolean val){ this.highlightTrackedCells = val; }	
 	
 	@NoUserModification
+	@NoExport
 	public static MiscalleneousGlobalParameters getInstance(){
 		if(instance==null){
 			try{

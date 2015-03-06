@@ -4,6 +4,7 @@ import sim.util.Double3D;
 
 
 public class DummyCell {
+	
 	private Double3D cellPosition = new Double3D(0d,0d,0d);
 	private double cellWidth = 0;
 	private double cellHeight = 0;

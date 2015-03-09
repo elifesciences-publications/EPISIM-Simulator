@@ -42,8 +42,7 @@ import episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC;
 
 public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		
-	public final double NEXT_TO_OUTERCELL_FACT=1.2;
-   private double MIN_OVERLAP_MICRON=0.1;   
+	private double MIN_OVERLAP_MICRON=0.1;   
 	   
    private double standardCellWidth=0; 
    private double standardCellHeight=0; 
@@ -161,7 +160,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
    	if(modelConnector instanceof EpisimFishEyeCenterBased3DMC){
    		this.modelConnector = (EpisimFishEyeCenterBased3DMC) modelConnector;
-   		Double3D loc = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;
+   		Double3D loc = cellLocation == null ? cellField.getObjectLocation(getCell()):cellLocation;
    		if(loc != null){
    			this.modelConnector.setX(loc.x);
    			this.modelConnector.setY(loc.y);
@@ -650,7 +649,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 				if(Math.abs(newX-loc.x)> MAX_DISPLACEMENT
 						|| Math.abs(newY-loc.y)> MAX_DISPLACEMENT
 						|| Math.abs(newZ-loc.z)> MAX_DISPLACEMENT){
-					System.out.println("Biomechanical Artefakt ");
+					System.out.println("Biomechanical Artefakt");
 				}else{
 					setPositionRespectingBounds(new Point3d(newX, newY, newZ),getCellWidth()/2d, getCellHeight()/2d, getCellLength()/2d, false);
 				}				

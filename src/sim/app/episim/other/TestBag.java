@@ -7,7 +7,7 @@ public class TestBag {
 
 	
 	public void test(){
-		Bag b = new Bag();
+		Bag b = new Bag();	
 		
 		System.out.println(b.numObjs==0);
 	}

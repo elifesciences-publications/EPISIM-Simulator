@@ -63,6 +63,7 @@ import sim.app.episim.util.EpisimMovieMaker;
 import ec.util.MersenneTwisterFast;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episimmcc.vertexbased2d.EpisimVertexBasedMC;
 
 
@@ -254,10 +255,15 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	}
 	
 	private void configureStandardMembrane(){
-		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setBasalAmplitude_mikron(250);
-		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setWidthInMikron(500);
-		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setHeightInMikron(500);
-		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setBasalOpening_mikron(12000);
+		EpisimBiomechanicalModelGlobalParameters globalParam =  ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		
+		if(globalParam instanceof VertexBasedModelGP){
+			((VertexBasedModelGP) globalParam).setBasalAmplitude_mikron(250);
+		 	((VertexBasedModelGP) globalParam).setBasalOpening_mikron(12000);
+		}
+		 
+		globalParam.setWidthInMikron(500);
+		globalParam.setHeightInMikron(500);		
 		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembraneInMikron(0);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();

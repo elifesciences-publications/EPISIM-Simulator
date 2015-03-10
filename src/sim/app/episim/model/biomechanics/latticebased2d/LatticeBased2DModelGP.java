@@ -56,52 +56,7 @@ public class LatticeBased2DModelGP extends AbstractLatticeBased2DModelGP {
 	public void setNeighborhood_mikron(double val) {
 	   this.neighborhood_mikron = val;	   
    }
-	@NoUserModification
-	@NoExport
-	public int getBasalOpening_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-	public void setBasalOpening_mikron(int val) {
-		//not needed in first version
-   }
-	
-	@NoUserModification
-	@NoExport
-	public int getBasalAmplitude_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-	public void setBasalAmplitude_mikron(int val) {
-		//not needed in first version
-   }
-	@NoUserModification
-	@NoExport
-   public int getBasalPeriod_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-   public void setBasalPeriod_mikron(int val) {
-		//not needed in first version   
-   }
-	@NoUserModification
-	@NoExport
-   public int getBasalYDelta_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-   public void setBasalYDelta_mikron(int val) {
-		//not needed in first version
-   }
-	
+		
 	@NoExport
 	public void setWidthInMikron(double val) {
 		if(val > 0){

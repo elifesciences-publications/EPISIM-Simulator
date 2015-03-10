@@ -52,8 +52,10 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 
 	private final double depthFrac(double y)// depth of the position in the rete ridge in percent
 	{
-		double depthPosition = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron()-y;		
-		return depthPosition < 0 ? 0: (depthPosition/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron());
+		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		
+		double depthPosition = mechModelGP.getBasalAmplitude_mikron()-y;		
+		return depthPosition < 0 ? 0: (depthPosition/mechModelGP.getBasalAmplitude_mikron());
 	}
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {

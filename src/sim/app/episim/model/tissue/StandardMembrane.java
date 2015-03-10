@@ -16,6 +16,7 @@ import sim.util.Double3D;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
+import episiminterfaces.StandardMembraneGP;
 
 
 public class StandardMembrane {
@@ -202,34 +203,36 @@ public class StandardMembrane {
 	}
 	
 	protected double calculateStandardMembraneValue(double xCell, double yCell){
-		
-		if(globalParameters.getBasalAmplitude_mikron()!=0){		
-			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
-			   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-			       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-			       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()))){
-				  // Gaussche Glockenkurve
-			     double p=globalParameters.getBasalPeriod_mikron();		     
-			     double partition=xCell-((int)(xCell/p))*p - p/2;
-			     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
-			     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
-			     return result;
+		if(globalParameters instanceof StandardMembraneGP){
+			StandardMembraneGP sGP =(StandardMembraneGP)globalParameters; 
+			if(sGP.getBasalAmplitude_mikron()!=0){		
+				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
+				   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+				       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+				       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()))){
+					  // Gaussche Glockenkurve
+				     double p=sGP.getBasalPeriod_mikron();		     
+				     double partition=xCell-((int)(xCell/p))*p - p/2;
+				     double v=Math.exp(-partition*partition/sGP.getBasalOpening_mikron());
+				     double result= (sGP.getBasalAmplitude_mikron()+sGP.getBasalYDelta_mikron())-sGP.getBasalAmplitude_mikron()*v;
+				     return result;
+				}
+				else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+				       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+				       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss())){			
+					  // Gaussche Glockenkurve
+				     double p=sGP.getBasalPeriod_mikron(); 
+				     double partitionX=xCell-((int)(xCell/p))*p - p/2;
+				     double partitionY=yCell-((int)(yCell/p))*p - p/2;
+				     double v=Math.exp(-1*((partitionX*partitionX)+ (partitionY*partitionY))/(sGP.getBasalOpening_mikron()+100));
+				     double result= (sGP.getBasalAmplitude_mikron()+sGP.getBasalYDelta_mikron())-sGP.getBasalAmplitude_mikron()*v;
+				     return result;
+				}
+				return 0;
 			}
-			else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-			       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-			       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss())){			
-				  // Gaussche Glockenkurve
-			     double p=globalParameters.getBasalPeriod_mikron(); 
-			     double partitionX=xCell-((int)(xCell/p))*p - p/2;
-			     double partitionY=yCell-((int)(yCell/p))*p - p/2;
-			     double v=Math.exp(-1*((partitionX*partitionX)+ (partitionY*partitionY))/(globalParameters.getBasalOpening_mikron()+100));
-			     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
-			     return result;
-			}
-			return 0;
+			else return 2;
 		}
-		else return 2;
-		
+		return Double.MIN_VALUE;
 	}
 	private double getHeight(boolean inPixels){	
 		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 

@@ -8,18 +8,6 @@ public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serial
 	double getNeighborhood_mikron();
  	void setNeighborhood_mikron(double val);
  	
- 	int getBasalOpening_mikron();
- 	void setBasalOpening_mikron(int val);
- 	
- 	int getBasalPeriod_mikron();
- 	void setBasalPeriod_mikron(int val);
- 	
- 	int getBasalYDelta_mikron();
- 	void setBasalYDelta_mikron(int val);
- 	
- 	int getBasalAmplitude_mikron();
- 	void setBasalAmplitude_mikron(int val);
- 	
 	void setWidthInMikron(double val);
 	double getWidthInMikron();
 	

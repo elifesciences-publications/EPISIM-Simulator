@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.EpisimProperties;
@@ -18,6 +19,7 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
+import sim.app.episim.model.biomechanics.centerbased2d.newmodel.psoriasis.PsoriasisCenterBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.threedim.TissueCrossSectionPortrayal3D;
@@ -92,6 +94,10 @@ public abstract class AbtractTissue extends SimStateHack implements java.io.Seri
 	          //  long end = System.currentTimeMillis();
 	           // System.out.println("Time for sim step: "+ (end-start)+" ms");
 	            //start = end;
+	            EpisimBiomechanicalModelGlobalParameters globalParam = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+	            if(globalParam instanceof PsoriasisCenterBased2DModelGP){
+	            	((PsoriasisCenterBased2DModelGP)globalParam).newSimStep();
+	            }
             }}, SchedulePriority.TISSUE.getPriority(), 1);
 			
 			schedule.scheduleRepeating(new Steppable(){

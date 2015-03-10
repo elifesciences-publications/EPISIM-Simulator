@@ -50,11 +50,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		this.simulationStateData = simulationStateData;
 	}
 
-	private final double depthFrac(double y)// depth of the position in the rete ridge in percent
-	{
-		double depthPosition = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron()-y;		
-		return depthPosition < 0 ? 0: (depthPosition/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron());
-	}
+	
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 			

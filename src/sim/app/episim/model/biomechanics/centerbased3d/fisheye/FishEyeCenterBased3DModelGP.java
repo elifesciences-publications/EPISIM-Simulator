@@ -200,63 +200,6 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
    
    	this.neighbourLostThres = neighbourLostThres;
    }
-
-	@Override
-   public int getBasalOpening_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalOpening_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
-	@Override
-   public int getBasalAmplitude_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalAmplitude_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
-	@Override
-   public int getBasalPeriod_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalPeriod_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
-	@Override
-   public int getBasalYDelta_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalYDelta_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
 	
    public double getInitialInnerEyeRadius(){   
    	return initialInnerEyeRadius;

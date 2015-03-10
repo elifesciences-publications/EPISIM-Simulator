@@ -74,50 +74,7 @@ public class LatticeBased3DModelGP implements EpisimBiomechanicalModelGlobalPara
 
 	   this.number_of_initially_occupied_layers = number_of_initially_occupied_layers;
    }
-
-	public int getBasalOpening_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-	public void setBasalOpening_mikron(int val) {
-		//not needed in first version
-   }
-	@NoUserModification
-	@NoExport
-	public int getBasalAmplitude_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-	public void setBasalAmplitude_mikron(int val) {
-		//not needed in first version
-   }
-	@NoUserModification
-	@NoExport
-   public int getBasalPeriod_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-   public void setBasalPeriod_mikron(int val) {
-		//not needed in first version   
-   }
-	@NoUserModification
-	@NoExport
-   public int getBasalYDelta_mikron() {
-		//not needed in first version
-	   return 0;
-   }
-	@NoUserModification
-	@NoExport
-   public void setBasalYDelta_mikron(int val) {
-		//not needed in first version
-   }
-	
+   
 	@NoUserModification
 	@NoExport
 	public void setWidthInMikron(double val) {

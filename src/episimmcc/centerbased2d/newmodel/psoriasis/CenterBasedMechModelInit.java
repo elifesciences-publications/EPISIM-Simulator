@@ -1,4 +1,4 @@
-package episimmcc.centerbased2d.newmodel.epidermis;
+package episimmcc.centerbased2d.newmodel.psoriasis;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased2d.newmodel.CenterBased2DModel;
 import sim.app.episim.model.biomechanics.centerbased2d.newmodel.CenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2d.newmodel.psoriasis.PsoriasisCenterBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
@@ -28,25 +29,33 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	public CenterBasedMechModelInit() {
 		super();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		mechModelGP.setHeightInMikron(325);
 	}
 
 	public CenterBasedMechModelInit(SimulationStateData simulationStateData) {
 		super(simulationStateData);
-		this.simulationStateData = simulationStateData;
+		this.simulationStateData = simulationStateData;		
 	}
 
-	private final double depthFrac(double y)// depth of the position in the rete ridge in percent
+	private final double depthFrac(double y, double stemCellHeight)// depth of the position in the rete ridge in percent
 	{
-		CenterBased2DModelGP mechModelGP = (CenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		double depthPosition = mechModelGP.getBasalAmplitude_mikron()-y;
+		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		double yShift = mechModelGP.getBasalYDelta_mikron()-(stemCellHeight/2d);
 		
-		return depthPosition < 0 ? 0: (depthPosition/mechModelGP.getBasalAmplitude_mikron());
+		yShift = yShift < 0 ? 0 : yShift;
+		
+		double amplitude = mechModelGP.getBasalAmplitude_mikron();
+		double depthPosition = amplitude-(y-yShift);
+		
+		return depthPosition < 0 ? 0: (depthPosition/amplitude);
 	}
 
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		double STEM_CELL_WIDTH=0;
 		double STEM_CELL_HEIGHT=0;
 		double STEM_CELL_LENGTH=0;
+		
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
 		try{
 	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
@@ -70,11 +79,11 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
       catch (IllegalAccessException e){
       	EpisimExceptionHandler.getInstance().displayException(e);
       }	
-		
+		initGlobalParameters(STEM_CELL_HEIGHT);
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBased2DModelGP mechModelGP = (CenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		Double2D lastloc = new Double2D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0));
 		boolean firstCell = true;
@@ -82,7 +91,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0));
 			double distance = newloc.distance(lastloc);
 
-			if (depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac() || mechModelGP.getSeedMinDepth_frac() == 0){
+			if (depthFrac(newloc.y, STEM_CELL_HEIGHT) > mechModelGP.getSeedMinDepth_frac() || mechModelGP.getSeedMinDepth_frac() == 0){
 				if (distance > mechModelGP.getBasalDensity_mikron() || firstCell) {
 				
 					UniversalCell stemCell = new UniversalCell(null, null, true);
@@ -104,6 +113,14 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 			}
 		}
 		return standardCellEnsemble;
+	}
+	
+	private void initGlobalParameters(double stemCellHeight){
+		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		mechModelGP.setHeightInMikron(325);
+		mechModelGP.setBasalAmplitude_mikron(mechModelGP.getInitBasalAmplitude_mikron());
+		mechModelGP.setBasalYDelta_mikron(mechModelGP.getMaxBasalAmplitude_mikron()-mechModelGP.getBasalAmplitude_mikron() +(stemCellHeight/2));
+		
 	}
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {

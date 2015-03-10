@@ -33,9 +33,10 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 
 	private final double depthFrac(double y)// depth of the position in the rete ridge in percent
 	{
-		double depthPosition = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron()-y;
+		CenterBased3DModelGP mechModelGP = (CenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		double depthPosition = mechModelGP.getBasalAmplitude_mikron()-y;
 		
-		return depthPosition < 0 ? 0: (depthPosition/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron());
+		return depthPosition < 0 ? 0: (depthPosition/mechModelGP.getBasalAmplitude_mikron());
 	}
 
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {

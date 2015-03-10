@@ -1006,13 +1006,16 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
+		boolean isNucleated = false;
 		if(modelConnector instanceof episimmcc.centerbased2d.newmodel.epidermis.EpisimCenterBasedMC){
-			episimmcc.centerbased2d.newmodel.epidermis.EpisimCenterBasedMC modelConnectorEpidermis = (episimmcc.centerbased2d.newmodel.epidermis.EpisimCenterBasedMC)this.modelConnector;
-			if(modelConnectorEpidermis.getIsNucleated()){
-				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getCellWidth()/3, getCellHeight()/3));
-			}
+			isNucleated = ((episimmcc.centerbased2d.newmodel.epidermis.EpisimCenterBasedMC)this.modelConnector).getIsNucleated();
 		}
-		
+		if(modelConnector instanceof episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC){
+			isNucleated = ((episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC)this.modelConnector).getIsNucleated();
+		}			
+		if(isNucleated){
+				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getCellWidth()/3, getCellHeight()/3));
+		}		
 		return null;
 	}
 	

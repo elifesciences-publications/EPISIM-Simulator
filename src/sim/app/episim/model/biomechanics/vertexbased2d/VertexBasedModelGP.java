@@ -7,13 +7,13 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 
 import sim.app.episim.EpisimExceptionHandler;
-
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
+import episiminterfaces.StandardMembraneGP;
 
 
-public class VertexBasedModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class VertexBasedModelGP implements EpisimBiomechanicalModelGlobalParameters, StandardMembraneGP, java.io.Serializable {
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
@@ -41,13 +41,13 @@ public class VertexBasedModelGP implements EpisimBiomechanicalModelGlobalParamet
 	// Other required Parameters
 	//----------------------------------------------------------------------------------------------------------------------
 		@NotInStatisticsHeaderString
-		private int basalAmplitude_mikron = 250; // depth of an undulation
+		private double basalAmplitude_mikron = 250; // depth of an undulation
 		@NotInStatisticsHeaderString
-		private int basalPeriod_mikron = 70;
+		private double basalPeriod_mikron = 70;
 		@NotInStatisticsHeaderString
-		private int basalYDelta_mikron = 2;
+		private double basalYDelta_mikron = 2;
 		@NotInStatisticsHeaderString
-		private int basalOpening_mikron = 12000; // width of undulation at the middle
+		private double basalOpening_mikron = 12000; // width of undulation at the middle
 		@NotInStatisticsHeaderString
 		private double width_mikron = 500;
 		@NotInStatisticsHeaderString
@@ -93,11 +93,11 @@ public class VertexBasedModelGP implements EpisimBiomechanicalModelGlobalParamet
 		return headerStringBuffer.toString();
 	}
 	
-	public int getBasalAmplitude_mikron() { return basalAmplitude_mikron; }	
-   public void setBasalAmplitude_mikron(int basalAmplitude_mikron) { this.basalAmplitude_mikron = basalAmplitude_mikron; }
+	public double getBasalAmplitude_mikron() { return basalAmplitude_mikron; }	
+   public void setBasalAmplitude_mikron(double basalAmplitude_mikron) { this.basalAmplitude_mikron = basalAmplitude_mikron; }
 	
-   public int getBasalOpening_mikron() { return basalOpening_mikron; }	
-   public void setBasalOpening_mikron(int basalOpening_mikron) { this.basalOpening_mikron = basalOpening_mikron; }
+   public double getBasalOpening_mikron() { return basalOpening_mikron; }	
+   public void setBasalOpening_mikron(double basalOpening_mikron) { this.basalOpening_mikron = basalOpening_mikron; }
 	
    public double getWidthInMikron() {	return width_mikron; }	
    public void setWidthInMikron(double val) { if(val > 0)this.width_mikron = val; }
@@ -273,25 +273,25 @@ public class VertexBasedModelGP implements EpisimBiomechanicalModelGlobalParamet
    }
 
 	
-   public int getBasalPeriod_mikron() {
+   public double getBasalPeriod_mikron() {
    
    	return basalPeriod_mikron;
    }
 
 	
-   public void setBasalPeriod_mikron(int basalPeriod_mikron) {
+   public void setBasalPeriod_mikron(double basalPeriod_mikron) {
    
    	this.basalPeriod_mikron = basalPeriod_mikron;
    }
 
 	
-   public int getBasalYDelta_mikron() {
+   public double getBasalYDelta_mikron() {
    
    	return basalYDelta_mikron;
    }
 
 	
-   public void setBasalYDelta_mikron(int basalYDelta_mikron) {
+   public void setBasalYDelta_mikron(double basalYDelta_mikron) {
    
    	this.basalYDelta_mikron = basalYDelta_mikron;
    }

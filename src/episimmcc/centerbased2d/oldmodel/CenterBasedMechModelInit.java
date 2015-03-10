@@ -46,17 +46,19 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 	private final double depthFrac(double y)// depth of the position in the rete ridge in percent
 	{
-		double depthPosition = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron()-y;
 		
-		return depthPosition < 0 ? 0: (depthPosition/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron());
+		CenterBased2DModelGP mechModelGP = (CenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		
+		double depthPosition = mechModelGP.getBasalAmplitude_mikron()-y;
+		
+		return depthPosition < 0 ? 0: (depthPosition/mechModelGP.getBasalAmplitude_mikron());
 	}
 
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBased2DModelGP mechModelGP = (CenterBased2DModelGP) ModelController
-				.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		CenterBased2DModelGP mechModelGP = (CenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		Double2D lastloc = new Double2D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0));
 		boolean firstCell = true;

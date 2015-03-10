@@ -3,13 +3,14 @@ package sim.app.episim.model.biomechanics.centerbased2d.oldmodel.wound;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
+import episiminterfaces.StandardMembraneGP;
 
-public class AdhesiveCenterBased2DModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class AdhesiveCenterBased2DModelGP implements EpisimBiomechanicalModelGlobalParameters, StandardMembraneGP, java.io.Serializable {
 	
-	private int basalAmplitude_mikron = 0; // depth of an undulation
-	private int basalOpening_mikron = 250; // width of undulation at the middle
-	private int basalPeriod_mikron = 70;
-	private int basalYDelta_mikron = 2;
+	private double basalAmplitude_mikron = 0; // depth of an undulation
+	private double basalOpening_mikron = 250; // width of undulation at the middle
+	private double basalPeriod_mikron = 70;
+	private double basalYDelta_mikron = 2;
 	private double width = 400;
 	private double height = 100;
 	private double randomness = 0.14;
@@ -44,20 +45,20 @@ public class AdhesiveCenterBased2DModelGP implements EpisimBiomechanicalModelGlo
 	  	this.drawCellsAsEllipses = drawCellsAsEllipses;
 	}
 	
-	public int getBasalAmplitude_mikron() {
+	public double getBasalAmplitude_mikron() {
 		return basalAmplitude_mikron;
 	}
 
-	public void setBasalAmplitude_mikron(int val) {
+	public void setBasalAmplitude_mikron(double val) {
 		if(val >= 0.0)
 			basalAmplitude_mikron = val;
 	}
 	
-	public int getBasalOpening_mikron() {
+	public double getBasalOpening_mikron() {
 		return basalOpening_mikron;
 	}
 
-	public void setBasalOpening_mikron(int val) {
+	public void setBasalOpening_mikron(double val) {
 		if(val >= 0.0)
 			basalOpening_mikron = val;
 	}	
@@ -228,25 +229,25 @@ public class AdhesiveCenterBased2DModelGP implements EpisimBiomechanicalModelGlo
    }
 
 	
-   public int getBasalPeriod_mikron() {
+   public double getBasalPeriod_mikron() {
    
    	return basalPeriod_mikron;
    }
 
 	
-   public void setBasalPeriod_mikron(int basalPeriod_mikron) {
+   public void setBasalPeriod_mikron(double basalPeriod_mikron) {
    
    	this.basalPeriod_mikron = basalPeriod_mikron;
    }
 
 	
-   public int getBasalYDelta_mikron() {
+   public double getBasalYDelta_mikron() {
    
    	return basalYDelta_mikron;
    }
 
 	
-   public void setBasalYDelta_mikron(int basalYDelta_mikron) {
+   public void setBasalYDelta_mikron(double basalYDelta_mikron) {
    
    	this.basalYDelta_mikron = basalYDelta_mikron;
    }

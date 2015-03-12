@@ -15,22 +15,12 @@ import episimmcc.EpisimModelConnector.Pairwise;
 
 
 
-public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.EpisimCenterBasedMC {
+public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epidermis.EpisimCenterBasedMC {
 	
 	private static final String ID = "2015-03-10";
 	private static final String NAME = "New Center Based Biomechanical Model - Psoriasis";
 
-	private HashMap<Long, Double> contactArea = new HashMap<Long, Double>();
-	private HashMap<Long, Double> cellcellAdhesion = new HashMap<Long, Double>();
-	private double bmContactArea =0;
-	private boolean isNucleated = true;
 	
-	private double cellVolume = 0;
-	private double extCellSpaceVolume = 0;
-	private double extCellSpaceMikron = 0.2d;
-	private double cellSurfaceArea=0;
-	private double totalContactArea= 0;
-	private boolean basalCellContact = false;
 	
 	public EpisimCenterBasedMC(){}
 	
@@ -64,144 +54,6 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.Episim
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
 		return CenterBasedMechModelInit.class;
-	}		
-   
-   
-   @Hidden
-   @Pairwise
-   @NoExport
-   public void setContactArea(long cellId, double contactArea){
-   	this.contactArea.put(cellId, contactArea);
-   }
-   @Pairwise
-   @NoExport
-   public double getContactArea(long cellId){
-   	return this.contactArea.containsKey(cellId)? this.contactArea.get(cellId):0;
-   }
-   
-   @Hidden
-   public void setContactArea(HashMap<Long, Double> contactArea){
-   	if(contactArea != null) this.contactArea = contactArea;
-   }
-   
-   @Hidden
-   public HashMap<Long, Double> getContactArea(){
-   	return this.contactArea;
-   }   
-   
-   
-   @Pairwise
-   @NoExport
-   public void setCellCellAdhesion(long cellId, double adhesion){
-   	this.cellcellAdhesion.put(cellId, adhesion);
-   }
-   @Pairwise
-   @NoExport
-   public double getCellCellAdhesion(long cellId){
-   	return this.cellcellAdhesion.containsKey(cellId)? this.cellcellAdhesion.get(cellId):0;
-   }
-   
-   @Hidden
-   public void setCellCellAdhesion(HashMap<Long, Double> cellcellAdhesion){
-   	if(cellcellAdhesion != null) this.cellcellAdhesion = cellcellAdhesion;
-   }
-   
-   @Hidden
-   public HashMap<Long, Double> getCellCellAdhesion(){
-   	return this.cellcellAdhesion;
-   }  
-   
-	@Hidden
-	@NoExport
-   public double getAdhesionFactorForCell(AbstractCell cell){   	 	
-   	return cell != null && this.cellcellAdhesion.containsKey(cell.getID()) ? this.cellcellAdhesion.get(cell.getID()).doubleValue():0;
-   }
-
-	
-   public double getCellVolume() {
-   	
-   	return cellVolume;
-   }
-
-   @Hidden
-   public void setCellVolume(double cellVolume) {
-   
-   	this.cellVolume = cellVolume;
-   }
-
-	
-   public double getExtCellSpaceVolume() {
-   
-   	return extCellSpaceVolume;
-   }
-
-   @Hidden
-   public void setExtCellSpaceVolume(double extCellSpaceVolume) {
-   
-   	this.extCellSpaceVolume = extCellSpaceVolume;
-   }
-
-	
-   public double getExtCellSpaceMikron() {
-   
-   	return extCellSpaceMikron;
-   }
-
-	
-   public void setExtCellSpaceMikron(double extCellSpaceMikron) {
-   
-   	this.extCellSpaceMikron = extCellSpaceMikron;
-   }
-
-	
-   public double getCellSurfaceArea() {
-   
-   	return cellSurfaceArea;
-   }
-
-   @Hidden
-   public void setCellSurfaceArea(double cellSurfaceArea) {   
-   	this.cellSurfaceArea = cellSurfaceArea;
-   }
-
-	
-   public double getBmContactArea(){
-   
-   	return bmContactArea;
-   }
-
-   @Hidden
-   public void setBmContactArea(double bmContactArea) {
-   
-   	this.bmContactArea = bmContactArea;
-   }
-   
-   public boolean getIsNucleated(){ return this.isNucleated; }
-   
-   public void setIsNucleated(boolean val){ this.isNucleated = val; }
-
-	
-   public double getTotalContactArea() {
-   
-   	return totalContactArea;
-   }
-
-   @Hidden
-   public void setTotalContactArea(double totalContactArea) {
-   
-   	this.totalContactArea = totalContactArea;
-   }
-
-	
-   public boolean getBasalCellContact() {
-   
-   	return basalCellContact;
-   }
-
-   @Hidden
-   public void setBasalCellContact(boolean basalCellContact) {
-   
-   	this.basalCellContact = basalCellContact;
-   }
+	} 
 }
 

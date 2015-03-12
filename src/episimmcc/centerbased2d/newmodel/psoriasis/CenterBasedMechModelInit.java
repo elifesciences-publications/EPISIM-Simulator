@@ -31,6 +31,8 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		mechModelGP.setHeightInMikron(325);
+		mechModelGP.setForceLateralCellDivision(true);
+		mechModelGP.setMotileStemCells(true);
 	}
 
 	public CenterBasedMechModelInit(SimulationStateData simulationStateData) {
@@ -85,10 +87,10 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
-		Double2D lastloc = new Double2D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0));
+		Double2D lastloc = new Double2D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0)+(STEM_CELL_HEIGHT/2));
 		boolean firstCell = true;
 		for (double x = 0; x <= TissueController.getInstance().getTissueBorder().getWidthInMikron(); x += 1) {
-			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0));
+			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0)+(STEM_CELL_HEIGHT/2));
 			double distance = newloc.distance(lastloc);
 
 			if (depthFrac(newloc.y, STEM_CELL_HEIGHT) > mechModelGP.getSeedMinDepth_frac() || mechModelGP.getSeedMinDepth_frac() == 0){
@@ -120,7 +122,8 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		mechModelGP.setHeightInMikron(325);
 		mechModelGP.setBasalAmplitude_mikron(mechModelGP.getInitBasalAmplitude_mikron());
 		mechModelGP.setBasalYDelta_mikron(mechModelGP.getMaxBasalAmplitude_mikron()-mechModelGP.getBasalAmplitude_mikron() +(stemCellHeight/2));
-		
+		mechModelGP.setBasalDensity_mikron(stemCellHeight*mechModelGP.getOptDistanceScalingFactor());
+		mechModelGP.setSeedMinDepth_frac(0);
 	}
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {

@@ -128,6 +128,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		  CModelValue modelValue = findParameter(dataModel.getModel(), entity.name);
 		  if(modelValue != null){
 			   modelValue.setInitialValue(entity.value);
+			   
 			   changedObjects.add(modelValue.getObject(new CCopasiObjectName("Reference=InitialValue")));
 		  }
 		/*  else{

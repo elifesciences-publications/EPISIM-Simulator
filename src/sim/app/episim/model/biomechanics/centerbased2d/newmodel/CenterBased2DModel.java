@@ -141,31 +141,68 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 			cellEllipseObject = new CellEllipse(cell.getID(), getX(), getY(), (double) getCellWidth(), (double)getCellHeight(), Color.BLUE);    
 		}
       if(cell != null && cell.getMotherCell() != null){
-	      double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
-	      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005;
 	      
+	      double cellWidth = 0;
+	      double cellHeight = 0;
 	      if(cell.getMotherCell().getEpisimBioMechanicalModelObject() instanceof CenterBased2DModel){
 	      	EpisimModelConnector motherCellConnector =((CenterBased2DModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
 	      	if(motherCellConnector instanceof EpisimCenterBasedMC){
-	      		setCellWidth(((EpisimCenterBasedMC)motherCellConnector).getWidth()); 
-	      		setCellHeight(((EpisimCenterBasedMC)motherCellConnector).getHeight());
+	      		cellWidth= ((EpisimCenterBasedMC)motherCellConnector).getWidth();
+	      		cellHeight =((EpisimCenterBasedMC)motherCellConnector).getHeight();
+	      		setCellWidth(cellWidth); 
+	      		setCellHeight(cellHeight);
 	      		cellEllipseObject.setMajorAxisAndMinorAxis(((EpisimCenterBasedMC)motherCellConnector).getWidth(), ((EpisimCenterBasedMC)motherCellConnector).getHeight());
 	      	}
 	      }
 	             
-	      Double2D oldLoc=cellField.getObjectLocation(cell.getMotherCell());	   
-	       if(oldLoc != null){
-		      Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y + deltaY);	
-		      cellLocation = newloc;
-		      cellField.setObjectLocation(cell, newloc);
+	      Double2D motherCellLocation=cellField.getObjectLocation(cell.getMotherCell());
+	      
+	      
+	       if(motherCellLocation != null){		     
+		      cellLocation = calculateInitialCellLocation(motherCellLocation, cellWidth);
+		      cellField.setObjectLocation(cell, cellLocation);
 		     	SimulationDisplayProperties props = ((CenterBased2DModel)cell.getMotherCell().getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastSimulationDisplayProps();
-		 	  	this.setLastSimulationDisplayPropsForNewCellEllipse(props, newloc);
+		 	  	this.setLastSimulationDisplayPropsForNewCellEllipse(props, cellLocation);
 	      }
       }
       lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0), new Rectangle2D.Double(0, 0, 0, 0));
       directNeighbours = new GenericBag<AbstractCell>();
       directNeighbourIDs = new HashSet<Long>();
       lostNeighbourContactInSimSteps=new HashMap<Long, Integer>();
+   }
+   
+   private Double2D calculateInitialCellLocation(Double2D motherCellLocation, double cellWidth){
+   	
+      if(globalParameters.isForceLateralCellDivision()){
+      	
+      	Point2d locThis = findReferencePositionOnBoundary(new Point2d(motherCellLocation.x, motherCellLocation.y),
+      			motherCellLocation.x - (cellWidth/2), motherCellLocation.x + (cellWidth/2));
+      	
+      	double biasX = (cellWidth/2);
+      	double locX = motherCellLocation.x + biasX;
+      	Point2d locA = findReferencePositionOnBoundary(new Point2d(locX, motherCellLocation.y),
+      			locX - (cellWidth/2), locX + (cellWidth/2));
+      	
+      	locX = motherCellLocation.x - biasX;
+      	Point2d locB = findReferencePositionOnBoundary(new Point2d(locX, motherCellLocation.y),
+      			locX - (cellWidth/2), locX + (cellWidth/2));
+      	
+      	double delta = cellWidth*0.7; 
+      	Vector2d vectA = new Vector2d((locA.x - locThis.x), (locA.y - locThis.y));
+      	Vector2d vectB = new Vector2d((locB.x - locThis.x), (locB.y - locThis.y));
+      	vectA.normalize();
+      	vectB.normalize();
+      	vectA.scale(delta);
+      	vectB.scale(delta);
+      	return TissueController.getInstance().getActEpidermalTissue().random.nextBoolean() ?
+      			 new Double2D(motherCellLocation.x+vectA.x, motherCellLocation.y+vectA.y) :
+      			 new Double2D(motherCellLocation.x+vectB.x, motherCellLocation.y+vectB.y);
+      }
+      else{
+      	double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
+         double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005;      	
+      	return new Double2D(motherCellLocation.x + deltaX, motherCellLocation.y + deltaY);
+      }
    }
    
    public void setLastDrawInfo2D(DrawInfo2D info){
@@ -323,13 +360,13 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	     }       
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
-      		Point2d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
-      		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
-            double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
+      	 	Point2d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
+      		double dx = cellField.tdx(thisloc.x, membraneReferencePoint.x); 
+            double dy = cellField.tdy(thisloc.y, membraneReferencePoint.y);
             if(dx==0 && dy==0){
             	addRandomBiasToPoint(membraneReferencePoint,  0.1);
-            	dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
-               dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
+            	dx = cellField.tdx(thisloc.x, membraneReferencePoint.x); 
+               dy = cellField.tdy(thisloc.y, membraneReferencePoint.y);
             }
       		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
       		double optDist = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getCellWidth()/2, getCellHeight()/2);
@@ -612,7 +649,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 					true, true);
 			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(actNeighborBag, loc, finalSimStep);
 						
-			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
+			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL || globalParameters.isMotileStemCells()){		
 				
 				Double2D randomPositionData = new Double2D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
 						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
@@ -640,7 +677,9 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	public void finishNewSimStep(){
 		Double2D newCellLocation = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;
 		
-		if(getCell().getStandardDiffLevel()==StandardDiffLevel.STEMCELL && !TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){			
+		if(getCell().getStandardDiffLevel()==StandardDiffLevel.STEMCELL 
+				&& !TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()
+				&& !globalParameters.isMotileStemCells()){			
 			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellLocation.x, cellLocation.y);
 			newCellLocation =new Double2D(cellLocation.x, minY);
 			if(Math.abs(cellLocation.y - minY) > 0.1)setCellLocationInCellField(newCellLocation);
@@ -1010,9 +1049,6 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 		if(modelConnector instanceof episimmcc.centerbased2d.newmodel.epidermis.EpisimCenterBasedMC){
 			isNucleated = ((episimmcc.centerbased2d.newmodel.epidermis.EpisimCenterBasedMC)this.modelConnector).getIsNucleated();
 		}
-		if(modelConnector instanceof episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC){
-			isNucleated = ((episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC)this.modelConnector).getIsNucleated();
-		}			
 		if(isNucleated){
 				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getCellWidth()/3, getCellHeight()/3));
 		}		

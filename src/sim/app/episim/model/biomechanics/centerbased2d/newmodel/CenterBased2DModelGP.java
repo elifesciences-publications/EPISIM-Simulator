@@ -17,7 +17,7 @@ public class CenterBased2DModelGP implements EpisimBiomechanicalModelGlobalParam
 	private double randomness = 0;//0.00000000125;
 	private double seedMinDepth_frac = 0.25; // beginning with which depth a stem cell is seeded
 	
-	private int basalDensity_mikron = 30;//OriginalValue: 8; 
+	private double basalDensity_mikron = 30;//OriginalValue: 8; 
 
 	
 	
@@ -36,6 +36,9 @@ public class CenterBased2DModelGP implements EpisimBiomechanicalModelGlobalParam
 	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022;//0.000000000149;
 	
 	private int neighbourLostThres = 10;
+	
+	private boolean forceLateralCellDivision = false;
+	private boolean motileStemCells = false;
 	
 	public CenterBased2DModelGP() {}
 	
@@ -93,11 +96,11 @@ public class CenterBased2DModelGP implements EpisimBiomechanicalModelGlobalParam
 
 	
 
-	public int getBasalDensity_mikron() {
+	public double getBasalDensity_mikron() {
 		return basalDensity_mikron;
 	}
 
-	public void setBasalDensity_mikron(int val) {
+	public void setBasalDensity_mikron(double val) {
 		if(val >= 0)
 			basalDensity_mikron = val;
 	}
@@ -276,6 +279,30 @@ public class CenterBased2DModelGP implements EpisimBiomechanicalModelGlobalParam
    public void setNeighbourLostThres(int neighbourLostThres) {
    
    	this.neighbourLostThres = neighbourLostThres;
+   }
+
+	
+   public boolean isForceLateralCellDivision() {
+   
+   	return forceLateralCellDivision;
+   }
+
+	
+   public void setForceLateralCellDivision(boolean forceLateralCellDivision) {
+   
+   	this.forceLateralCellDivision = forceLateralCellDivision;
+   }
+
+	
+   public boolean isMotileStemCells() {
+   
+   	return motileStemCells;
+   }
+
+	
+   public void setMotileStemCells(boolean motileStemCells) {
+   
+   	this.motileStemCells = motileStemCells;
    }
   
 }

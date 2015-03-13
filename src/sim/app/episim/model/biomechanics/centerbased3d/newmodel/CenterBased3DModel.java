@@ -212,7 +212,14 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 								otherSemiAxisA, otherSemiAxisB, otherSemiAxisC);            
              double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
              double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
-          
+             
+             double difference = optDist - optDistScaled;
+             if(difference > requiredDistanceToMembraneThis || difference > requiredDistanceToMembraneOther){
+            	 double maxOverlap  = difference > requiredDistanceToMembraneThis ? requiredDistanceToMembraneThis : requiredDistanceToMembraneOther;
+            	 double correctedOverlapFactor = (1- maxOverlap/(requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));
+            	 optDistScaled = optDist*correctedOverlapFactor;            	
+             }
+             
                                      
              double actDist=Math.sqrt(dx*dx+dy*dy+dz*dz);
                    
@@ -559,7 +566,7 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 	   if(setPostionInCellField)setCellLocationInCellField(newloc);
 	}
    
-   public Point3d calculateLowerBoundaryPositionForCell(Point3d cellPosition){
+  /* public Point3d calculateLowerBoundaryPositionForCell(Point3d cellPosition){
 		Point3d minXPositionOnBoundary = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
 		Vector3d cellPosBoundaryDirVect = new Vector3d((cellPosition.x-minXPositionOnBoundary.x),(cellPosition.y-minXPositionOnBoundary.y),(cellPosition.z-minXPositionOnBoundary.z));
 		boolean sittingDirectlyOnMembrane = false;
@@ -585,7 +592,7 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 			return newPoint;
 		}		
 		return new Point3d((cellPosition.x),(cellPosition.y),(cellPosition.z));
-	}
+	}*/
    
   
    

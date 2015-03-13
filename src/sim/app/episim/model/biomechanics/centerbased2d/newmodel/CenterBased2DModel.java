@@ -159,7 +159,8 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	      
 	      
 	       if(motherCellLocation != null){		     
-		      cellLocation = calculateInitialCellLocation(motherCellLocation, cellWidth);
+		      Double2D newLoc = calculateInitialCellLocation(motherCellLocation, cellWidth);
+		      cellLocation = new Double2D(cellField.tx(newLoc.x), cellField.ty(newLoc.y));
 		      cellField.setObjectLocation(cell, cellLocation);
 		     	SimulationDisplayProperties props = ((CenterBased2DModel)cell.getMotherCell().getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastSimulationDisplayProps();
 		 	  	this.setLastSimulationDisplayPropsForNewCellEllipse(props, cellLocation);
@@ -178,6 +179,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
       	Point2d locThis = findReferencePositionOnBoundary(new Point2d(motherCellLocation.x, motherCellLocation.y),
       			motherCellLocation.x - (cellWidth/2), motherCellLocation.x + (cellWidth/2));
       	
+       	
       	double biasX = (cellWidth/2);
       	double locX = motherCellLocation.x + biasX;
       	Point2d locA = findReferencePositionOnBoundary(new Point2d(locX, motherCellLocation.y),
@@ -286,7 +288,13 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 								majorAxisOther, minorAxisOther);            
              double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
              double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
-          
+             
+             double difference = optDist - optDistScaled;
+             if(difference > requiredDistanceToMembraneThis || difference > requiredDistanceToMembraneOther){
+            	 double maxOverlap  = difference > requiredDistanceToMembraneThis ? requiredDistanceToMembraneThis : requiredDistanceToMembraneOther;
+            	 double correctedOverlapFactor = (1- maxOverlap/(requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));
+            	 optDistScaled = optDist*correctedOverlapFactor;            	
+             }
                                      
              double actDist=Math.sqrt(dx*dx+dy*dy);
                    

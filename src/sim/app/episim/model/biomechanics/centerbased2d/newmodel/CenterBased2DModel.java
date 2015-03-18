@@ -111,6 +111,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
    private static final double MAX_DISPLACEMENT = 10;
    
    private Double2D cellLocation = null;
+   private Double2D newCellLocation = null;
    private GenericBag<AbstractCell> directNeighbours;
    private HashSet<Long> directNeighbourIDs;
    private HashMap<Long, Integer> lostNeighbourContactInSimSteps;
@@ -161,6 +162,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	       if(motherCellLocation != null){		     
 		      Double2D newLoc = calculateInitialCellLocation(motherCellLocation, cellWidth);
 		      cellLocation = new Double2D(cellField.tx(newLoc.x), cellField.ty(newLoc.y));
+		   
 		      cellField.setObjectLocation(cell, cellLocation);
 		     	SimulationDisplayProperties props = ((CenterBased2DModel)cell.getMotherCell().getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastSimulationDisplayProps();
 		 	  	this.setLastSimulationDisplayPropsForNewCellEllipse(props, cellLocation);
@@ -192,11 +194,20 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
       	double delta = cellWidth*0.7; 
       	Vector2d vectA = new Vector2d((locA.x - locThis.x), (locA.y - locThis.y));
       	Vector2d vectB = new Vector2d((locB.x - locThis.x), (locB.y - locThis.y));
-      	vectA.normalize();
-      	vectB.normalize();
-      	vectA.scale(delta);
-      	vectB.scale(delta);
-      	return TissueController.getInstance().getActEpidermalTissue().random.nextBoolean() ?
+    
+      	if(vectA.length() > 0){
+      		vectA.normalize();
+      		vectA.scale(delta);
+      	}
+      	if(vectB.length() > 0){
+      		vectB.normalize();
+      		vectB.scale(delta);
+      	}     
+      	
+      	if(vectA.length()== 0) return new Double2D(motherCellLocation.x+vectB.x, motherCellLocation.y+vectB.y);
+      	if(vectB.length()== 0) return new Double2D(motherCellLocation.x+vectA.x, motherCellLocation.y+vectA.y);
+      	
+      	else return TissueController.getInstance().getActEpidermalTissue().random.nextBoolean() ?
       			 new Double2D(motherCellLocation.x+vectA.x, motherCellLocation.y+vectA.y) :
       			 new Double2D(motherCellLocation.x+vectB.x, motherCellLocation.y+vectB.y);
       }
@@ -369,7 +380,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
       	 	Point2d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
-      		double dx = cellField.tdx(thisloc.x, membraneReferencePoint.x); 
+      	 	double dx = cellField.tdx(thisloc.x, membraneReferencePoint.x); 
             double dy = cellField.tdy(thisloc.y, membraneReferencePoint.y);
             if(dx==0 && dy==0){
             	addRandomBiasToPoint(membraneReferencePoint,  0.1);
@@ -554,8 +565,14 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 		   }	
 	   }
 	   Double2D newloc = new Double2D(newx,newy);
-	   cellLocation = newloc;
-	   if(setPositionInField) setCellLocationInCellField(newloc);
+	 
+	   if(setPositionInField){
+	   	setCellLocationInCellField(newloc);
+	   	cellLocation = newloc;
+	   }
+	   else{
+	   	newCellLocation = newloc;
+	   }
 	}
 	
 	public Point2d calculateLowerBoundaryPositionForCell(Point2d cellPosition, Point2d referencePosition, double optDistance){
@@ -876,7 +893,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	             public void run(int n) {
 	            		CenterBased2DModel cellBM = ((CenterBased2DModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
 	         			if(iterationNo == 0) cellBM.initNewSimStep();
-	         			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));	         			
+	         			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));    			
 	              }
 	         });
    		}
@@ -889,7 +906,8 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
    		}
    		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
    			CenterBased2DModel cellBM = ((CenterBased2DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
-   			if(cellBM.cellLocation != null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
+   			if(cellBM.newCellLocation != null)cellBM.setCellLocationInCellField(cellBM.newCellLocation);
+   			else if(cellBM.cellLocation != null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
    			if(iterationNo == (numberOfIterations-1)){
    				cellBM.updateDirectNeighbours();
    				cellBM.finishNewSimStep();

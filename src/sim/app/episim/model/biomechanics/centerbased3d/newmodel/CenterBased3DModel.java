@@ -82,6 +82,7 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
    private static final double MAX_DISPLACEMENT = 10;
    
    private Double3D cellLocation=null;
+   private Double3D newCellLocation=null;
    private GenericBag<AbstractCell> directNeighbours;
    private HashSet<Long> directNeighbourIDs;
    private HashMap<Long, Integer> lostNeighbourContactInSimSteps;
@@ -562,8 +563,14 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 		   }	
 	   }
 	   Double3D newloc = new Double3D(newx,newy,newz);
-	   cellLocation = newloc;
-	   if(setPostionInCellField)setCellLocationInCellField(newloc);
+	   
+	   if(setPostionInCellField){
+	   	setCellLocationInCellField(newloc);
+	   	cellLocation = newloc;
+	   }
+	   else{
+	   	newCellLocation = newloc;
+	   }
 	}
    
   /* public Point3d calculateLowerBoundaryPositionForCell(Point3d cellPosition){
@@ -927,7 +934,8 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 	   		}
 	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
 	   			CenterBased3DModel cellBM = ((CenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
-	   			if(cellBM.cellLocation!=null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
+	   			if(cellBM.newCellLocation != null)cellBM.setCellLocationInCellField(cellBM.newCellLocation);
+	   			else if(cellBM.cellLocation!=null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
 	   			if(iterationNo == (numberOfIterations-1)){
 	   				cellBM.updateDirectNeighbours();
 	   				cellBM.finishNewSimStep();

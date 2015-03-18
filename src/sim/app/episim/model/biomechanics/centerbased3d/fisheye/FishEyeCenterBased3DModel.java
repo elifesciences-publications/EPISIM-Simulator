@@ -64,6 +64,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    private static final double MAX_DISPLACEMENT = 10;
    
    private Double3D cellLocation=null;
+   private Double3D newCellLocation = null;
    private Double3D oldCellLocation = null;
    private GenericBag<AbstractCell> directNeighbours;
    private HashSet<Long> directNeighbourIDs;
@@ -564,9 +565,15 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    public void setPositionRespectingBounds(Point3d cellPosition, double aAxis, double bAxis, double cAxis, double optDistScalingFact, boolean setPostionInCellField)
 	{
 	   Point3d newloc = calculateLowerBoundaryPositionForCell(cellPosition, aAxis, bAxis, cAxis, optDistScalingFact);
-	   oldCellLocation = cellLocation;
-	   cellLocation = new Double3D(newloc.x, newloc.y, newloc.z);
-	   if(setPostionInCellField)setCellLocationInCellField(cellLocation);
+	   
+	   if(setPostionInCellField){
+	   	oldCellLocation = cellLocation;
+		   cellLocation = new Double3D(newloc.x, newloc.y, newloc.z);
+	   	setCellLocationInCellField(cellLocation);
+	   }
+	   else{
+	   	newCellLocation = new Double3D(newloc.x, newloc.y, newloc.z);
+	   }
 	}   
    
    
@@ -859,11 +866,13 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   		}
 	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
 	   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
-	   			if(cellBM.cellLocation!=null){
+	   			if(cellBM.newCellLocation!=null){
 	   				if(cellBM.oldCellLocation != null){
-	   					cellBM.migrationDistPerSimStep += cellBM.oldCellLocation.distance(cellBM.cellLocation);
+	   					cellBM.migrationDistPerSimStep += cellBM.oldCellLocation.distance(cellBM.newCellLocation);
 	   				}
-	   				cellBM.setCellLocationInCellField(cellBM.cellLocation);	   				
+	   				
+	   				if(cellBM.newCellLocation != null)cellBM.setCellLocationInCellField(cellBM.newCellLocation);
+	      			else if(cellBM.cellLocation != null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
 	   			}
 	   			if(iterationNo == (numberOfIterations-1)){
 	   				cellBM.updateDirectNeighbours();

@@ -6,6 +6,8 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 public abstract class Names {
 	private static String [] charactersToRemove = new String[]{";", "/", "\\", ",", ".", ":", "?", "!", "_", "-", "<", ">", "µ", "&", "%", "+", "*", " " ,"}","{",")","(","[","]","|","'","´","`","°","~","§","ß", "\""};
+	private static String [] charactersToEscape = new String[]{"\\", "\""};
+		
 	public static final String BIOCHEM_MODEL ="Cell-Behavioral-Model";
 	public static final String EPISIM_TEXTOUT ="Episim Text Output";
 	public static final String MECH_MODEL ="Biomechanical-Model";
@@ -62,7 +64,15 @@ public abstract class Names {
 		
 		return str;
 	}
-	
+	public static String escapeString(String str){
+		
+		str = str.trim();
+		for(String character: charactersToEscape){
+			str = str.replace(character, "\\"+character);
+		}
+		
+		return str;
+	}
 	
 	
 	public static String convertClassToVariable(String classname){

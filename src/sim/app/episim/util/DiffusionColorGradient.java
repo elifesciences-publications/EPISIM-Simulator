@@ -134,6 +134,7 @@ public class DiffusionColorGradient
         //we assume a linear gradient, with equal spacing between colors
         //The final gradient will be made up of n 'sections', where n = colors.length - 1
         int numSections = colors.length - 1;
+       
         int gradientIndex = 0; //points to the next open spot in the final gradient
         Color[] gradient = new Color[numSteps];
         Color[] temp;

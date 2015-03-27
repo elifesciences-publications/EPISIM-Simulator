@@ -87,12 +87,12 @@ public abstract class SteppableCodeFactory {
 		steppableCode.append("           xyPlot.clearAnnotations();\n");		
 	//	steppableCode.append("           long start = System.currentTimeMillis();\n");
 		steppableCode.append("           for(AbstractCell actCell : allCells){\n");
-		steppableCode.append("   	       final EpisimBiomechanicalModel bmModel = actCell.getEpisimBioMechanicalModelObject();\n");
+		steppableCode.append("   	         final EpisimBiomechanicalModel bmModel = actCell.getEpisimBioMechanicalModelObject();\n");
 		
-		steppableCode.append("      	  final CellBoundaries cb = bmModel.getCellBoundariesInMikron(0);\n");
-		steppableCode.append("     	  final double width = cb.getMaxXInMikron()-cb.getMinXInMikron();\n");
-		steppableCode.append("      	  final double height = cb.getMaxYInMikron()-cb.getMinYInMikron();\n");
-		steppableCode.append("      	  final double length = cb.getMaxZInMikron()-cb.getMinZInMikron();\n");
+		steppableCode.append("      	      final CellBoundaries cb = bmModel.getCellBoundariesInMikron(0);\n");
+		steppableCode.append("     	      final double width = cb.getMaxXInMikron()-cb.getMinXInMikron();\n");
+		steppableCode.append("      	      final double height = cb.getMaxYInMikron()-cb.getMinYInMikron();\n");
+		steppableCode.append("      	      final double length = cb.getMaxZInMikron()-cb.getMinZInMikron();\n");
 		if(episimChart.getMinXMikron() > Double.NEGATIVE_INFINITY
 			|| episimChart.getMinYMikron() > Double.NEGATIVE_INFINITY
 			|| episimChart.getMinZMikron() > Double.NEGATIVE_INFINITY
@@ -147,7 +147,7 @@ public abstract class SteppableCodeFactory {
 		}	  
 		steppableCode.append("           }\n");
 		steppableCode.append("           catch (CellNotValidException e){\n");
-		steppableCode.append("              ExceptionDisplayer.getInstance().displayException(e);\n");
+		steppableCode.append("              EpisimExceptionHandler.getInstance().displayException(e);\n");
 		steppableCode.append("           }\n");
 		
 		if(episimChart.getMinXMikron() > Double.NEGATIVE_INFINITY
@@ -180,12 +180,12 @@ public abstract class SteppableCodeFactory {
 	
 	
 	public synchronized static String getEnhancedSteppableForPNGPrinting(EpisimChart chart){
-		if(chart.isPNGPrintingEnabled()) return getEnhancedSteppableForPNGPrinting(chart.getId(), chart.getTitle(), chart.getPNGPrintingPath(), chart.getPNGPrintingFrequency(), Double.POSITIVE_INFINITY);		
+		if(chart.isPNGPrintingEnabled()) return getEnhancedSteppableForPNGPrinting(chart.getId(), Names.escapeString(chart.getTitle()), chart.getPNGPrintingPath(), chart.getPNGPrintingFrequency(), Double.POSITIVE_INFINITY);		
 		return getEnhancedSteppableForPNGPrinting(chart.getId(), Names.cleanString(chart.getTitle()), null, chart.getPNGPrintingFrequency(), Double.POSITIVE_INFINITY);
 	}
 	
 	public synchronized static String getEnhancedSteppableForPNGPrinting(EpisimCellVisualizationChart chart, double widthToHeightScale){		
-		if(chart.isPNGPrintingEnabled()) return getEnhancedSteppableForPNGPrinting(chart.getId(), chart.getTitle(), chart.getPNGPrintingPath(), chart.getPNGPrintingFrequency(), widthToHeightScale);		
+		if(chart.isPNGPrintingEnabled()) return getEnhancedSteppableForPNGPrinting(chart.getId(), Names.escapeString(chart.getTitle()), chart.getPNGPrintingPath(), chart.getPNGPrintingFrequency(), widthToHeightScale);		
 		return getEnhancedSteppableForPNGPrinting(chart.getId(), Names.cleanString(chart.getTitle()), null, chart.getPNGPrintingFrequency(), widthToHeightScale);		
 	}
 			

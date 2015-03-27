@@ -2,6 +2,7 @@ package sim.app.episim.model.biomechanics;
 
 import java.awt.Color;
 import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 
 import javax.media.j3d.BoundingPolytope;
 import javax.media.j3d.Bounds;
@@ -83,7 +84,7 @@ public class CellBoundaries {
 	
 	public boolean contains(double x, double y){
 		if(this.shape != null){
-			return shape.contains(x, y);
+			 return shape.contains(x, y);
 		}
 		return false;
 	}

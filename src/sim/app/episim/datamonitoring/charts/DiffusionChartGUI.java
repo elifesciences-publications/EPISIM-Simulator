@@ -138,7 +138,7 @@ public class DiffusionChartGUI {
 					ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
 					y =  height - y;
 					if(y < 0) return 0;					
-					return field2D != null ? field2D.getConcentration(x, y) : 0;
+					return field2D != null ? field2D.getConcentration(x, y, false) : 0;
 				}
 			};
 		}

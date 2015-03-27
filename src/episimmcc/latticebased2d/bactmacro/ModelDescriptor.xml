@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2012-07-05_episimmcc.latticebased2d.bactmacro.EpisimBacteriaMacrophageModelMC"/>
-  <visiblename name="Bacterim Macrophage Model 2D"/>
+  <visiblename name="Bacterium Macrophage Model - Lattice Based 2D Model"/>
   <modelname name="Simple Hexagon Grid Based Biomechanical Bacteria Macrophage Model"/>
   <modelconnectorclass name="episimmcc.latticebased2d.bactmacro.EpisimBacteriaMacrophageModelMC"/>
   <modelparameters>
@@ -11,10 +11,12 @@
       name="cellCellInteractionEnergy" pairwise="false" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isProliferating"
       pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
     <parameter datatype="boolean" default="false" name="isRetracting"
       pairwise="false" readonly="false"/>
     <parameter datatype="double" default="1.0" name="lambdaChem"
       pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
     <parameter datatype="String" default="" name="chemotacticField"
       pairwise="false" readonly="false"/>
   </modelparameters>

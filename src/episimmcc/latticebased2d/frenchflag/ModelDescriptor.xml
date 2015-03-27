@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2012-07-09_episimmcc.latticebased2d.EpisimLatticeBased2DMC"/>
-  <visiblename name="Lattice Based 2D Model"/>
-  <modelname name="Hexagon Grid Based Biomechanical Model Single Surface"/>
-  <modelconnectorclass name="episimmcc.latticebased2d.EpisimLatticeBased2DMC"/>
+  <modelid id="2015-03-24_episimmcc.latticebased2d.frenchflag.EpisimFrenchFlagModelMC"/>
+  <visiblename name="French Flag Model - Lattice Based 2D Model"/>
+  <modelname name="Simple French Flag Model"/>
+  <modelconnectorclass name="episimmcc.latticebased2d.frenchflag.EpisimFrenchFlagModelMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSpreading"
       pairwise="false" readonly="false"/>
@@ -11,9 +11,9 @@
       name="cellCellInteractionEnergy" pairwise="false" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isProliferating"
       pairwise="false" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isRetracting"
-      pairwise="false" readonly="false"/>
     <parameter datatype="double" default="1.0" name="lambdaChem"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting"
       pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
     <parameter datatype="String" default="" name="chemotacticField"

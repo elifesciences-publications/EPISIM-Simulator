@@ -165,7 +165,9 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 		if(modelConnector.getIsProliferating()){
 			modelConnector.setIsSpreading(false);
 			modelConnector.setIsProliferating(false);
-		}		
+		}
+		modelConnector.setX(getX());
+		modelConnector.setY(getY());
 	}
 	
 	private int rectractingProbabilityFactorBasedOnNeighbourhood(ArrayList<AbstractCell> neighbourToPull, Int2D locationToBeLeft, Int2D locationToBeKept){
@@ -283,7 +285,7 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 					double[] concentrations = new double[spreadingLocationIndices.size()];
 					for(int i = 0; i < spreadingLocationIndices.size();i++){
 						Double2D locInMikron = getLocationInMikron(new Int2D(xPos.get(spreadingLocationIndices.get(i)), yPos.get(spreadingLocationIndices.get(i))));
-						concentrations[i] = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y));
+						concentrations[i] = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y), true);
 					}
 					int choosenIndex = getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ecDiffField, concentrations);
 					if(choosenIndex >= 0) return spreadingLocationIndices.get(choosenIndex);
@@ -298,7 +300,7 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
 		final double lambda = modelConnector.getLambdaChem();
-		double localConcentration = ecDiffField.getAverageConcentrationInArea(getCellBoundariesInMikron(0));
+		double localConcentration = ecDiffField.getAverageConcentrationInArea(getCellBoundariesInMikron(0), true);
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
 			double gradient = lambda*(concentrations[i]-localConcentration);
@@ -354,8 +356,8 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 					double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 					                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 					                                                                            : ecDiffField.getMaxConcentrationInField();
-		         double c_fieldPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y));
-		         double c_spreadingPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y));  
+		         double c_fieldPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y), true);
+		         double c_spreadingPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y), true);  
 					  
 					normGradient = (modelConnector.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 					
@@ -661,7 +663,7 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 	   else{
 	   	x = fieldLoc.x;
 	 		y = heightInMikron - fieldLoc.y;
-	 		width = 2* radiusOuter;
+	 		width = 2 * radiusOuter;
 	 		height = 2 * radiusInner;
 	 		x-=(width/2d);
 	 		y-=(height/2d);

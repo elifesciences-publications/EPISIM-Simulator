@@ -172,7 +172,11 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 		if(modelConnector.getIsProliferating()){
 			modelConnector.setIsSpreading(false);
 			modelConnector.setIsProliferating(false);
-		}		
+		}
+		modelConnector.setX(getX());
+		modelConnector.setY(getY());
+		modelConnector.setZ(getZ());
+		
 	}
 	
 	private int rectractingProbabilityFactorBasedOnNeighbourhood(ArrayList<AbstractCell> neighbourToPull, Int3D locationToBeLeft, Int3D locationToBeKept){

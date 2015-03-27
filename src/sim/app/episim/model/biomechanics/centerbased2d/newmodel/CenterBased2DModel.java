@@ -429,7 +429,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 					if(ecDiffField != null){
 						double lambda = ((episimmcc.centerbased2d.newmodel.chemotaxis.EpisimCenterBasedMC)modelConnector).getLambdaChem();
 						if(lambda > 0){
-							interactionResult.chemotacticForce = ecDiffField.getChemotaxisVectorForCellBoundary(getChemotaxisCellBoundariesInMikron());
+							interactionResult.chemotacticForce = ecDiffField.getChemotaxisVectorForCellBoundary(getChemotaxisCellBoundariesInMikron(), true);
 							interactionResult.chemotacticForce.scale(lambda);
 							interactionResult.chemotacticForce.scale(globalParameters.getRepulSpringStiffness_N_per_micro_m());
 						}

@@ -39,29 +39,21 @@ import sim.app.episim.util.ProjectionPlane;
 import sim.engine.Steppable;
 
 
-public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
-	
+public class ChartSourceBuilder extends AbstractCommonSourceBuilder{	
 	
 	public static final String CHARTDATAFIELDNAME = "chart";
 	public static final String PNGDIRECTORYDATAFIELDNAME = "pngPrintingDirectory";
 	
 	public static final String PARAMETERSNAME = "calculationAlgorithmParameterValues";
 	
-	
-	
-	
 	protected enum ChartSourceBuilderMode {XYSERIESMODE, HISTOGRAMMODE};
 	
 	private ChartSourceBuilderMode mode = ChartSourceBuilderMode.XYSERIESMODE;
 	
-	public ChartSourceBuilder(){
-		
-	}
-	
-	
-	
+	public ChartSourceBuilder(){ }
 	
 	public String buildEpisimChartSource(EpisimChart episimChart){
+		
 		if(episimChart ==  null) throw new IllegalArgumentException("Episim-Chart was null!");
 	
 		generatedSourceCode = new StringBuffer();
@@ -154,13 +146,13 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			  	generatedSourceCode.append("  private XYSeriesCollection dataset = new XYSeriesCollection();\n");		  				   
 			   for(EpisimChartSeries actSeries: episimChart.getEpisimChartSeries()){			   	
 			   	generatedSourceCode.append("  private XYSeries "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-			   			" = new XYSeries(\""+actSeries.getName()+"\", false);\n");
+			   			" = new XYSeries(\""+ Names.escapeString(actSeries.getName())+"\", false);\n");
 			   }
 		  }
 		  if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){	  				   
 			   for(EpisimChartSeries actSeries: episimChart.getEpisimChartSeries()){			   	
 			   	generatedSourceCode.append("  private OutlierSimpleHistogramDataset "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-			   			" = new OutlierSimpleHistogramDataset(\""+actSeries.getName()+"\");\n");
+			   			" = new OutlierSimpleHistogramDataset(\""+Names.escapeString(actSeries.getName())+"\");\n");
 			   }
 		  }
 		  for(Class<?> actClass : episimChart.getAllRequiredClasses())
@@ -187,12 +179,12 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(episimChart.getTitle())+ episimChart.getId())+"(){\n");
 		
 		if(mode == ChartSourceBuilderMode.XYSERIESMODE){
-			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+episimChart.getTitle()+"\",\""+episimChart.getXLabel()+"\",\""+
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+Names.escapeString(episimChart.getTitle())+"\",\""+episimChart.getXLabel()+"\",\""+
 					episimChart.getYLabel()+"\",dataset,"+"PlotOrientation.VERTICAL, "+episimChart.isLegendVisible()+", true, false);\n");
 			generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)("+CHARTDATAFIELDNAME+".getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
 		}
 		if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){
-			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createHistogram(\""+episimChart.getTitle()+"\",\""+episimChart.getXLabel()+"\",\""+
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createHistogram(\""+Names.escapeString(episimChart.getTitle())+"\",\""+episimChart.getXLabel()+"\",\""+
 					episimChart.getYLabel()+"\", null,"+"PlotOrientation.VERTICAL, "+episimChart.isLegendVisible()+", true, false);\n");
 		}	
 		
@@ -242,7 +234,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	private void appendConstructor(EpisimCellVisualizationChart episimChart){
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(episimChart.getTitle())+ episimChart.getId())+"(){\n");
 		
-			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+episimChart.getTitle()+"\",\""+episimChart.getXLabel()+"\",\""+
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+Names.escapeString(episimChart.getTitle())+"\",\""+episimChart.getXLabel()+"\",\""+
 					episimChart.getYLabel()+"\",dataset,"+"PlotOrientation.VERTICAL, false, false, false);\n");
 			generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)("+CHARTDATAFIELDNAME+".getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
 		

@@ -15,9 +15,10 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.SendReceiveAlgorithm;
 import episiminterfaces.SendReceiveAlgorithmExt;
+import episiminterfaces.SendReceiveAlgorithmExt2;
 
 
-public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
+public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt2{
 	
 //	public static TestFrame frame = new TestFrame();
 	
@@ -25,6 +26,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 		void sendToDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell);
 		void receiveFromDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell);
 		double senseFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell);
+		double senseAVGFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell);
 	}
 	
 	private SendReceiveDiffusionFieldConnector sendReceiveDFConnector = null;
@@ -32,16 +34,17 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 	public StandardSendReceiveAlgorithm(){
 		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
 			sendReceiveDFConnector = new SendReceiveDiffusionFieldConnector(){
-				public void sendToDF(String ecDiffusionFieldName, int propertycode, double amount,
-						EpisimCellBehavioralModel cell) {					
+				public void sendToDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {					
 					sendTo2DDiffField(ecDiffusionFieldName, propertycode, amount, cell);
 				}
-				public void receiveFromDF(String ecDiffusionFieldName, int propertycode, double amount,
-						EpisimCellBehavioralModel cell) {
+				public void receiveFromDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {
 					receiveFrom2DDiffField(ecDiffusionFieldName, propertycode, amount, cell);					
 				}
 				public double senseFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell){ 
 					return senseFrom2DDiffField(ecDiffusionFieldName, cell);
+				}
+				public double senseAVGFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell){ 
+					return senseAVGFrom2DDiffField(ecDiffusionFieldName, cell);
 				}};
 		}
 		else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
@@ -56,6 +59,9 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 				}
 				public double senseFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell){ 
 					return senseFrom3DDiffField(ecDiffusionFieldName, cell);
+				}
+				public double senseAVGFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell){ 
+					return senseAVGFrom3DDiffField(ecDiffusionFieldName, cell);
 				}};
 		}
 	}
@@ -247,7 +253,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
    		DoubleBag fieldXPos = new DoubleBag();
    		DoubleBag fieldYPos = new DoubleBag();
    	//	frame.paintShape(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron());
-   		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), fieldXPos, fieldYPos);
+   		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), fieldXPos, fieldYPos, true);
    	
    		if(remainingCapacity < amountPossible) amountPossible = remainingCapacity;
    		double amountToBeSent = amount < amountPossible ? amount : amountPossible;
@@ -261,7 +267,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
    	   		final int numberOfFieldPos = fieldXPos.size();
    	   		double amountForEachFieldPos = remainingAmountToBeSent / ((double)numberOfFieldPos);
    	   		for(int i = 0; i < numberOfFieldPos; i++){
-   	   			double realAmountSent = diffField.addConcentration(fieldXPos.get(i), fieldYPos.get(i), amountForEachFieldPos);
+   	   			double realAmountSent = diffField.addConcentration(fieldXPos.get(i), fieldYPos.get(i), amountForEachFieldPos, true);
    	   			if((amountForEachFieldPos-realAmountSent)<= 0){
    	   				newFieldXPos.add(fieldXPos.get(i));
    	   				newFieldYPos.add(fieldYPos.get(i));
@@ -288,7 +294,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
    		
    		DoubleBag fieldXPos = new DoubleBag();
    		DoubleBag fieldYPos = new DoubleBag();
-   		double freeFieldConcentration = diffField.getTotalLocalFreeFieldConcentration(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), fieldXPos, fieldYPos);
+   		double freeFieldConcentration = diffField.getTotalLocalFreeFieldConcentration(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), fieldXPos, fieldYPos, true);
    	
    		if(freeFieldConcentration < amountPossible) amountPossible = freeFieldConcentration;
    		double amountToBeReceived = amount < amountPossible ? amount : amountPossible;
@@ -301,7 +307,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
    	   		final int numberOfFieldPos = fieldXPos.size();
    	   		double amountFromEachFieldPos = remainingAmountToBeReceived / ((double)numberOfFieldPos);
    	   		for(int i = 0; i < numberOfFieldPos; i++){
-   	   			double realAmountReceived = diffField.removeConcentration(fieldXPos.get(i), fieldYPos.get(i), amountFromEachFieldPos);
+   	   			double realAmountReceived = diffField.removeConcentration(fieldXPos.get(i), fieldYPos.get(i), amountFromEachFieldPos, true);
    	   			if((amountFromEachFieldPos-realAmountReceived)<= 0){
    	   				newFieldXPos.add(fieldXPos.get(i));
    	   				newFieldYPos.add(fieldYPos.get(i));
@@ -322,7 +328,16 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
    	ExtraCellularDiffusionField2D diffField = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
    	
    	if(cellObj != null && diffField != null){
-   		return diffField.getTotalConcentrationInArea(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0));  	 	
+   		return diffField.getTotalConcentrationInArea(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), true);  	 	
+   	}
+   	return 0;
+   }
+   private double senseAVGFrom2DDiffField(String ecDiffusionFieldName, EpisimCellBehavioralModel cell) {
+   	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
+   	ExtraCellularDiffusionField2D diffField = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	
+   	if(cellObj != null && diffField != null){
+   		return diffField.getAverageConcentrationInArea(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), true);  	 	
    	}
    	return 0;
    } 
@@ -426,9 +441,20 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
    	}
    	return 0;
    } 
-
+   private double senseAVGFrom3DDiffField(String ecDiffusionFieldName, EpisimCellBehavioralModel cell) {
+   	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
+   	ExtraCellularDiffusionField3D diffField = (ExtraCellularDiffusionField3D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	
+   	if(cellObj != null && diffField != null){
+   		return diffField.getAverageConcentrationInArea(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0));  	 	
+   	}
+   	return 0;
+   } 
 	
    public double sense(String ecDiffusionFieldName, EpisimCellBehavioralModel cell) {
 	   return this.sendReceiveDFConnector.senseFromDF(ecDiffusionFieldName, cell);
+   }
+   public double senseAVG(String ecDiffusionFieldName, EpisimCellBehavioralModel cell) {
+	   return this.sendReceiveDFConnector.senseAVGFromDF(ecDiffusionFieldName, cell);
    } 
 }

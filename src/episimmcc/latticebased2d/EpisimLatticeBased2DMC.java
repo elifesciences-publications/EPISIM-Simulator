@@ -21,6 +21,8 @@ public class EpisimLatticeBased2DMC extends EpisimModelConnector {
 	private String chemotacticField="";
 	private double cellCellInteractionEnergy = 0.7;
 	private double lambdaChem = 1;
+	private double x=0;
+	private double y=0;
 		
 	@Hidden
 	@NoExport
@@ -95,5 +97,31 @@ public class EpisimLatticeBased2DMC extends EpisimModelConnector {
 	 public void setLambdaChem(double lambdaChem) {	   
 	   	this.lambdaChem = lambdaChem;
 	 }
+	
+	 @NoExport
+   public double getX() {
+   
+   	return x;
+   }
+	
+   @Hidden
+	@NoExport
+   public void setX(double x) {
+   
+   	this.x = x;
+   }
+	
+   @NoExport
+   public double getY() {
+   
+   	return y;
+   }
+	
+   @Hidden
+	@NoExport
+   public void setY(double y) {
+   
+   	this.y = y;
+   }
 
 }

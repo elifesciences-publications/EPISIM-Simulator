@@ -28,6 +28,8 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
 	private ExtracellularDiffusionFieldBCConfig2D fieldBCConfig;
 	private ForwardEulerDiffusionReaction fEulerDiffReact;
 	
+	
+	
 	public ExtraCellularDiffusionField2D(EpisimDiffusionFieldConfiguration fieldConfiguration, ExtracellularDiffusionFieldBCConfig2D fieldBCConfig, double widthInMikron, double heightInMikron){
 		this.widthInMikron = widthInMikron;
 		this.heightInMikron = heightInMikron;
@@ -98,25 +100,26 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    	}
    }
    
-   public double getConcentration(double xInMikron, double yInMikron){
+   public double getConcentration(double xInMikron, double yInMikron, boolean toroidalYOverride){
    	int x = mikronToIntPos(xInMikron);
    	int y = mikronToIntPos(yInMikron);
-   	if(isToroidalX() && isToroidalY()){
+   	boolean toroidalY = toroidalYOverride || isToroidalY();
+   	if(isToroidalX() && toroidalY){
    		return extraCellularField.get(extraCellularField.stx(x), extraCellularField.sty(y));
    	}
-   	else if(!isToroidalX() && isToroidalY()){
+   	else if(!isToroidalX() && toroidalY){
    		if(x < extraCellularField.getWidth()){   
       		return extraCellularField.get(x, extraCellularField.sty(y));
       	}
       	else return 0;
    	}
-   	else if(isToroidalX() && !isToroidalY()){
+   	else if(isToroidalX() && !toroidalY){
    		if(y < extraCellularField.getHeight()){   
       		return extraCellularField.get(extraCellularField.stx(x), y);
       	}
       	else return 0;
    	}
-   	else if(!isToroidalX() && !isToroidalY()){
+   	else if(!isToroidalX() && !toroidalY){
    		if(x < extraCellularField.getWidth() && y < extraCellularField.getHeight()){   
       		return extraCellularField.get(x, y);
       	}
@@ -129,14 +132,15 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    	return (int)(posInMikron/ fieldConfiguration.getLatticeSiteSizeInMikron());
    }
    
-   private boolean shouldReturnZero(int x, int y){
-   	if(!toroidalX && !toroidalY && (x==0 || y==0 || x ==(extraCellularField.getWidth()-1) || y ==(extraCellularField.getHeight()-1))){
+   private boolean shouldReturnZero(int x, int y, boolean toroidalYOverride){
+   	boolean toroY = toroidalYOverride || toroidalY;
+   	if(!toroidalX && !toroY && (x==0 || y==0 || x ==(extraCellularField.getWidth()-1) || y ==(extraCellularField.getHeight()-1))){
    		return true;
    	}
    	else if(!toroidalX && (x==0 || x ==(extraCellularField.getWidth()-1))){
    		return true;
    	}
-   	else if(!toroidalY && (y==0 ||y ==(extraCellularField.getHeight()-1))){
+   	else if(!toroY && (y==0 ||y ==(extraCellularField.getHeight()-1))){
    		return true;
    	}
    	return false;
@@ -149,10 +153,10 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
     *	@param concentrationToBeAdded
     * @return the concentration that was in fact added
     */
-   public double addConcentration(double xInMikron, double yInMikron, double concentrationToBeAdded){
+   public double addConcentration(double xInMikron, double yInMikron, double concentrationToBeAdded, boolean toroidalYOverride){
    	int x = mikronToIntPos(xInMikron);
    	int y = mikronToIntPos(yInMikron);
-   	if(shouldReturnZero(x, y)) return 0;
+   	if(shouldReturnZero(x, y, toroidalYOverride)) return 0;
    	double concentration = extraCellularField.get(extraCellularField.stx(x), extraCellularField.sty(y));
    	if((concentration+concentrationToBeAdded) > this.fieldConfiguration.getMaximumConcentration()){
    		concentrationToBeAdded = this.fieldConfiguration.getMaximumConcentration() - concentration;
@@ -167,25 +171,23 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
     *	@param concentrationToBeRemoved
     * @return the concentration that was in fact removed
     */
-   public double removeConcentration(double xInMikron, double yInMikron, double concentrationToBeRemoved){
+   public double removeConcentration(double xInMikron, double yInMikron, double concentrationToBeRemoved, boolean toroidalYOverride){
    	int x = mikronToIntPos(xInMikron);
    	int y = mikronToIntPos(yInMikron);   	
-   	if(shouldReturnZero(x, y)) return 0;
+   	if(shouldReturnZero(x, y, toroidalYOverride)) return 0;
    	double concentration = extraCellularField.get(extraCellularField.stx(x), extraCellularField.sty(y));
    	if((concentration-concentrationToBeRemoved) < this.fieldConfiguration.getMinimumConcentration()){
    		concentrationToBeRemoved = concentration - this.fieldConfiguration.getMinimumConcentration();
    	}
    	extraCellularField.set(extraCellularField.stx(x), extraCellularField.sty(y),(concentration-concentrationToBeRemoved));
    	return concentrationToBeRemoved;
-   }
-   
-  
+   }  
    
    public double getInterval() {
 	   return 1;
    }
    
-   public double getTotalLocalFieldRemainingCapacity(CellBoundaries cellBoundaries, DoubleBag xPos, DoubleBag yPos){
+   public double getTotalLocalFieldRemainingCapacity(CellBoundaries cellBoundaries, DoubleBag xPos, DoubleBag yPos, boolean toroidalYOverride){
    	xPos.clear();
    	yPos.clear();
    	
@@ -198,15 +200,15 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		double startX = getMinX(cellBoundaries);
    		double stopX = getMaxX(cellBoundaries);
    		
-   		double startY = getMinY(cellBoundaries);
-   		double stopY = getMaxY(cellBoundaries);
+   		double startY = getMinY(cellBoundaries, toroidalYOverride);
+   		double stopY = getMaxY(cellBoundaries, toroidalYOverride);
    		
    		for(double y = startY; y <= stopY;){
    			for(double x = startX; x <= stopX;){
       			if(cellBoundaries.contains(x, y)){
       				xPos.add(x);
       				yPos.add(y);
-      				if(maxConcentration < Double.POSITIVE_INFINITY) remainingCapacity += (maxConcentration-getConcentration(x, y));
+      				if(maxConcentration < Double.POSITIVE_INFINITY) remainingCapacity += (maxConcentration-getConcentration(x, y, toroidalYOverride));
       			}
       			x+=fieldRes;
       		}
@@ -215,7 +217,7 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		if(maxConcentration < Double.POSITIVE_INFINITY)return remainingCapacity;
    		else return Double.POSITIVE_INFINITY;   	
    }
-   public double getTotalLocalFreeFieldConcentration(CellBoundaries cellBoundaries, DoubleBag xPos, DoubleBag yPos){
+   public double getTotalLocalFreeFieldConcentration(CellBoundaries cellBoundaries, DoubleBag xPos, DoubleBag yPos, boolean toroidalYOverride){
    	xPos.clear();
    	yPos.clear();
    	double minConcentration = getFieldConfiguration().getMinimumConcentration();
@@ -227,31 +229,29 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		double startX = getMinX(cellBoundaries);
    		double stopX = getMaxX(cellBoundaries);
    		
-   		double startY = getMinY(cellBoundaries);
-   		double stopY = getMaxY(cellBoundaries);
+   		double startY = getMinY(cellBoundaries, toroidalYOverride);
+   		double stopY = getMaxY(cellBoundaries, toroidalYOverride);
    		
    		for(double y = startY; y <= stopY;){
    			for(double x = startX; x <= stopX;){
    				if(cellBoundaries.contains(x, y)){
       				xPos.add(x);
       				yPos.add(y);
-      				if(minConcentration > Double.NEGATIVE_INFINITY)totalFreeCapacity += (getConcentration(x, y)-minConcentration);
+      				if(minConcentration > Double.NEGATIVE_INFINITY)totalFreeCapacity += (getConcentration(x, y, toroidalYOverride)-minConcentration);
       			}
       			x+=fieldRes;
       		}
    			y+=fieldRes;
    		}
    		if(minConcentration > Double.NEGATIVE_INFINITY)return totalFreeCapacity;
-   		else return Double.POSITIVE_INFINITY;
-   	
-   	
+   		else return Double.POSITIVE_INFINITY;  	
    }
    
    public double getMaxConcentrationInField(){
    	return this.extraCellularField.max();
    }
    
-   public double getTotalConcentrationInArea(CellBoundaries area){   	
+   public double getTotalConcentrationInArea(CellBoundaries area, boolean toroidalYOverride){   	
    
    		double totalConcentration = 0;
    		
@@ -260,13 +260,13 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		double startX = getMinX(area);
    		double stopX = getMaxX(area);
    		
-   		double startY = getMinY(area);
-   		double stopY = getMaxY(area);
+   		double startY = getMinY(area, toroidalYOverride);
+   		double stopY = getMaxY(area, toroidalYOverride);
    		
    		for(double y = startY; y <= stopY;){
    			for(double x = startX; x <= stopX;){
    				if(area.contains(x, y)){
-   					totalConcentration += getConcentration(x, y);
+   					totalConcentration += getConcentration(x, y, toroidalYOverride);
       			}
       			x+=fieldRes;
       		}
@@ -275,7 +275,7 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		return totalConcentration;
    }
    
-   public double getAverageConcentrationInArea(CellBoundaries area){   	
+   public double getAverageConcentrationInArea(CellBoundaries area, boolean toroidalYOverride){   	
       
 		double totalConcentration = 0;
 		
@@ -284,15 +284,15 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
 		double startX = getMinX(area);
 		double stopX = getMaxX(area);
 		
-		double startY = getMinY(area);
-		double stopY = getMaxY(area);
+		double startY = getMinY(area, toroidalYOverride);
+		double stopY = getMaxY(area, toroidalYOverride);
 		
 		double numberOfLatticeSites = 0;
 		
 		for(double y = startY; y <= stopY;){
 			for(double x = startX; x <= stopX;){
 				if(area.contains(x, y)){
-					totalConcentration += getConcentration(x, y);
+					totalConcentration += getConcentration(x, y, toroidalYOverride);
 					numberOfLatticeSites+=1.0;
    			}
    			x+=fieldRes;
@@ -301,15 +301,15 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
 		}
 		return numberOfLatticeSites > 0 ? (totalConcentration/numberOfLatticeSites) : totalConcentration;
    }
-   public Vector2d getChemotaxisVectorForCellBoundary(CellBoundaries area){		
+   public Vector2d getChemotaxisVectorForCellBoundary(CellBoundaries area, boolean toroidalYOverride){		
 		
 		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
 		
 		double startX = getMinX(area);
 		double stopX = getMaxX(area);
 		
-		double startY = getMinY(area);
-		double stopY = getMaxY(area);
+		double startY = getMinY(area, toroidalYOverride);
+		double stopY = getMaxY(area, toroidalYOverride);
 		
 		double topLeftConcentration=0;
 		double bottomLeftConcentration=0;
@@ -328,19 +328,19 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
 			for(double x = startX; x <= stopX;){
 				if(area.contains(x, y)){
 					if(x < verticalReflectionAxis && y < horizontalReflectionAxis){
-						topLeftConcentration += getConcentration(x, y);
+						topLeftConcentration += getConcentration(x, y, toroidalYOverride);
 						topLeftLatticeSites++;
 					}
 					else if(x < verticalReflectionAxis && y > horizontalReflectionAxis){
-						bottomLeftConcentration += getConcentration(x, y);
+						bottomLeftConcentration += getConcentration(x, y, toroidalYOverride);
 						bottomLeftLatticeSites++;
 					}
 					else if(x > verticalReflectionAxis && y < horizontalReflectionAxis){
-						topRightConcentration += getConcentration(x, y);
+						topRightConcentration += getConcentration(x, y, toroidalYOverride);
 						topRightLatticeSites++;
 					}
 					else if(x > verticalReflectionAxis && y > horizontalReflectionAxis){
-						bottomRightConcentration += getConcentration(x, y);
+						bottomRightConcentration += getConcentration(x, y, toroidalYOverride);
 						bottomRightLatticeSites++;
 					}
    			}
@@ -379,13 +379,13 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    	return (isToroidalX() || (boundaries.getMaxXInMikron() <= (getWidthInMikron()-fieldRes)))?boundaries.getMaxXInMikron():(getWidthInMikron()-fieldRes);
    }
-   private double getMinY(CellBoundaries boundaries){
+   private double getMinY(CellBoundaries boundaries, boolean toroidalYOverride){
    	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
-   	return (isToroidalY() ||  (boundaries.getMinYInMikron() >= fieldRes)) ? boundaries.getMinYInMikron() :fieldRes;
+   	return (isToroidalY() || toroidalYOverride || (boundaries.getMinYInMikron() >= fieldRes)) ? boundaries.getMinYInMikron() :fieldRes;
    }
-   private double getMaxY(CellBoundaries boundaries){
+   private double getMaxY(CellBoundaries boundaries, boolean toroidalYOverride){
    	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
-   	return (isToroidalY() || (boundaries.getMaxYInMikron() <= (getHeightInMikron()-fieldRes)))?boundaries.getMaxYInMikron():(getHeightInMikron()-fieldRes);
+   	return (isToroidalY() || toroidalYOverride || (boundaries.getMaxYInMikron() <= (getHeightInMikron()-fieldRes)))?boundaries.getMaxYInMikron():(getHeightInMikron()-fieldRes);
    }
    
    

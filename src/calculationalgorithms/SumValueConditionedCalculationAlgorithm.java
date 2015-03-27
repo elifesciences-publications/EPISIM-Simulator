@@ -62,6 +62,9 @@ public class SumValueConditionedCalculationAlgorithm  extends AbstractCommonCalc
 			catch (CellNotValidException e){
 				EpisimExceptionHandler.getInstance().displayException(e);
 			}
+			catch(NullPointerException ne){
+				System.out.println("Fehler");
+			}
 		}
 		
 		if(sum != 0) results.add1DValue(sum);

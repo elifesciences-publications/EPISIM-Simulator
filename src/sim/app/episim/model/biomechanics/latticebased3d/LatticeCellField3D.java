@@ -8,6 +8,7 @@ import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.vertexbased2d.geom.Line;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.visualization.threedim.LatticeCellFieldPortrayal3D;
 import sim.field.grid.Grid3D;
 import sim.field.grid.ObjectGrid3D;
@@ -23,11 +24,12 @@ public class LatticeCellField3D{
 	private ObjectGrid3D objectGridCellField;
 	private SparseGrid3D sparseGridCellField;
 	private HashMap<Long, Line3D> spreadingLineRegistry;
-	
+	private LatticeBased3DModelGP globalParameters;
 	public LatticeCellField3D(int width, int height, int length){
 		objectGridCellField = new ObjectGrid3D(width, height, length);
 		sparseGridCellField = new SparseGrid3D(width, height, length);
 		spreadingLineRegistry = new HashMap<Long, Line3D>();
+		globalParameters =((LatticeBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters());
 	}
 	
 	public void setFieldLocationOfObject(Int3D location, AbstractCell cell){
@@ -57,7 +59,7 @@ public class LatticeCellField3D{
 		Line3D line = new Line3D(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z), 
 				  new Vector3d(spreadingLocMikron.x, spreadingLocMikron.y, spreadingLocMikron.z));
 		for(Line3D otherLine : this.spreadingLineRegistry.values()){
-			if(line.lineLineIntersect(otherLine, LatticeBased3DModelGP.hexagonal_radius*0.5)) return true;
+			if(line.lineLineIntersect(otherLine, globalParameters.getCellRadius()*0.5)) return true;
 		}
 		
 		return false;
@@ -65,7 +67,7 @@ public class LatticeCellField3D{
 	
 	
 	public EpisimPortrayal getCellFieldPortrayal(){
-		LatticeCellFieldPortrayal3D portrayal = new LatticeCellFieldPortrayal3D(2*LatticeBased3DModelGP.hexagonal_radius);
+		LatticeCellFieldPortrayal3D portrayal = new LatticeCellFieldPortrayal3D(2*globalParameters.getCellRadius());
 		portrayal.setField(sparseGridCellField);
 		return portrayal;
 	}
@@ -127,9 +129,9 @@ public class LatticeCellField3D{
 			double locX = (double) location.x;
 			double locY = (double) location.y;
 			double locZ = (double) location.z;
-			x = LatticeBased3DModelGP.hexagonal_radius + (locX)*(2d*LatticeBased3DModelGP.hexagonal_radius);
-			y = LatticeBased3DModelGP.hexagonal_radius + (locY)*(2d*LatticeBased3DModelGP.hexagonal_radius);
-			z = LatticeBased3DModelGP.hexagonal_radius + (locZ)*(2d*LatticeBased3DModelGP.hexagonal_radius);
+			x = globalParameters.getCellRadius() + (locX)*(2d*globalParameters.getCellRadius());
+			y = globalParameters.getCellRadius() + (locY)*(2d*globalParameters.getCellRadius());
+			z = globalParameters.getCellRadius() + (locZ)*(2d*globalParameters.getCellRadius());
 			
 		}
 		return new Double3D(x, y, z);

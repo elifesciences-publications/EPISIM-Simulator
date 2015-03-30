@@ -76,11 +76,11 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 	public LatticeBased3DModel(AbstractCell cell){
 		super(cell);
 		globalParameters = (LatticeBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		standardCellRadius = LatticeBased3DModelGP.hexagonal_radius;
+		standardCellRadius = globalParameters.getCellRadius();
 		if(cellField == null){
 	   	
 	   	int width = globalParameters.getNumber_of_columns();
-	   	int length = globalParameters.getNumber_of_columns();
+	   	int length = globalParameters.getNumber_of_layers();
 	   	int height = globalParameters.getNumber_of_rows();
 	   	cellField = new LatticeCellField3D(width, height, length);
 	   }
@@ -335,7 +335,7 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 			   		LatticeBased3DModel mechModel = (LatticeBased3DModel) cell.getEpisimBioMechanicalModelObject();
 			   		Line3D otherLine = mechModel.getSpreadingLine();
 			   		if(otherLine != null){
-			   			if(line.lineLineIntersect(otherLine, LatticeBased3DModelGP.hexagonal_radius*0.5)){
+			   			if(line.lineLineIntersect(otherLine, globalParameters.getCellRadius()*0.5)){
 			   				nonSpreadingNeighbours.remove(neighbour);
 			   			}
 			   		}
@@ -351,9 +351,9 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 			double locX = (double) location.x;
 			double locY = (double) location.y;
 			double locZ = (double) location.z;
-			x = LatticeBased3DModelGP.hexagonal_radius + (locX)*(2d*LatticeBased3DModelGP.hexagonal_radius);
-			y = LatticeBased3DModelGP.hexagonal_radius + (locY)*(2d*LatticeBased3DModelGP.hexagonal_radius);
-			z = LatticeBased3DModelGP.hexagonal_radius + (locZ)*(2d*LatticeBased3DModelGP.hexagonal_radius);
+			x = globalParameters.getCellRadius() + (locX)*(2d*globalParameters.getCellRadius());
+			y = globalParameters.getCellRadius() + (locY)*(2d*globalParameters.getCellRadius());
+			z = globalParameters.getCellRadius() + (locZ)*(2d*globalParameters.getCellRadius());
 			
 		}
 		return new Double3D(x, y, z);
@@ -608,7 +608,7 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 		   		LatticeBased3DModel mechModel = (LatticeBased3DModel) cell.getEpisimBioMechanicalModelObject();
 		   		Line3D otherLine = mechModel.getSpreadingLine();
 		   		if(otherLine != null){
-		   			if(line.lineLineIntersect(otherLine, LatticeBased3DModelGP.hexagonal_radius*0.5)) return true;
+		   			if(line.lineLineIntersect(otherLine, globalParameters.getCellRadius()*0.5)) return true;
 		   		}
 		   	}
 		 }
@@ -652,7 +652,7 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 	protected void resetCellField() {	   
    	cellField.clear();
    	int width = globalParameters.getNumber_of_columns();
-   	int length = globalParameters.getNumber_of_columns();
+   	int length = globalParameters.getNumber_of_layers();
    	int height = globalParameters.getNumber_of_rows();
    	cellField = new LatticeCellField3D(width, height, length);
 	}

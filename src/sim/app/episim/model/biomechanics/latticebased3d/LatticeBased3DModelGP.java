@@ -6,23 +6,17 @@ import episiminterfaces.NoUserModification;
 
 public class LatticeBased3DModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 
-	//TODO: Make this flexible
-	private static final double celldiameter_mikron = 50;
-	public static final double hexagonal_radius = (celldiameter_mikron/2d);
 	
-	 
+	private double cellDiameterInMikron = 50;
 	
-	
-
 	private double numberOfPixelsPerMicrometer = 0.1;
-	
-	
+		
 	private double number_of_columns =40;
 	private double number_of_rows =40;
+	private double number_of_layers =40;
 	private double number_of_initially_occupied_layers =8;
 	
-	private double neighborhood_mikron = 2d*hexagonal_radius;
-		
+	
 	private boolean useContinuousSpace = false;
 	private boolean useCellCellInteractionEnergy = true;
 	private boolean stickToCellColony = true;
@@ -35,14 +29,16 @@ public class LatticeBased3DModelGP implements EpisimBiomechanicalModelGlobalPara
    public void setAddSecretingCellColony(boolean addSecretingCellColony) {
 	   this.addSecretingCellColony = addSecretingCellColony;
    }
-	
+	@NoUserModification
 	public double getNeighborhood_mikron() {
-	   return this.neighborhood_mikron;
+	   return getCellDiameterInMikron();
    }
-
+	@NoUserModification
 	public void setNeighborhood_mikron(double val) {
-	   this.neighborhood_mikron = val;	   
+	   /*DOES NOTHING*/
    }
+	
+	public double getCellRadius(){ return (cellDiameterInMikron/2d);}
 	
 	public int getNumber_of_rows() {
 
@@ -65,6 +61,15 @@ public class LatticeBased3DModelGP implements EpisimBiomechanicalModelGlobalPara
 	   this.number_of_columns = number_of_columns;
    }
    
+   public int getNumber_of_layers() {
+
+	   return (int) number_of_layers;
+   }
+   
+   public void setNumber_of_layers(int number_of_layers) {
+	   this.number_of_layers = number_of_layers;
+   }
+   
    public int getNumber_of_initially_occupied_layers() {
 
 	   return (int)number_of_initially_occupied_layers;
@@ -79,46 +84,41 @@ public class LatticeBased3DModelGP implements EpisimBiomechanicalModelGlobalPara
 	@NoExport
 	public void setWidthInMikron(double val) {
 		if(val > 0){
-			this.number_of_columns = (int) (val/(2d*hexagonal_radius));
+			this.number_of_columns = (int) (val/(getCellDiameterInMikron()));
 		}
    }
 	
 	@NoUserModification
 	@NoExport
 	public double getWidthInMikron() {
-		return (this.number_of_columns*2d*hexagonal_radius);
+		return (this.number_of_columns*getCellDiameterInMikron());
    }
 	
 	@NoExport
 	public void setHeightInMikron(double val) {
 		if(val > 0){
-			this.number_of_rows = (int)(val/(2d*hexagonal_radius));
+			this.number_of_rows = (int)(val/(getCellDiameterInMikron()));
 		}
    }
 			
 	@NoUserModification
 	@NoExport
 	public double getHeightInMikron(){
-		return (this.number_of_rows*2d*hexagonal_radius);
+		return (this.number_of_rows*getCellDiameterInMikron());
    }
 	
 	@NoUserModification
 	public double getLengthInMikron() {
-		return (this.number_of_columns*2d*hexagonal_radius);
+		return (this.number_of_layers*getCellDiameterInMikron());
 	}
 	
 	@NoUserModification
 	public void setLengthInMikron(double val) {
 		if(val > 0){
-	   	this.number_of_columns = (int)(val/(2d*hexagonal_radius));
+	   	this.number_of_layers = (int)(val/(getCellDiameterInMikron()));
 		}
 	}	
 	
-	@NoUserModification
-   public double getCellDiameter_mikron() {   
-   	return celldiameter_mikron;
-   }	
-   
 	public void setNumberOfPixelsPerMicrometer(double val) {
 	   this.numberOfPixelsPerMicrometer	= val;   
    }
@@ -162,6 +162,16 @@ public class LatticeBased3DModelGP implements EpisimBiomechanicalModelGlobalPara
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
 	   return ModelDimensionality.THREE_DIMENSIONAL;
+   }
+	@NoUserModification
+   public double getCellDiameterInMikron() {
+   
+   	return cellDiameterInMikron;
+   }
+	@NoUserModification
+   public void setCellDiameterInMikron(double cellDiameterInMikron) {
+   
+   	this.cellDiameterInMikron = cellDiameterInMikron;
    }
 	
 	

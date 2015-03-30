@@ -43,7 +43,7 @@ public class LatticeBased3DMechModelInit extends BiomechanicalModelInitializer {
 				
 		int width = globalParameters.getNumber_of_columns();
 		int height = globalParameters.getNumber_of_rows();
-		int length= globalParameters.getNumber_of_columns();
+		int length= globalParameters.getNumber_of_layers();
 		int delta = globalParameters.getNumber_of_initially_occupied_layers()/2;
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();	
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
@@ -114,7 +114,7 @@ public class LatticeBased3DMechModelInit extends BiomechanicalModelInitializer {
 		
 		int width = (int) (globalParameters.getNumber_of_columns());
 		int height = globalParameters.getNumber_of_rows();
-		int length= (int) (globalParameters.getNumber_of_columns());
+		int length= (int) (globalParameters.getNumber_of_layers());
 		int delta = (int)globalParameters.getNumber_of_initially_occupied_layers()/3;
 		delta = delta==0 ? 1 : delta;
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){

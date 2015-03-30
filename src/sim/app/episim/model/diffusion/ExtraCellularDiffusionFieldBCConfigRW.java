@@ -50,8 +50,8 @@ public class ExtraCellularDiffusionFieldBCConfigRW {
 	public void saveBCConfigs(Map<String, ExtracellularDiffusionFieldBCConfig2D> bcConfigs) throws ParserConfigurationException, SAXException, IOException{
 		XmlFile xmlFile = new XmlFile(BCCONFIGS);		
 		Element root = xmlFile.getRoot();		
-		if(bcConfigs != null && bcConfigs.size() > 0){
-			if(bcConfigs.get(0) instanceof ExtracellularDiffusionFieldBCConfig3D){
+		if(bcConfigs != null && bcConfigs.size() > 0){			
+			if(bcConfigs.values().toArray()[0] instanceof ExtracellularDiffusionFieldBCConfig3D){
 				for(String ecdfName : bcConfigs.keySet()){
 					ExtracellularDiffusionFieldBCConfig3D bcConfig = (ExtracellularDiffusionFieldBCConfig3D) bcConfigs.get(ecdfName);
 					Element ecdfConfigElement = new XmlExtracellularDiffusionFieldBCConfig3D(bcConfig).toXMLNode(BCCONFIG, xmlFile);					
@@ -98,7 +98,7 @@ public class ExtraCellularDiffusionFieldBCConfigRW {
 				 }
 			 }		 
 			 if(bcConfigs != null && bcConfigs.size() > 0){
-				if(bcConfigs.get(0) instanceof ExtracellularDiffusionFieldBCConfig3D){
+				if(bcConfigs.values().toArray()[0] instanceof ExtracellularDiffusionFieldBCConfig3D){
 					for(String ecdfName : bcConfigs.keySet()){
 						ExtracellularDiffusionFieldBCConfig3D bcConfig = (ExtracellularDiffusionFieldBCConfig3D) bcConfigs.get(ecdfName);
 						if(nodeMap.containsKey(ecdfName)){

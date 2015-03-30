@@ -68,7 +68,7 @@ public class LatticeCellPortrayal3D extends SimplePortrayal3D {
 	public LatticeCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
    {
 		globalParameters = (LatticeBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		standardCellRadius = (float)LatticeBased3DModelGP.hexagonal_radius;
+		standardCellRadius = (float)globalParameters.getCellRadius();
 		this.polygonAttributes = polygonAttributes;
 		float transparencyFactor = 1.0f;
 		if(getCurrentDisplay() instanceof Display3DHack){

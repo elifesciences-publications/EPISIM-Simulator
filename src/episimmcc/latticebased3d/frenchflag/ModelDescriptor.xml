@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2015-03-30_episimmcc.latticebased3d.frenchflag.EpisimFrenchFlagModel3DMC"/>
+  <visiblename name="French Flag Model - Lattice Based 3D Model"/>
+  <modelname name="Simple French Flag 3D Model"/>
+  <modelconnectorclass name="episimmcc.latticebased3d.frenchflag.EpisimFrenchFlagModel3DMC"/>
+  <modelparameters>
+    <parameter datatype="boolean" default="false" name="isSpreading"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.7"
+      name="cellCellInteractionEnergy" pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="1.0" name="lambdaChem"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
+    <parameter datatype="String" default="" name="chemotacticField"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
+  </modelparameters>
+</modeldescriptor>

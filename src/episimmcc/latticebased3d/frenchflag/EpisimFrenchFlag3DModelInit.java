@@ -84,9 +84,9 @@ public class EpisimFrenchFlag3DModelInit extends BiomechanicalModelInitializer {
 	
 	private void setInitialGlobalParametersValues(LatticeBased3DModelGP globalParameters){
 		globalParameters.setCellDiameterInMikron(10);
-		globalParameters.setWidthInMikron(150);
-		globalParameters.setHeightInMikron(150);
-		globalParameters.setLengthInMikron(150);
+		globalParameters.setWidthInMikron(200);
+		globalParameters.setHeightInMikron(200);
+		globalParameters.setLengthInMikron(200);
 		globalParameters.setUseCellCellInteractionEnergy(false);
 		
 		

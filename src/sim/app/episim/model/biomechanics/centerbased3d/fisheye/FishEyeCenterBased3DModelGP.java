@@ -1,5 +1,10 @@
 package sim.app.episim.model.biomechanics.centerbased3d.fisheye;
 
+/*
+ Contains all global biomechanical model parameters.
+ Implements methods to get and set these parameters.
+ */
+
 import javax.vecmath.Point3d;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

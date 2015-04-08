@@ -1,5 +1,12 @@
 package episimmcc.centerbased3d.fisheye;
 
+/*
+ * Sets model initial conditions
+ * * Initial cell position (calculated with icosahedral mesh)
+ * * Differentiation levels
+ * * Initial parameter values
+ */
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,11 +37,13 @@ import episiminterfaces.EpisimPortrayal;
 
 public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
+	// Fields
 	SimulationStateData simulationStateData = null;
 	private static double CELL_WIDTH=0;
 	private static double CELL_HEIGHT=0;
 	private static double CELL_LENGTH=0;
 
+	// Constructor
 	public FishEyeCenterBasedMechModelInit() {
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
@@ -45,13 +54,15 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		}
 	}
 
+	// When loading from saved snapshot
 	public FishEyeCenterBasedMechModelInit(SimulationStateData simulationStateData) {
 		super(simulationStateData);
 		this.simulationStateData = simulationStateData;
 	}
 
+	// Remnant of epidermis model.
 	
-	
+	// Implementation of abstract method buildStandardInitialCellEnsemble in BiomechanicalModelInitializer
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 			
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
@@ -81,6 +92,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
+		// Get the biomechanical global parameters
 		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		mechModelGP.setInnerEyeRadius(mechModelGP.getInitialInnerEyeRadius());
 		
@@ -93,39 +105,53 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		
 		//	double radius2 = radius*Math.cos((Math.PI/2d - (theta/2d)));
 		//	double angleIncrement2 = Math.acos(((Math.pow(radius2, 2)+Math.pow(radius2, 2)-Math.pow(cellSize, 2))/(2d*radius2*radius2)));
-		Point3d previousPoint =null;
-	/*		for(double phi = 0; phi <= Math.PI ; phi+=angleIncrement){				
+		
+		Point3d previousPoint = null;
+		
+	/*		An attempt to use spherical coordinates to calculate vertices?
+	 * 
+	   	for(double phi = 0; phi <= Math.PI ; phi+=angleIncrement){				
 				
 				for(double theta =  Math.PI; theta >= Math.PI/2d; theta-=angleIncrement){
 				
 				double z = radius*Math.sin(theta)*Math.cos(phi);
 				double x = radius*Math.sin(theta)*Math.sin(phi);
-				double y = radius*Math.cos(theta);*/
-			double radius = mechModelGP.getInitialInnerEyeRadius();
-			Icosahedron ico = new Icosahedron(5);
-			int ignoredCells = 0;
-		 for (int i = 0; i < ico.getVertexList().size(); i+=3 ) {
-				 double x = ico.getVertexList().get(i) * radius;
-				 double y = ico.getVertexList().get(i+1) * radius;
-				 double z = ico.getVertexList().get(i+2) * radius;
+				double y = radius*Math.cos(theta);
+	*/
+		
+		double radius    = mechModelGP.getInitialInnerEyeRadius();
+		Icosahedron ico  = new Icosahedron(5);  							// generate icosahedral mesh and subdivide it 5 times
+		int ignoredCells = 0;
+		
+		
+	   for (int i = 0; i < ico.getVertexList().size(); i+=3 ) {
+	         // Get icosahedral mesh vertex coordinates (normalized) and blow them up to initial eye radius
+				double x = ico.getVertexList().get(i)   * radius;
+				double y = ico.getVertexList().get(i+1) * radius;
+				double z = ico.getVertexList().get(i+2) * radius;
 				
-				 Point3d newPos = new Point3d(fishEyeCenter.x + x, fishEyeCenter.y + y, fishEyeCenter.z + z);
+				// Translate coordinates to be centered around fishEyeCenter
+				// By default fishEyeCenter.x is at 50, so no cell should sit at x = 50, i.e. the cell's x coordinate is > 50
+				Point3d newPos = new Point3d(fishEyeCenter.x + x, fishEyeCenter.y + y, fishEyeCenter.z + z);
+				
+				// Check if this new position already exists, if it's x coordinate is > 50 and if 
+				// the previous point is null or is at a distance greater than a cell from the new point
 				if(!existingCoordinates.contains(newPos) && newPos.x >= fishEyeCenter.x && (previousPoint == null || previousPoint.distance(newPos)>=cellSize)){
 					//if(previousPoint==null ||(previousPoint.distance(newPos))>=cellSize){
-						UniversalCell stemCell = new UniversalCell(null, null, true);
-						FishEyeCenterBased3DModel mechModel=((FishEyeCenterBased3DModel) stemCell.getEpisimBioMechanicalModelObject());					
+					UniversalCell stemCell = new UniversalCell(null, null, true);
+					FishEyeCenterBased3DModel mechModel=((FishEyeCenterBased3DModel) stemCell.getEpisimBioMechanicalModelObject());					
 						
-						mechModel.setCellWidth(CELL_WIDTH);
-						mechModel.setCellHeight(CELL_HEIGHT);
-						mechModel.setCellLength(CELL_LENGTH);
-						mechModel.setStandardCellWidth(CELL_WIDTH);
-						mechModel.setStandardCellHeight(CELL_HEIGHT);
-						mechModel.setStandardCellLength(CELL_LENGTH);
+					mechModel.setCellWidth(CELL_WIDTH);
+					mechModel.setCellHeight(CELL_HEIGHT);
+					mechModel.setCellLength(CELL_LENGTH);
+					mechModel.setStandardCellWidth(CELL_WIDTH);
+					mechModel.setStandardCellHeight(CELL_HEIGHT);
+					mechModel.setStandardCellLength(CELL_LENGTH);
 						
-						existingCoordinates.add(newPos);
-						previousPoint = newPos;
-						mechModel.setPositionRespectingBounds(newPos, CELL_WIDTH/2d, CELL_HEIGHT/2d, CELL_LENGTH/2d, mechModelGP.getOptDistanceToBMScalingFactor(), true);			
-						standardCellEnsemble.add(stemCell);					
+					existingCoordinates.add(newPos);
+					previousPoint = newPos;
+					mechModel.setPositionRespectingBounds(newPos, CELL_WIDTH/2d, CELL_HEIGHT/2d, CELL_LENGTH/2d, mechModelGP.getOptDistanceToBMScalingFactor(), true);			
+					standardCellEnsemble.add(stemCell);					
 				//	}
 				}
 				else ignoredCells++;
@@ -136,21 +162,35 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		setDiffLevels(standardCellEnsemble, cellSize);
 		FishEyeCenterBased3DModel.setDummyCellSize(cellSize);
 		 
-		System.out.println("No of stem cells: " + standardCellEnsemble.size()+ "    Cells Ingnored: " + ignoredCells);
+		System.out.println("No of stem cells: " + standardCellEnsemble.size()+ "    Cells Ignored: " + ignoredCells);
 		return standardCellEnsemble;
 	}
 	
 	private void setDiffLevels(ArrayList<UniversalCell> standardCellEnsemble, double cellSize){
+		
 		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
+		
 		double prolifBeltSize = mechModelGP.getProlifCompWidthMikron();
-		double radius = mechModelGP.getInitialInnerEyeRadius();
-		double angleIncrement = Math.acos(((Math.pow(radius, 2)+Math.pow(radius, 2)-Math.pow(prolifBeltSize, 2))/(2d*radius*radius)));
-		double xDelta = radius*Math.sin(Math.PI/2d)*Math.sin(angleIncrement);
+		double radius 			 = mechModelGP.getInitialInnerEyeRadius();
+		
+		// The following is used to calculate the x interval within which initialized cells are assigned to diffLevel[1] (proliferative)
+		
+		// Similar to the formula for calculating the angle subtended by a chord from a given steradian angle, but why is everything squared?
+		// with radius = 100 and prolifBeltSize = 20, the expression in parenthesis evaluates to 0.98 (radians)
+		// the arccos of 0.98 radians is 0.20033484232311968
+		// double angleIncrement  = Math.acos(((Math.pow(radius, 2) + Math.pow(radius, 2) - Math.pow(prolifBeltSize, 2))/(2d*radius*radius)));
+		double angleIncrement = 2d * Math.asin((prolifBeltSize/2d)/radius); // = 0.2003348423231196
+
+		// sin(pi/2) = 1, can be left out of the equation.
+		// double xDelta 			 = radius * Math.sin(Math.PI/2d) * Math.sin(angleIncrement);
+		double xDelta 			 = radius * Math.sin(angleIncrement); // = 19.89974874213241
+		
 		for(int i=0; i < standardCellEnsemble.size(); i++){
 			
-			UniversalCell actCell = standardCellEnsemble.get(i);
-			EpisimBiomechanicalModel biomech =  actCell.getEpisimBioMechanicalModelObject();			
+			UniversalCell actCell 				= standardCellEnsemble.get(i);
+			EpisimBiomechanicalModel biomech =  actCell.getEpisimBioMechanicalModelObject();
+			
 			if(biomech instanceof FishEyeCenterBased3DModel){
 				if(diffLevels.length>2){
 					if((biomech.getX()+(cellSize/2d)) <= (mechModelGP.getInnerEyeCenter().x + xDelta)){

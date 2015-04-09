@@ -180,16 +180,19 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		// with radius = 100 and prolifBeltSize = 20, the expression in parenthesis evaluates to 0.98 (radians)
 		// the arccos of 0.98 radians is 0.20033484232311968
 		// double angleIncrement  = Math.acos(((Math.pow(radius, 2) + Math.pow(radius, 2) - Math.pow(prolifBeltSize, 2))/(2d*radius*radius)));
+		
+		// The angle subtended by the proliferative belt can be calculated for the 2D case due to symmetry
 		double angleIncrement = 2d * Math.asin((prolifBeltSize/2d)/radius); // = 0.2003348423231196
 
-		// sin(pi/2) = 1, can be left out of the equation.
 		// double xDelta 			 = radius * Math.sin(Math.PI/2d) * Math.sin(angleIncrement);
+		// sin(pi/2) = 1, can be left out of the equation.
 		double xDelta 			 = radius * Math.sin(angleIncrement); // = 19.89974874213241
 		
+		// Set differentiation levels of cells
 		for(int i=0; i < standardCellEnsemble.size(); i++){
 			
 			UniversalCell actCell 				= standardCellEnsemble.get(i);
-			EpisimBiomechanicalModel biomech =  actCell.getEpisimBioMechanicalModelObject();
+			EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
 			
 			if(biomech instanceof FishEyeCenterBased3DModel){
 				if(diffLevels.length>2){
@@ -203,43 +206,54 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 			}
 		}
 	}
+	
+	// This part is the initial relaxation of the model, before the proper simulation starts
 	private void initializeBiomechanics(ArrayList<UniversalCell> standardCellEnsemble){
-		EpisimBiomechanicalModel biomech =  ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject(null);
+		
+		EpisimBiomechanicalModel biomech 		 = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject(null);
 		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		
 		if(biomech instanceof FishEyeCenterBased3DModel){
+			
 			FishEyeCenterBased3DModel cbBioMech = (FishEyeCenterBased3DModel) biomech;			
 			double cumulativeMigrationDist=0;
+			
 			do{
 				cbBioMech.initialisationGlobalSimStep();
 				cumulativeMigrationDist = getCumulativeMigrationDistance(standardCellEnsemble);	
 			}
-			while(standardCellEnsemble.size() > 0 && ((cumulativeMigrationDist / standardCellEnsemble.size()) >mechModelGP.getInitMinAverageMigration()));
+			while(standardCellEnsemble.size() > 0 && ((cumulativeMigrationDist / standardCellEnsemble.size()) > mechModelGP.getInitMinAverageMigration()));
 			
 		}
 	}
 	
+	// Get migration of cells during initial relaxation
 	private double getCumulativeMigrationDistance(ArrayList<UniversalCell> standardCellEnsemble){
+		
 		double cumulativeMigrationDistance = 0;
+		
 		for(int i = 0; i < standardCellEnsemble.size(); i++){
 			FishEyeCenterBased3DModel mechModel = ((FishEyeCenterBased3DModel) standardCellEnsemble.get(i).getEpisimBioMechanicalModelObject());
 			cumulativeMigrationDistance += mechModel.getMigrationDistPerSimStep();
 		}
+		
 		return cumulativeMigrationDistance;
 	}
 	
-	
-
+ 	// Set cell dimensions
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
-		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
+		
+		ArrayList<UniversalCell> loadedCells 			  = super.buildInitialCellEnsemble();
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
+		
 		try{
 	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
-	      CELL_WIDTH = field.getDouble(cbGP);
+	      CELL_WIDTH  = field.getDouble(cbGP);
 	      
-	      field = cbGP.getClass().getDeclaredField("HEIGHT_DEFAULT");
+	      field 		= cbGP.getClass().getDeclaredField("HEIGHT_DEFAULT");
 	      CELL_HEIGHT = field.getDouble(cbGP);
 	      
-	      field = cbGP.getClass().getDeclaredField("LENGTH_DEFAULT");
+	      field 		= cbGP.getClass().getDeclaredField("LENGTH_DEFAULT");
 	      CELL_LENGTH = field.getDouble(cbGP);   
       }
       catch (NoSuchFieldException e){
@@ -254,8 +268,9 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
       catch (IllegalAccessException e){
       	EpisimExceptionHandler.getInstance().displayException(e);
       }			
+		
 		double cellSize = Math.max(CELL_WIDTH, CELL_HEIGHT);
-		cellSize = Math.max(cellSize, CELL_LENGTH);
+		cellSize 		 = Math.max(cellSize, CELL_LENGTH);
 		FishEyeCenterBased3DModel.setDummyCellSize(cellSize);
 		
 		return loadedCells;

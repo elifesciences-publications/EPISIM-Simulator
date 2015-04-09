@@ -1,5 +1,9 @@
 package episimmcc.centerbased3d.fisheye;
  
+/*
+ * Model connector for fish eye biomechanical parameters
+ */
+
 import java.util.HashMap;
 
 import sim.app.episim.model.AbstractCell;

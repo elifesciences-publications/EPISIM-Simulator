@@ -14,31 +14,33 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 
 public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private double width = 550;
-	private double height = 1050;
-	private double length = 1050;
+	private double width 										    = 550;
+	private double height 											 = 1050;
+	private double length 											 = 1050;
 	
-	private double initialInnerEyeRadius = 100;
-	private double innerEyeRadius = 100;
-	private double randomness = 0;//0.00000000125;
+	private double initialInnerEyeRadius						 = 100;
+	private double innerEyeRadius									 = 100;
+	private double randomness										 = 0;//0.00000000125;
 		
-	private double neighborhood_mikron= 20.0; 
-	private double numberOfPixelsPerMicrometer = 1;
-	private int numberOfSecondsPerSimStep=3600;
+	private double neighborhood_mikron							 = 20.0; 
+	private double numberOfPixelsPerMicrometer				 = 1;
+	private int numberOfSecondsPerSimStep						 = 3600;
 	
-	private double mechanicalNeighbourhoodOptDistFact = 1.5;
-	private double directNeighbourhoodOptDistFact = 1.3;	
-	private double optDistanceAdhesionFact = 1.3;
-	private double optDistanceScalingFactor = 0.95;
-	private double optDistanceToBMScalingFactor = 0.95;
-	private double dummyCellOptDistanceScalingFactor = 0.5;
-	private double linearToExpMaxOverlap_Perc = 0.8;
-	private double repulSpringStiffness_N_per_micro_m = 0.0000000022;
-	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022;//0.000000000149;
+	private double mechanicalNeighbourhoodOptDistFact		 = 1.5;
+	private double directNeighbourhoodOptDistFact			 = 1.3;	
+	private double optDistanceAdhesionFact						 = 1.3;
+	private double optDistanceScalingFactor					 = 0.95;
+	private double optDistanceToBMScalingFactor				 = 0.95;
+	private double dummyCellOptDistanceScalingFactor		 = 0.5;
+	private double linearToExpMaxOverlap_Perc					 = 0.8;
+	private double repulSpringStiffness_N_per_micro_m 		 = 0.0000000022;
 	
-	private double initMinAverageMigration = 0.6;
-	private double prolifCompWidthMikron= 20;
-	private int neighbourLostThres = 10;
+	//Pathmanathan et al. 2009: 2.2x10^-3 [N m^-1]; multiply with 1*10^-6 to convert to Newtons per micrometer
+	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022; //0.000000000149;
+	
+	private double initMinAverageMigration 					 = 0.6;
+	private double prolifCompWidthMikron						 = 20;
+	private int neighbourLostThres								 = 10;
 	
 	
 	public FishEyeCenterBased3DModelGP() {}	

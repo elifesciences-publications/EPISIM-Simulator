@@ -557,21 +557,7 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 
   
    
-	protected void removeCellsInWoundArea(GeneralPath woundArea) {
-		Iterator<AbstractCell> iter = TissueController.getInstance().getActEpidermalTissue().getAllCells().iterator();
-		HashSet<AbstractCell> deathCellSet = new HashSet<AbstractCell>();	
-			
-			while(iter.hasNext()){
-				AbstractCell cell = iter.next();
-				if(cell.getEpisimBioMechanicalModelObject() instanceof LatticeBased2DModel){
-					LatticeBased2DModel mechModel = (LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject();
-					if(woundArea.contains(mechModel.getLastDrawInfo2D().draw.x, mechModel.getLastDrawInfo2D().draw.y)){  
-						deathCellSet.add(cell);
-					}					
-				}
-			}
-			for(AbstractCell cell :deathCellSet) cell.killCell();
-   }
+	
 	
 	@NoExport
 	public boolean getIsAtWoundEdge(){ return this.isAtWoundEdge; }

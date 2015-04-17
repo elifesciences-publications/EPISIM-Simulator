@@ -288,9 +288,7 @@ public class UniversalTissue extends AbtractTissue implements CellDeathListener
         
  }
 
-	public void removeCells(GeneralPath path){
-		ModelController.getInstance().getBioMechanicalModelController().removeCellsInWoundArea(path);		
-	}
+	
 	
 	public void simulateASingleDataExtractionStepForDataExport(){
 		DataExportController.getInstance().newSimulationRun();

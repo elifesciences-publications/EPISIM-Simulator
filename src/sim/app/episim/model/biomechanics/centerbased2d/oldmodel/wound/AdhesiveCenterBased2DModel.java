@@ -708,40 +708,7 @@ public class AdhesiveCenterBased2DModel extends AbstractCenterBased2DModel {
 	   return cellField;
    }   
 
-	protected void removeCellsInWoundArea(GeneralPath woundArea) {
-		Iterator<AbstractCell> iter = TissueController.getInstance().getActEpidermalTissue().getAllCells().iterator();
-		Map<Long, Double2D> map = new HashMap<Long, Double2D>();
-		List<AbstractCell> deadCells = new LinkedList<AbstractCell>();
-			int i = 0;
-			while(iter.hasNext()){
-				AbstractCell cell = iter.next();
-				if(cell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBased2DModel){
-					AdhesiveCenterBased2DModel mechModel = (AdhesiveCenterBased2DModel) cell.getEpisimBioMechanicalModelObject();
-					if(woundArea.contains(mechModel.lastDrawInfo2D.draw.x, mechModel.lastDrawInfo2D.draw.y)&&
-							getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){  
-						deadCells.add(cell);
-						i++;
-					}
-					else{
-						 if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractBiomechanicalModel){
-								AbstractBiomechanical2DModel mechanicalModel = (AbstractBiomechanical2DModel) cell.getEpisimBioMechanicalModelObject();
-								map.put(cell.getID(), mechanicalModel.getCellLocationInCellField());
-						 }
-					}
-				}
-			}
-			for(AbstractCell cell: deadCells){
-				cell.killCell();
-			}			
-			
-			ModelController.getInstance().getBioMechanicalModelController().clearCellField();
-			for(AbstractCell cell: TissueController.getInstance().getActEpidermalTissue().getAllCells()){
-				if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractBiomechanicalModel){
-					AbstractBiomechanical2DModel mechanicalModel = (AbstractBiomechanical2DModel) cell.getEpisimBioMechanicalModelObject();
-					mechanicalModel.setCellLocationInCellField(map.get(cell.getID()));
-				}
-			}	   
-   }
+	
 
 	protected void newGlobalSimStep(long simStepNumber, SimState state){ /* NOT NEEDED IN THIS MODEL */ }
    

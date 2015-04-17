@@ -38,6 +38,7 @@ import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.biomechanics.centerbased2d.AbstractCenterBased2DModel;
 import sim.app.episim.model.biomechanics.centerbased2d.newmodel.CenterBased2DModelGP;
 import sim.app.episim.model.biomechanics.centerbased2d.newmodel.chemotaxis.ChemotaxisCenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2d.newmodel.psoriasis.PsoriasisCenterBased2DModelGP;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
@@ -115,6 +116,10 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
    private GenericBag<AbstractCell> directNeighbours;
    private HashSet<Long> directNeighbourIDs;
    private HashMap<Long, Integer> lostNeighbourContactInSimSteps;
+   
+   public boolean isImmuneCell = false;
+	
+	public double immuneCellYDelta_mikron = 0;
    
    public CenterBased2DModel(){
    	this(null);
@@ -674,7 +679,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 					true, true);
 			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(actNeighborBag, loc, finalSimStep);
 						
-			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL || globalParameters.isMotileStemCells()){		
+			if(!isImmuneCell && (getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL || globalParameters.isMotileStemCells())){		
 				
 				Double2D randomPositionData = new Double2D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
 						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
@@ -706,6 +711,11 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 				&& !TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()
 				&& !globalParameters.isMotileStemCells()){			
 			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellLocation.x, cellLocation.y);
+			newCellLocation =new Double2D(cellLocation.x, minY);
+			if(Math.abs(cellLocation.y - minY) > 0.1)setCellLocationInCellField(newCellLocation);
+		}
+		if(isImmuneCell && !TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){
+			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellLocation.x, cellLocation.y)-immuneCellYDelta_mikron;
 			newCellLocation =new Double2D(cellLocation.x, minY);
 			if(Math.abs(cellLocation.y - minY) > 0.1)setCellLocationInCellField(newCellLocation);
 		}
@@ -817,6 +827,10 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
    	directNeighbours.clear();
    	directNeighbourIDs.clear();
    	Double2D thisloc = this.cellLocation == null ? cellField.getObjectLocation(this) :this.cellLocation;
+   	boolean immuneCellMode = (globalParameters instanceof PsoriasisCenterBased2DModelGP 
+   										&& modelConnector instanceof episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC
+   										&& ((PsoriasisCenterBased2DModelGP) globalParameters).isAddImmuneCells());
+   	
    	for(int i=0;i<neighbours.size();i++)
       {
   		 	AbstractCell actNeighbour = neighbours.get(i);
@@ -827,21 +841,37 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
       	 Double2D otherloc = mechModelOther.cellLocation == null ? cellField.getObjectLocation(actNeighbour) : mechModelOther.cellLocation;      	
       	 double dx = cellField.tdx(thisloc.x,otherloc.x); 
       	 double dy = cellField.tdy(thisloc.y,otherloc.y);
-       	      	
-	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), 
-	      		 																					otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y)), 
-	      		 																					getCellWidth()/2d, getCellHeight()/2d);
-	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), 
-	      		 																						otherPosToroidalCorrection(new Point2d(otherloc.x, otherloc.y),new Point2d(thisloc.x, thisloc.y)), 
-	      		 																						mechModelOther.getCellWidth()/2d, mechModelOther.getCellHeight()/2d);
-	       
-	       
-	       double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);	                               
-	       double actDist=Math.sqrt(dx*dx+dy*dy);	              
-	       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist){
-	      	 directNeighbours.add(actNeighbour);
-	      	 directNeighbourIDs.add(actNeighbour.getID());	      	 
-	       }  	 
+      	 double actDist=Math.sqrt(dx*dx+dy*dy);
+      	 if(isImmuneCell && immuneCellMode){
+      		 double neighRangeMikron = ((episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC) modelConnector).getImmuneCellContactMikron();
+      		 if(actDist <= neighRangeMikron){
+		      	 directNeighbours.add(actNeighbour);
+		      	 directNeighbourIDs.add(actNeighbour.getID());	      	 
+		       }
+      	 }
+      	 else{
+      		 if(mechModelOther.isImmuneCell && immuneCellMode){
+      			 double neighRangeMikron = ((episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC) modelConnector).getImmuneCellContactMikron();
+         		 if(actDist <= neighRangeMikron){
+   		      	 directNeighbours.add(actNeighbour);
+   		      	 directNeighbourIDs.add(actNeighbour.getID());	      	 
+   		       }
+      		 }
+	      	 else{
+			       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), 
+			      		 																					otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y)), 
+			      		 																					getCellWidth()/2d, getCellHeight()/2d);
+			       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), 
+			      		 																						otherPosToroidalCorrection(new Point2d(otherloc.x, otherloc.y),new Point2d(thisloc.x, thisloc.y)), 
+			      		 																						mechModelOther.getCellWidth()/2d, mechModelOther.getCellHeight()/2d);			       
+			       double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);	                               
+			                     
+			       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist){
+			      	 directNeighbours.add(actNeighbour);
+			      	 directNeighbourIDs.add(actNeighbour.getID());	      	 
+			       }
+	      	 }
+      	 }
        }
       } 	 	
    }
@@ -1022,12 +1052,39 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 				getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),
 				getCellHeight()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), 
 				toroidal, true);
-		GenericBag<AbstractCell> neighbouringCells = new GenericBag<AbstractCell>();
-		for(int i = 0; i < neighbours.size(); i++){
-			if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
-				neighbouringCells.add((AbstractCell)neighbours.get(i));
+		if(globalParameters instanceof PsoriasisCenterBased2DModelGP && modelConnector instanceof episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC){
+			PsoriasisCenterBased2DModelGP gpPsoriasis = (PsoriasisCenterBased2DModelGP) globalParameters;
+			episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC mcc = (episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC) modelConnector;
+			if(gpPsoriasis.isAddImmuneCells()){
+				double searchWidth = mcc.getImmuneCellContactMikron() < getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact()
+											? getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact()
+											: mcc.getImmuneCellContactMikron();
+				double searchHeight = mcc.getImmuneCellContactMikron() < getCellHeight()*globalParameters.getMechanicalNeighbourhoodOptDistFact()
+											? getCellHeight()*globalParameters.getMechanicalNeighbourhoodOptDistFact()
+											: mcc.getImmuneCellContactMikron();
+				neighbours = cellField.getNeighborsWithinDistance(loc, searchWidth, searchHeight, toroidal, true);
+			}
+			else{
+				neighbours = cellField.getNeighborsWithinDistance(loc, 
+						getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),
+						getCellHeight()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), 
+						toroidal, true);
 			}
 		}
+		else{
+			neighbours = cellField.getNeighborsWithinDistance(loc, 
+					getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),
+					getCellHeight()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), 
+					toroidal, true);
+		}
+		GenericBag<AbstractCell> neighbouringCells = new GenericBag<AbstractCell>();
+		if(neighbours != null){
+			for(int i = 0; i < neighbours.size(); i++){
+				if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
+					neighbouringCells.add((AbstractCell)neighbours.get(i));
+				}
+			}
+		}		
 		return neighbouringCells;
 	}
 	
@@ -1174,44 +1231,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 
    protected Object getCellField() {	  
 	   return cellField;
-   }   
-
-	protected void removeCellsInWoundArea(GeneralPath woundArea) {
-		Iterator<AbstractCell> iter = TissueController.getInstance().getActEpidermalTissue().getAllCells().iterator();
-		Map<Long, Double2D> map = new HashMap<Long, Double2D>();
-		List<AbstractCell> deadCells = new LinkedList<AbstractCell>();
-			int i = 0;
-			while(iter.hasNext()){
-				AbstractCell cell = iter.next();
-				if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBased2DModel){
-					CenterBased2DModel mechModel = (CenterBased2DModel) cell.getEpisimBioMechanicalModelObject();
-					if(woundArea.contains(mechModel.lastDrawInfo2D.draw.x, mechModel.lastDrawInfo2D.draw.y)&&
-							getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){  
-						deadCells.add(cell);
-						i++;
-					}
-					else{
-						 if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractBiomechanicalModel){
-								AbstractBiomechanical2DModel mechanicalModel = (AbstractBiomechanical2DModel) cell.getEpisimBioMechanicalModelObject();
-								map.put(cell.getID(), mechanicalModel.getCellLocationInCellField());
-						 }
-					}
-				}
-			}
-			for(AbstractCell cell: deadCells){
-				cell.killCell();
-			}			
-			
-			ModelController.getInstance().getBioMechanicalModelController().clearCellField();
-			for(AbstractCell cell: TissueController.getInstance().getActEpidermalTissue().getAllCells()){
-				if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractBiomechanicalModel){
-					AbstractBiomechanical2DModel mechanicalModel = (AbstractBiomechanical2DModel) cell.getEpisimBioMechanicalModelObject();
-					mechanicalModel.setCellLocationInCellField(map.get(cell.getID()));
-				}
-			}	   
    }
-	
-  
     
    @CannotBeMonitored
    @NoExport  
@@ -1267,6 +1287,29 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 
    public void setStandardCellWidth(double val) {
 	   this.standardCellWidth = val;	   
+   }
+   
+   public boolean isImmuneCell() {
+      
+   	return isImmuneCell;
+   }
+
+	
+   public void setImmuneCell(boolean isImmuneCell) {
+   
+   	this.isImmuneCell = isImmuneCell;
+   }
+
+	
+   public double getImmuneCellYDelta_mikron() {
+   
+   	return immuneCellYDelta_mikron;
+   }
+
+	
+   public void setImmuneCellYDelta_mikron(double immuneCellYDelta_mikron) {
+   
+   	this.immuneCellYDelta_mikron = immuneCellYDelta_mikron;
    }
 
 	

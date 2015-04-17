@@ -10,6 +10,11 @@ public class PsoriasisCenterBased2DModelGP extends CenterBased2DModelGP {
 	
 	private double maxBasalAmplitude_mikron = 145;
 	private double initBasalAmplitude_mikron = 40;
+	private double immuneCellYDelta_mikron = 50;
+	private double immuneCellYDeltaConstProportion = 0.8;
+	private double immuneCellDensity = 0.5;
+	private boolean addImmuneCells = true;
+	
 	
 	public void newSimStep(){
 		if(reteRidgeGrowthInMikronPerSimStep > 0){
@@ -46,6 +51,54 @@ public class PsoriasisCenterBased2DModelGP extends CenterBased2DModelGP {
    public void setInitBasalAmplitude_mikron(double initBasalAmplitude_mikron) {
    
    	this.initBasalAmplitude_mikron = initBasalAmplitude_mikron;
+   }
+
+	
+   public double getImmuneCellYDelta_mikron() {
+   
+   	return immuneCellYDelta_mikron;
+   }
+
+	
+   public void setImmuneCellYDelta_mikron(double immuneCellYDelta_mikron) {
+   
+   	this.immuneCellYDelta_mikron = immuneCellYDelta_mikron;
+   }
+
+	
+   public double getImmuneCellYDeltaConstProportion() {
+   
+   	return immuneCellYDeltaConstProportion;
+   }
+
+	
+   public void setImmuneCellYDeltaConstProportion(double immuneCellYDeltaConstProportion) {
+   
+   	this.immuneCellYDeltaConstProportion = immuneCellYDeltaConstProportion>=0 && immuneCellYDeltaConstProportion <=1 ? immuneCellYDeltaConstProportion : this.immuneCellYDeltaConstProportion;
+   }
+
+	
+   public boolean isAddImmuneCells() {
+   
+   	return addImmuneCells;
+   }
+
+	
+   public void setAddImmuneCells(boolean addImmuneCells) {
+   
+   	this.addImmuneCells = addImmuneCells;
+   }
+
+	
+   public double getImmuneCellDensity() {
+   
+   	return immuneCellDensity;
+   }
+
+	
+   public void setImmuneCellDensity(double immuneCellDensity) {
+   
+   	this.immuneCellDensity = immuneCellDensity>0 && immuneCellDensity <=1 ? immuneCellDensity : this.immuneCellDensity;
    }
 
 }

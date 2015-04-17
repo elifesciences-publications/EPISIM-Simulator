@@ -20,7 +20,7 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epider
 	private static final String ID = "2015-03-10";
 	private static final String NAME = "New Center Based Biomechanical Model - Psoriasis";
 
-	
+	private double immuneCellContactMikron = 50;
 	
 	public EpisimCenterBasedMC(){}
 	
@@ -54,6 +54,15 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epider
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
 		return CenterBasedMechModelInit.class;
-	} 
+	}
+
+	
+   public double getImmuneCellContactMikron() {   
+   	return immuneCellContactMikron;
+   }
+
+	public void setImmuneCellContactMikron(double immuneCellContactMikron) {   
+   	this.immuneCellContactMikron = immuneCellContactMikron >= 0 ? immuneCellContactMikron : 0;
+   } 
 }
 

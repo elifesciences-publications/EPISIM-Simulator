@@ -331,11 +331,6 @@ public class VertexBasedModel extends AbstractBiomechanical2DModel implements Ce
 	   return cellField;
    }
    
-	protected void removeCellsInWoundArea(GeneralPath woundArea) {
-
-	   // TODO Wounding in Vertex Model is not yet supported
-	   
-   }
 	
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state) {
 

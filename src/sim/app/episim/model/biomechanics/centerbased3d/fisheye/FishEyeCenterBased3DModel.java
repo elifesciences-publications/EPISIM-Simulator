@@ -316,9 +316,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
             																				- Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
             																				- Math.pow(actDist_square, 2));         
             	           	
-            	double smoothingFunction 	= (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap) 
-            											&& (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
-            											? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
+            	double smoothingFunction 	= (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap) && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))? 
+            											Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
             											: 1;
             	double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*getAdhesionFactor(other);
             										 
@@ -568,6 +567,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	return modelConnector.getAdhesionFactorForCell(otherCell);
    } 
    
+	// The function calculateDistanceToCellCenter is used both for cell-cell distance calculation and cell-eye center distance
    private double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
    	Point3d intersectionPointEllipsoid = calculateIntersectionPointOnEllipsoid(cellCenter, otherCellCenter, aAxis, bAxis, cAxis);	   
 	   return cellCenter.distance(intersectionPointEllipsoid);
@@ -599,6 +599,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   return new Point3d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y),(cellCenter.z+ linefactor*rayDirection.z));
    }
    
+   
+   // Pin cells to spherical surface
    public void setPositionRespectingBounds(Point3d cellPosition, double aAxis, double bAxis, double cAxis, boolean setPostionInCellField)
 	{
    	setPositionRespectingBounds(cellPosition, aAxis, bAxis, cAxis, globalParameters.getOptDistanceToBMScalingFactor(), setPostionInCellField);
@@ -606,6 +608,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
    public void setPositionRespectingBounds(Point3d cellPosition, double aAxis, double bAxis, double cAxis, double optDistScalingFact, boolean setPostionInCellField)
 	{
+   	// Calculate new cell location
 	   Point3d newloc = calculateLowerBoundaryPositionForCell(cellPosition, aAxis, bAxis, cAxis, optDistScalingFact);
 	   
 	   if(setPostionInCellField){
@@ -618,7 +621,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   }
 	}   
    
-   
+   // Pin dummy cells to spherical surface
    public void setDummyCellsRespectingBounds(){
    	Bag dummyCells = dummyCellField.getAllObjects();
    	
@@ -632,22 +635,37 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	}   	
    }
    
-   public Point3d calculateLowerBoundaryPositionForCell(Point3d cellCenter,  double aAxis, double bAxis, double cAxis, double optDistScalingFact){
+   // Calculation for correcting cell coordinates to stay on spherical surface
+   public Point3d calculateLowerBoundaryPositionForCell(Point3d cellCenter, double aAxis, double bAxis, double cAxis, double optDistScalingFact){
+   	/*
+   	 * Any point on a spherical surface can be defined by the direction vector from the sphere's center to the point,
+   	 * scaled by the sphere's radius.
+   	 * The distance from the cell's center to its membrane is also taken into account here when scaling the direction vector.
+   	 */
+   	
    	Point3d innerEyeCenter 					= globalParameters.getInnerEyeCenter();
    	
+   	// Get vector from eye center to current cell position and normalize it
    	Vector3d rayDirection  					= new Vector3d((cellCenter.x-innerEyeCenter.x), (cellCenter.y-innerEyeCenter.y), (cellCenter.z-innerEyeCenter.z));
 		rayDirection.normalize();
+		
+		// Get cell-center to cell-membrane distance, scale by optimal distance factor
    	double cellMembraneToCenterDistance = calculateDistanceToCellCenter(cellCenter, innerEyeCenter, aAxis, bAxis, cAxis);
    	cellMembraneToCenterDistance		  *= optDistScalingFact;
+   	
+   	// Scale normalized vector by scaled cell-center-membrane distance + current eye radius
    	rayDirection.scale((globalParameters.getInnerEyeRadius()+ cellMembraneToCenterDistance));
+   	
+   	// Set new x coordinate to the calculated optimal x coordinate
    	double newX 								= innerEyeCenter.x + rayDirection.x;
    	
+   	// If there are no dummy cells, correct newX value to be >= to InnerEyeCenter.x
    	if(!dummyCellsAdded) newX = newX < globalParameters.getInnerEyeCenter().x ? globalParameters.getInnerEyeCenter().x : newX;
    	
    	return new Point3d(newX, innerEyeCenter.y + rayDirection.y, innerEyeCenter.z + rayDirection.z);	
 	}
    
-   
+   // unused?
    private Point3d findReferencePositionOnBoundary(Point3d cellPosition){
    	return calculateIntersectionPointOnEllipsoid(globalParameters.getInnerEyeCenter(), cellPosition, globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius());
 	}   
@@ -702,7 +720,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 						|| Math.abs(newY-loc.y)> MAX_DISPLACEMENT
 						|| Math.abs(newZ-loc.z)> MAX_DISPLACEMENT){
 					System.out.println("Biomechanical Artefakt");
-				}else{
+				}
+				else{
 					setPositionRespectingBounds(new Point3d(newX, newY, newZ),getCellWidth()/2d, getCellHeight()/2d, getCellLength()/2d, false);
 				}				
 			}			
@@ -792,7 +811,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	return directNeighbours;
    }
    
-   
+   // Neighbor localization
    private void updateDirectNeighbours(){
    	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
    	directNeighbours.clear();
@@ -832,6 +851,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
       }
    }
    
+   // Correction for toroidal domain
    public Point3d otherPosToroidalCorrection(Point3d thisCell, Point3d otherCell)
    {
 	   double height = cellField.height;
@@ -958,7 +978,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	public int hitsOtherCell(){ return finalInteractionResult.numhits; }
 	
 	
-	// Determine neighbors
+	// Get neighbours
 	private GenericBag<AbstractCell> getCellularNeighbourhood(boolean toroidal) {
 		Double3D loc   									 = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;
 		Bag neighbours 									 = cellField.getNeighborsWithinDistance(loc, 
@@ -1041,7 +1061,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   return cellField;
 	}
 	   
-	   
+	// unused?
 	private Vector3d setVector3dLength(Vector3d vector, double length)
 	{
 		   if( length == 0 )

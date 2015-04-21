@@ -78,7 +78,7 @@ public class ExtraCellularDiffusionPortrayal2D extends FastValueGridPortrayal2D 
 	
 	public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
- 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
+ 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP, guiState.getEpiDisplayWidth(), guiState.getEpiDisplayHeight());
  	   else return new Rectangle2D.Double(0,0,0, 0);
    }
 

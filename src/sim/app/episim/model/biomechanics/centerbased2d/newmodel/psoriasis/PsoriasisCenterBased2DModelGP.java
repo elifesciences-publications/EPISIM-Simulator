@@ -14,6 +14,8 @@ public class PsoriasisCenterBased2DModelGP extends CenterBased2DModelGP {
 	private double immuneCellYDeltaConstProportion = 0.8;
 	private double immuneCellDensity = 0.5;
 	private boolean addImmuneCells = true;
+	private double width = 600;
+	private long immuneCellSeed = 15;
 	
 	
 	public void newSimStep(){
@@ -99,6 +101,25 @@ public class PsoriasisCenterBased2DModelGP extends CenterBased2DModelGP {
    public void setImmuneCellDensity(double immuneCellDensity) {
    
    	this.immuneCellDensity = immuneCellDensity>0 && immuneCellDensity <=1 ? immuneCellDensity : this.immuneCellDensity;
+   }
+   
+   public void setWidthInMikron(double val) {
+		if(val > 0)	width = val;
+	}	
+	public double getWidthInMikron() {
+		return width;
+	}
+
+	
+   public long getImmuneCellSeed() {
+   
+   	return immuneCellSeed;
+   }
+
+	
+   public void setImmuneCellSeed(long immuneCellSeed) {
+   
+   	this.immuneCellSeed = immuneCellSeed;
    }
 
 }

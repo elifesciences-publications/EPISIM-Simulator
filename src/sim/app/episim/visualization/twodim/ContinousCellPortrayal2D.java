@@ -57,10 +57,10 @@ public class ContinousCellPortrayal2D extends SimplePortrayal2D implements Episi
    	guiState = SimStateServer.getInstance().getEpisimGUIState();
    	
    	if(guiState != null){
-   		this.implicitScale = guiState.INITIALZOOMFACTOR;
+   		this.implicitScale = guiState.getInitialZoomFactor();
    		
-   		this.INITIALWIDTH = guiState.EPIDISPLAYWIDTH + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
-   		this.INITIALHEIGHT = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP;
+   		this.INITIALWIDTH = guiState.getEpiDisplayWidth() + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
+   		this.INITIALHEIGHT = guiState.getEpiDisplayHeight() + guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP;
    	}
    	else{
    		this.INITIALHEIGHT=0;
@@ -240,7 +240,7 @@ public class ContinousCellPortrayal2D extends SimplePortrayal2D implements Episi
    
    public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
- 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
+ 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP,guiState.getEpiDisplayWidth(), guiState.getEpiDisplayHeight());
  	   else return new Rectangle2D.Double(0,0,0, 0);
    }
 }

@@ -93,14 +93,14 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 
 	private EpisimConsole console;
 
-	public final double INITIALZOOMFACTOR;
-	public final double EPIDISPLAYWIDTH;
-	public final double EPIDISPLAYHEIGHT;
+	private double initialZoomFactor;
+	private double epiDisplayWidth;
+	private double epiDisplayHeight;
 	
-	public  final int DISPLAY_BORDER_TOP = 60;
-	public  final int DISPLAY_BORDER_LEFT = 45;
-	public  final int DISPLAY_BORDER_BOTTOM = 40;
-	public  final int DISPLAY_BORDER_RIGHT = 60;
+	public static final int DISPLAY_BORDER_TOP = 60;
+	public static final int DISPLAY_BORDER_LEFT = 45;
+	public static final int DISPLAY_BORDER_BOTTOM = 40;
+	public static final int DISPLAY_BORDER_RIGHT = 60;
 	private final double MAXHEIGHTFACTOR = 1;
 	
 	private boolean workaroundPauseWasPressed = false;	
@@ -153,23 +153,29 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 				optimizedGraphicsActivated = true;
 	    }
 		
-		double zoomFactorHeight = EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInPixels();
-		double zoomFactorWidth = EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidthInPixels();
-		
-		INITIALZOOMFACTOR = zoomFactorWidth < zoomFactorHeight ? zoomFactorWidth : zoomFactorHeight;
-		
-		EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidthInPixels() * INITIALZOOMFACTOR;
-		EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeightInPixels() * INITIALZOOMFACTOR;
-		
+	
+	   setDisplayRatioProperties();
 		
 		SimStateServer.getInstance().setEpisimGUIState(this);
 		if(state instanceof AbtractTissue) TissueController.getInstance().registerTissue(((AbtractTissue) state));
 		simulationStateListeners = new ArrayList<SimStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;		
-		this.setConsole(new EpisimConsole(this));		
+		this.setConsole(new EpisimConsole(this));
+		
 	}
 	
+	private void setDisplayRatioProperties(){
+		double heightInPixels = TissueController.getInstance().getTissueBorder().getHeightInPixels();
+		double widthInPixels = TissueController.getInstance().getTissueBorder().getWidthInPixels();
+		double zoomFactorHeight = EPIDISPLAYSTANDARDHEIGHT / heightInPixels;
+		double zoomFactorWidth = EPIDISPLAYSTANDARDWIDTH / widthInPixels;
+		
+		initialZoomFactor = zoomFactorWidth < zoomFactorHeight ? zoomFactorWidth : zoomFactorHeight;
+		
+		epiDisplayWidth = widthInPixels * initialZoomFactor;
+		epiDisplayHeight = heightInPixels * initialZoomFactor;
+	}
 	
 	
 	public Component getMainGUIComponent(){
@@ -179,8 +185,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	public Inspector getCellBehavioralModelInspector() {
 		EpisimCellBehavioralModelGlobalParameters cbmModel = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-		if(cbmModel == null)
-			return null;
+		if(cbmModel == null)	return null;
 		Inspector i = new EpisimSimpleInspector(cbmModel, this);
 		i.setVolatile(false);
 		return i;
@@ -239,8 +244,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	}
 
 	public void start() {
-
+		
+		
 		super.start();
+		setDisplayRatioProperties();
 		setupPortrayals();
 		
 
@@ -278,28 +285,21 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private void setupPortrayals2D(){
 	
-		// obstacle portrayal needs no setup
-		
-		BasementMembranePortrayal2D basementPortrayal = new BasementMembranePortrayal2D();
-		
-		rulerPortrayal = new RulerPortrayal2D();
-		LatticePortrayal2D gridPortrayal = new LatticePortrayal2D();
-		
-		
-		
-		
-		 EpisimPortrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
-		
-		
-		
-	
-		 cellPortrayal2D = (FieldPortrayal2D)cellPortrayal;
+				
 		
 		
 		
 		
 		display2D.detatchAll();
+		display2D.renewSimulationDisplay();
+		rulerPortrayal = new RulerPortrayal2D();
+		BasementMembranePortrayal2D basementPortrayal = new BasementMembranePortrayal2D();
+		LatticePortrayal2D gridPortrayal = new LatticePortrayal2D();	
 		
+		 EpisimPortrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();	
+	
+		 cellPortrayal2D = (FieldPortrayal2D)cellPortrayal;		
+		display2D.setBackdrop(Color.BLACK);
 		display2D.attach(basementPortrayal, basementPortrayal.getPortrayalName(), basementPortrayal.getViewPortRectangle(), true);
 		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
 		for(int i = 0; i < portrayals.length; i++) display2D.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
@@ -401,7 +401,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	}
 	
 	private JInternalFrame buildEpisimDisplay2D(){
-		display2D = new EpisimDisplay2D(EPIDISPLAYWIDTH+(DISPLAY_BORDER_LEFT+DISPLAY_BORDER_RIGHT), EPIDISPLAYHEIGHT+(DISPLAY_BORDER_TOP+DISPLAY_BORDER_BOTTOM), this);
+		
+		display2D = new EpisimDisplay2D(this);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
 		display2D.setBackdrop(Color.BLACK);		
@@ -452,11 +453,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 						|| console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplayForDrawing2DWoundingArea();			
 			} 
 		});
-		return display2D.createInternalFrame();
+		return display2D.getInternalFrame();
 	}
 	
 	private JInternalFrame buildEpisimDisplay3D(){
-		display3D = new EpisimDisplay3D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, this);
+		display3D = new EpisimDisplay3D(epiDisplayWidth, epiDisplayHeight, this);
 		
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
@@ -1009,8 +1010,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	public SimulationDisplayProperties getSimulationDisplayProperties(EpisimDrawInfo<DrawInfo2D> episimInfo){
 		DrawInfo2D info = episimInfo.getDrawInfo();
 		double displayScale = getDisplay().getDisplayScale();
-		double scaleX = (EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron());
-		double scaleY = (EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron());
+		double scaleX = (epiDisplayWidth / TissueController.getInstance().getTissueBorder().getWidthInMikron());
+		double scaleY = (epiDisplayHeight / TissueController.getInstance().getTissueBorder().getHeightInMikron());
 		scaleX*=displayScale;
 		scaleY*=displayScale;
 		
@@ -1025,8 +1026,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double startX =0; 
 		double startY =0; 
 		if(info != null){
-			differenceX = (info.clip.width-(EPIDISPLAYWIDTH*displayScale));
-			differenceY = (info.clip.height-(EPIDISPLAYHEIGHT*displayScale));
+			differenceX = (info.clip.width-(epiDisplayWidth*displayScale));
+			differenceY = (info.clip.height-(epiDisplayHeight*displayScale));
 			startX =differenceX >= 0 ? info.clip.x:0;
 			startY =differenceY >= 0 ? info.clip.y:0;
 		}
@@ -1113,5 +1114,15 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
        	EpisimExceptionHandler.getInstance().displayException(e1);
        }		
 	}
+	
+   public double getInitialZoomFactor(){   
+   	return initialZoomFactor;
+   }	
+   public double getEpiDisplayWidth(){   
+   	return epiDisplayWidth;
+   }	
+   public double getEpiDisplayHeight(){   
+   	return epiDisplayHeight;
+   }
 
 }

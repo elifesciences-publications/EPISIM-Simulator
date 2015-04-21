@@ -892,6 +892,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	}
    }
    
+   
    private void setRotationToPropertyValues(){
    	double rotX=0;
    	double rotY=0;

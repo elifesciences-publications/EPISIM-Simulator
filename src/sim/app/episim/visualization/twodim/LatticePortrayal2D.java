@@ -103,7 +103,7 @@ public class LatticePortrayal2D extends AbstractSpatialityScalePortrayal2D imple
 	
 	public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
- 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT), guiState.EPIDISPLAYHEIGHT+(guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM));
+ 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.getEpiDisplayWidth()+(guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT), guiState.getEpiDisplayHeight()+(guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM));
  	   else return new Rectangle2D.Double(0,0,0, 0);
     }
 }

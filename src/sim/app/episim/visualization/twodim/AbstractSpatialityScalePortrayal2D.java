@@ -38,8 +38,8 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
 		 guiState = SimStateServer.getInstance().getEpisimGUIState();
 		 
 		 if(guiState != null){
-			 this.width =  guiState.EPIDISPLAYWIDTH + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
-	   	 this.height = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM;	    	 
+			 this.width =  guiState.getEpiDisplayWidth() + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
+	   	 this.height = guiState.getEpiDisplayHeight() + guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM;	    	 
 		 }
    	    	 
    	 double heightResolution = Math.round(TissueController.getInstance().getTissueBorder().getHeightInMikron() * 0.02);

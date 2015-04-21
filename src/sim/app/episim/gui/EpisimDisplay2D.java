@@ -34,11 +34,14 @@ import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.Portrayal;
 
 public class EpisimDisplay2D implements EpisimSimulationDisplay{
-	protected GUIState simulation;
+	protected EpisimGUIState simulation;
 	private EpisimSimulationDisplay simulationDisplay;
 	boolean autoVisualizationSnaphotEnabled = false;
-	public EpisimDisplay2D(final double width, final double height, GUIState simulation){
-		
+	private JInternalFrame internalFrame;
+	
+	public EpisimDisplay2D(EpisimGUIState simulation){
+		double width = simulation.getEpiDisplayWidth()+(EpisimGUIState.DISPLAY_BORDER_LEFT+EpisimGUIState.DISPLAY_BORDER_RIGHT);
+		double height = simulation.getEpiDisplayHeight()+(EpisimGUIState.DISPLAY_BORDER_TOP+EpisimGUIState.DISPLAY_BORDER_BOTTOM);
 		
 		if(ModeServer.guiMode()){
 			simulationDisplay = new Display2DHack(width, height, simulation);
@@ -76,36 +79,52 @@ public class EpisimDisplay2D implements EpisimSimulationDisplay{
 		return simulationDisplay.getDisplayScale();
 	}
 	
+	public void renewSimulationDisplay(){
+		
+		double width = simulation.getEpiDisplayWidth()+(EpisimGUIState.DISPLAY_BORDER_LEFT+EpisimGUIState.DISPLAY_BORDER_RIGHT);
+		double height = simulation.getEpiDisplayHeight()+(EpisimGUIState.DISPLAY_BORDER_TOP+EpisimGUIState.DISPLAY_BORDER_BOTTOM);
+		
+		internalFrame.getContentPane().remove(((JComponent)simulationDisplay));
+		if(ModeServer.guiMode()){
+			simulationDisplay = new Display2DHack(width, height, simulation);
+			autoVisualizationSnaphotEnabled = ((Display2DHack)simulationDisplay).isAutomatedPNGSnapshotsEnabled(); 
+		}
+		else{
+			simulationDisplay = new NoGUIDisplay2D(width, height, simulation);
+			autoVisualizationSnaphotEnabled = ((NoGUIDisplay2D)simulationDisplay).isAutomatedPNGSnapshotsEnabled(); 
+		}	
+		
+		internalFrame.getContentPane().add(((JComponent)simulationDisplay),BorderLayout.CENTER);
+		
+	   internalFrame.setTitle(simulation.getName() + " Display");
+	   internalFrame.validate(); 
+	}
 	
 	/**
 	 * Creates Internalframe instead of a JFrame
 	 */
-	public JInternalFrame createInternalFrame()
+	public JInternalFrame getInternalFrame()
     {
-    JInternalFrame frame = new JInternalFrame()
-        {
-        public void dispose()
-            {
-            simulationDisplay.quit();       // shut down the movies
-            super.dispose();
-            }
-        };
-        
-    frame.setResizable(true);
-    
-    
-         
-                            
-    frame.getContentPane().setLayout(new BorderLayout());
-    frame.getContentPane().add(((JComponent)simulationDisplay),BorderLayout.CENTER);
-    
-    frame.setTitle(simulation.getName()  + " Display");
-   
-    
-    frame.setIconifiable(!autoVisualizationSnaphotEnabled);
-    frame.setMaximizable(false);
-    frame.pack();
-    return frame;
+	    internalFrame = new JInternalFrame()
+	        {
+	        public void dispose()
+	            {
+	            simulationDisplay.quit();       // shut down the movies
+	            super.dispose();
+	            }
+	        };
+	        
+	    internalFrame.setResizable(true);         
+	                            
+	    internalFrame.getContentPane().setLayout(new BorderLayout());
+	    internalFrame.getContentPane().add(((JComponent)simulationDisplay),BorderLayout.CENTER);
+	    
+	    internalFrame.setTitle(simulation.getName() + " Display");   
+	    
+	    internalFrame.setIconifiable(!autoVisualizationSnaphotEnabled);
+	    internalFrame.setMaximizable(false);
+	    internalFrame.pack();
+	    return internalFrame;
     }
 	
 	public void attach(FieldPortrayal2D portrayal, String name, Rectangle2D.Double bounds, boolean visible){

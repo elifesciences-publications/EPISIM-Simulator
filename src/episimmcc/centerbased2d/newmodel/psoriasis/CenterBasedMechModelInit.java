@@ -33,10 +33,11 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	MersenneTwisterFast random; 
 	public CenterBasedMechModelInit() {
 		super();
-		random = new MersenneTwisterFast(System.currentTimeMillis());
+		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
-		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		mechModelGP.setHeightInMikron(325);
+		
+		mechModelGP.setWidthInMikron(600);
+		mechModelGP.setHeightInMikron(400);	
 		mechModelGP.setForceLateralCellDivision(true);
 		mechModelGP.setMotileStemCells(true);
 	}
@@ -44,7 +45,8 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	public CenterBasedMechModelInit(SimulationStateData simulationStateData) {
 		super(simulationStateData);
 		this.simulationStateData = simulationStateData;
-		random = new MersenneTwisterFast(System.currentTimeMillis());
+		
+		
 	}
 
 	private final double depthFrac(double y, double stemCellHeight)// depth of the position in the rete ridge in percent
@@ -127,6 +129,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	
 	private void addImmuneCells(ArrayList<UniversalCell> standardCellEnsemble){
 		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		random = new MersenneTwisterFast(mechModelGP.getImmuneCellSeed());
 		double cellNumber = 0;
 		double tissueWidth = mechModelGP.getWidthInMikron();
 		cellNumber = (tissueWidth/STEM_CELL_WIDTH)*mechModelGP.getImmuneCellDensity();
@@ -170,8 +173,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	}
 	
 	private void initGlobalParameters(double stemCellHeight){
-		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		mechModelGP.setHeightInMikron(400);
+		PsoriasisCenterBased2DModelGP mechModelGP = (PsoriasisCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		mechModelGP.setBasalAmplitude_mikron(mechModelGP.getInitBasalAmplitude_mikron());
 		double deltaYImmuneCells = mechModelGP.getImmuneCellYDelta_mikron() > 0 ? mechModelGP.getImmuneCellYDelta_mikron() : 0;
 		mechModelGP.setBasalYDelta_mikron(mechModelGP.getMaxBasalAmplitude_mikron()-mechModelGP.getBasalAmplitude_mikron() + stemCellHeight + deltaYImmuneCells);

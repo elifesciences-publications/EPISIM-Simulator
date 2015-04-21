@@ -59,8 +59,6 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		super(simulationStateData);
 		this.simulationStateData = simulationStateData;
 	}
-
-	// Remnant of epidermis model.
 	
 	// Implementation of abstract method buildStandardInitialCellEnsemble in BiomechanicalModelInitializer
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
@@ -124,6 +122,9 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		int ignoredCells = 0;
 		
 		
+		// Simulations and additional calculations reveal that this currently generates too many cells.
+		// Adjust it later such that initial cell number fits perfectly to initial available area.
+		
 	   for (int i = 0; i < ico.getVertexList().size(); i+=3 ) {
 	         // Get icosahedral mesh vertex coordinates (normalized) and blow them up to initial eye radius
 				double x = ico.getVertexList().get(i)   * radius;
@@ -134,7 +135,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 				// By default fishEyeCenter.x is at 50, so no cell should sit at x = 50, i.e. the cell's x coordinate is > 50
 				Point3d newPos = new Point3d(fishEyeCenter.x + x, fishEyeCenter.y + y, fishEyeCenter.z + z);
 				
-				// Check if this new position already exists, if it's x coordinate is > 50 and if 
+				// Check if this new position already exists, if its x coordinate is > 50 and if 
 				// the previous point is null or is at a distance greater than a cell from the new point
 				if(!existingCoordinates.contains(newPos) && newPos.x >= fishEyeCenter.x && (previousPoint == null || previousPoint.distance(newPos)>=cellSize)){
 					//if(previousPoint==null ||(previousPoint.distance(newPos))>=cellSize){

@@ -25,6 +25,9 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 	private HashMap<Long, Double> cellcellAdhesion = new HashMap<Long, Double>();
 	private double bmContactArea=0;
 	
+	//TEST//
+	private double average_overlap = 0;
+	//TEST//
 	
 	private double cellVolume = 0;
 	private double extCellSpaceVolume = 0;
@@ -262,6 +265,18 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
    
    	this.contactAreaInnerEye = contactAreaInnerEye;
    }
-   
+
+   //TEST//
+	public double getAverage_overlap() {
+
+	   return average_overlap;
+   }
+	
+	@Hidden
+	public void setAverage_overlap(double average_overlap) {
+
+	   this.average_overlap = average_overlap;
+   }
+	//TEST//
 }
 

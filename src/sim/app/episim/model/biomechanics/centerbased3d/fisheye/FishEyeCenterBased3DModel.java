@@ -280,15 +280,12 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	         // Euclidean distance
 	         double actDist       = Math.sqrt(dx*dx+dy*dy+dz*dz);
 	         
-	         // If the difference from the optimal distance is really significant
-	         if (optDistScaled-actDist>MIN_OVERLAP_MICRON && actDist > 0) 
-	         {
-		        	 double overlap  = optDistScaled - actDist;
-		        	 
-		        	 //TEST//
-		        	 sum_overlap    += overlap;
-		        	 //TEST//
-	         }
+	         
+        	 	double overlap  = optDistScaled - actDist;
+        	 
+        	 	//TEST//
+        	 	sum_overlap    += overlap;
+        	 	//TEST//
 	      }
 	   }
 	   
@@ -397,9 +394,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
             	double intercell_gap 		= actDist - optDist;
                                	
             	double contactArea 			= (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
-            																				+ 2*radius_this_square*radius_other_square
-            																				- Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
-            																				- Math.pow(actDist_square, 2));         
+            																				  + 2*radius_this_square*radius_other_square
+            																				  - Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
+            																				  - Math.pow(actDist_square, 2));         
             	           	
             	double smoothingFunction 	= (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap) && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))? 
             											Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))

@@ -281,11 +281,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	         double actDist       = Math.sqrt(dx*dx+dy*dy+dz*dz);
 	         
 	         
-        	 	double overlap  = optDistScaled - actDist;
-        	 
-        	 	//TEST//
-        	 	sum_overlap    += overlap;
-        	 	//TEST//
+	        	 double overlap  = optDistScaled - actDist;
+	        	 
+	        	 //TEST//
+	        	 sum_overlap    += overlap;
+	        	 //TEST//
 	      }
 	   }
 	   

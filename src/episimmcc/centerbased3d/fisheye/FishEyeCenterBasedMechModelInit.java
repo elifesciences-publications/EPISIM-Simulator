@@ -118,6 +118,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	*/
 		
 		double radius    = mechModelGP.getInitialInnerEyeRadius();
+//		Icosahedron ico  = new Icosahedron(4);  							// generate icosahedral mesh and subdivide it 4 times
 		Icosahedron ico  = new Icosahedron(5);  							// generate icosahedral mesh and subdivide it 5 times
 		int ignoredCells = 0;
 		
@@ -186,14 +187,12 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 //		double angleIncrement = 2d * Math.asin((prolifBeltSize/2d)/radius); // = 0.2003348423231196
 		// 150505 - More intuitive: proliferative belt is distance as measured by ruler (not distance on surface, as it was before)
 		double angleIncrement = Math.PI/2d - Math.acos(prolifBeltSize/radius);
-		System.out.println(angleIncrement);
 
 		// double xDelta 			 = radius * Math.sin(Math.PI/2d) * Math.sin(angleIncrement);
 		// sin(pi/2) = 1, can be left out of the equation.
 //		double xDelta 			 = radius * Math.sin(angleIncrement); // = 19.89974874213241
 		// 150505 - xDelta redefined to be the arc subtended by the angle
 		double xDelta 			 = radius * angleIncrement;
-		System.out.println(xDelta);
 		
 		// Set differentiation levels of cells
 		for(int i=0; i < standardCellEnsemble.size(); i++){

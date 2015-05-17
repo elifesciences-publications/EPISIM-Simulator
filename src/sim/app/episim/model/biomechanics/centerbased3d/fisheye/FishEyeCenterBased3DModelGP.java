@@ -39,7 +39,7 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022; //0.000000000149;
 	
 	private double initMinAverageMigration 					 = 0.6;
-	private double prolifCompWidthMikron						 = 20;
+	private double prolifCompWidthMikron						 = 25;
 	private int neighbourLostThres								 = 10;
 	
 	

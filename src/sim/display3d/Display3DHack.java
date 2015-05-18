@@ -61,6 +61,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -90,8 +91,11 @@ import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimDisplay3D;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimProgressWindow;
+import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.gui.NumberInputDialog;
+import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
@@ -332,6 +336,191 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        catch (FileNotFoundException e) { } // fail
        catch (IOException e) { /* could happen on close? */} // fail
    }
+	boolean imageRenderingCompleted = false;
+	
+	public void renderCrossSectionStack(final double deltaInMikron, final double userDefStartValueInMikron, final ModelSceneCrossSectionMode mode)
+	{
+	   if (SimApplet.isApplet)
+	   {
+	     Object[] options = {"Oops"};
+	     JOptionPane.showOptionDialog(this, "You cannot save snapshots from an applet.", "MASON Applet Restriction", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+	     return;
+	   }
+	
+	  
+	   // NOW pop up the save window
+	   final ExtendedFileChooser fd = new ExtendedFileChooser("png");
+	   fd.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);   
+	   int fdResult = fd.showSaveDialog(getFrame());
+	   
+	 
+	   if (fdResult == JFileChooser.APPROVE_OPTION && fd.getSelectedFile()!= null && fd.getSelectedFile().isDirectory() && mode != null){
+	   	 
+	   	 EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {					
+					
+					public void taskHasFinished() {
+						((Frame)((EpisimGUIState) simulation).getMainGUIComponent()).setEnabled(true);
+						epiSimulation.pressWorkaroundSimulationPlay();						
+					}
+					
+					@Override
+					public void executeTask() {
+						
+				   	epiSimulation.pressWorkaroundSimulationPause();
+				   	((Frame)((EpisimGUIState) simulation).getMainGUIComponent()).setEnabled(false);
+				   	
+				   	double scale = getScale(); 
+				      Transform3D autoSpinTrans =  new Transform3D();
+				      autoSpinTransformGroup.getTransform(autoSpinTrans);
+				      
+				      Transform3D autoSpinBackgroundTrans =  new Transform3D();
+				      autoSpinBackgroundTransformGroup.getTransform(autoSpinBackgroundTrans);
+				      
+				      Transform3D viewPlatformTrans =  new Transform3D();
+				      universe.getViewingPlatform().getViewPlatformTransform().getTransform(viewPlatformTrans);	      
+				      
+				      setDisplaySettingsForCrossSections(mode);
+				   	
+				   	double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+				   	double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+				   	double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+				   	
+				   	double originalModelSceneCrossSectionCoordinate = actModelSceneCrossSectionCoordinate;
+				   	ModelSceneCrossSectionMode originalModelSceneCrossSectionMode = modelSceneCrossSectionMode;
+				   	
+				   	Vector4d[] planes = new Vector4d[]{new Vector4d(), new Vector4d(), new Vector4d(), new Vector4d(), new Vector4d(), new Vector4d()};
+				   	modelClip.getPlanes(planes);
+				   	
+				   	boolean[] enables = new boolean[6];
+				   	modelClip.getEnables(enables);
+				   	
+						double startPosInMikron = 0;
+						if(mode == ModelSceneCrossSectionMode.Y_Z_PLANE)startPosInMikron=width;
+						else if(mode == ModelSceneCrossSectionMode.X_Y_PLANE)startPosInMikron=height;
+						else if(mode == ModelSceneCrossSectionMode.X_Z_PLANE)startPosInMikron=length;
+						
+						startPosInMikron = startPosInMikron < userDefStartValueInMikron ? startPosInMikron : userDefStartValueInMikron;
+				   	long waitingTimeInMs = 1000;
+				   	if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_CROSSSECTION_STACK_WAITMS) != null){
+				   		try{
+				   			long waitingTime = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_CROSSSECTION_STACK_WAITMS));
+				   			waitingTimeInMs = waitingTime;
+				   		}
+				   		catch(NumberFormatException e){
+				   			/*Do nothing*/
+				   		}
+				   	}
+				   			
+						
+				   	for(double posInMikron =startPosInMikron; posInMikron >= 0; posInMikron -= deltaInMikron){
+				   		setCrossSectionPlane(posInMikron, mode);
+				   		//take into account the display delay
+				   		try{
+				            Thread.sleep(waitingTimeInMs);
+			            }
+			            catch (InterruptedException e1){
+				            EpisimExceptionHandler.getInstance().displayException(e1);
+			            }
+				   		
+				   		canvas.beginCapturing(false);			   
+				   	  	try   
+				   	   {
+				   	        File snapShotFile =  EpisimProperties.getFileForDirectoryPath(fd.getSelectedFile().getAbsolutePath(), "EPISIM_Visualization_Cross_Section_"+posInMikron, ".png", Long.MAX_VALUE);
+				   	        BufferedImage image = canvas.getLastImage();
+				   			           
+				   	        PNGEncoder tmpEncoder = new PNGEncoder(image, false, PNGEncoder.FILTER_NONE, 9);
+				   	        OutputStream stream = new BufferedOutputStream(new FileOutputStream(snapShotFile));
+				   	        stream.write(tmpEncoder.pngEncode());
+				   	        stream.close();
+				   	        image.flush();  // just in case -- OS X bug?	   			          
+				   	   }
+				   	   catch (FileNotFoundException e) { EpisimExceptionHandler.getInstance().displayException(e); } // fail
+				   	   catch (IOException e) { EpisimExceptionHandler.getInstance().displayException(e); } // fail
+			            
+				   		 
+						 
+					   }
+				   	
+				   	canvas.stopRenderer();
+				   	universe.getViewingPlatform().setNominalViewingTransform(); // reset translations/rotations  
+				      autoSpinTransformGroup.setTransform(autoSpinTrans);
+				      autoSpinBackgroundTransformGroup.setTransform(autoSpinBackgroundTrans);
+				      universe.getViewingPlatform().getViewPlatformTransform().setTransform(viewPlatformTrans);
+				      modelClip.setPlanes(planes);
+					   modelClip.setEnables(enables);
+					   // scaleField.setValue(scale);
+					   // setScale(scale);
+					   
+					   actModelSceneCrossSectionCoordinate=originalModelSceneCrossSectionCoordinate;
+					   modelSceneCrossSectionMode=originalModelSceneCrossSectionMode;
+				      
+					   canvas.startRenderer();	   	
+				      updateSceneGraph(true);
+	     
+				
+					
+					
+				}
+			};
+			
+	      EpisimProgressWindow.showProgressWindowForTask(((Frame)((EpisimGUIState) simulation).getMainGUIComponent()), "Rendering Tissue Cross Section Stack", cb, true);
+	      
+	   }
+	}
+	
+	private void setCrossSectionPlane(double posInMikron, ModelSceneCrossSectionMode mode){
+		posInMikron = posInMikron < 0 ? 0 : posInMikron; 
+		int modeOrdinal = mode.ordinal();
+		modelSceneCrossSectionMode=mode;
+		if(mode == ModelSceneCrossSectionMode.DISABLED){			
+			modelClip.setEnables(new boolean[]{false, false, false, false, false, false});
+		}
+		else{			
+			
+			if(modelSceneCrossSectionMode != ModelSceneCrossSectionMode.DISABLED){
+				modelClip.setEnable(modelSceneCrossSectionMode.ordinal()-1, false);
+			}
+			
+			if(mode != ModelSceneCrossSectionMode.DISABLED){								
+				modelClip.setEnable(mode.ordinal()-1, true);
+			}
+			
+			Vector4d planePosition = new Vector4d();
+			modelClip.getPlane(modeOrdinal-1, planePosition);
+			
+			double result = 0;
+			
+			if(mode == ModelSceneCrossSectionMode.X_Y_PLANE || mode == ModelSceneCrossSectionMode.DISABLED){
+				double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+				posInMikron = posInMikron > length ? length: posInMikron;  
+				result =-1*posInMikron;
+				actModelSceneCrossSectionCoordinate = -1*result;
+				TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
+			}
+			
+			else if(mode == ModelSceneCrossSectionMode.X_Z_PLANE){
+				double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+				posInMikron = posInMikron > height ? height: posInMikron;
+				result =-1*posInMikron;
+				actModelSceneCrossSectionCoordinate = -1*result;
+				TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
+			}
+			
+			else if(mode == ModelSceneCrossSectionMode.Y_Z_PLANE){
+				double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+				posInMikron = posInMikron > width ? width: posInMikron;
+				result =-1*posInMikron;
+				actModelSceneCrossSectionCoordinate = -1*result;
+				TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
+			}
+			
+			planePosition.w = result;
+		
+			modelClip.setPlane(modeOrdinal-1, planePosition);										
+			modelClip.setEnable(modeOrdinal-1, true);
+		}		
+		updateSceneGraph(true);	
+	}
 	
    public ModelClip getModelClip() {
 	   return modelClip;
@@ -339,7 +528,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	public void stopRenderer(){
 		canvas.stopCapturing();
-		if(ModeServer.guiMode())canvas.stopRenderer();
+		if(ModeServer.guiMode()) canvas.stopRenderer();
 	}
 	
 	public double getDisplayScale(){
@@ -1063,6 +1252,24 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        autoSpinBackgroundTransformGroup.setTransform(new Transform3D());
        canvas.startRenderer();
    }
+   
+   private void setDisplaySettingsForCrossSections(ModelSceneCrossSectionMode mode){
+  	 canvas.stopRenderer();
+      // reset scale field
+      scaleField.setValue(1);
+      setScale(1);
+                          
+      universe.getViewingPlatform().setNominalViewingTransform(); // reset translations/rotations
+      setScale(1.5);
+      Transform3D trans = new Transform3D();
+      if(mode == ModelSceneCrossSectionMode.X_Z_PLANE) trans.rotX(Math.PI*0.5);
+      else if(mode == ModelSceneCrossSectionMode.Y_Z_PLANE) trans.rotY(Math.PI*1.5);
+     
+      autoSpinTransformGroup.setTransform(trans);
+      autoSpinBackgroundTransformGroup.setTransform(trans);
+      canvas.startRenderer();
+      updateSceneGraph(true);
+  }
     
 	public double getActModelSceneCrossSectionCoordinate() {
 
@@ -1077,8 +1284,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    
    public class OptionPane3D extends JDialog
    {
-   	
    	private JComboBox diffFieldPlaneCombo;
+   	
    	private JSlider diffFieldPlaneSlider;
    	private JLabel diffFieldPlaneSliderLabel;
    	private JSlider diffFieldOpacitySlider;
@@ -1096,6 +1303,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	private Box modelSceneCrossectionPanel = null;
    	private Box diffCrossectionPanel = null;
    	private JButton sceneAnimationButton;
+   	private JButton takeCrossSectionImageStackButton;
    	OptionPane3D(Component parent, String label)
        {
        super((JFrame)parent, label, false);
@@ -1150,7 +1358,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
               		resetDisplaySettings();
                } 
            });
-       
+       boolean crossSectionStackEnabled = EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_CROSSSECTION_STACK) != null 
+      		 										&& EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_CROSSSECTION_STACK).equalsIgnoreCase(EpisimProperties.ON);
        sceneAnimationButton = new JButton("Animate Scene");
        sceneAnimationButton.setToolTipText("Animates (rotates) the scene that is visualized.");
        sceneAnimationButton.addActionListener(new ActionListener() {
@@ -1163,7 +1372,34 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 			}
 		});
        resetAndAnimationBox.add(sceneAnimationButton);
-       resetAndAnimationBox.add(Box.createGlue());
+       if(crossSectionStackEnabled)resetAndAnimationBox.add(Box.createHorizontalStrut(25));
+       else resetAndAnimationBox.add(Box.createGlue());
+       takeCrossSectionImageStackButton = new JButton("Cross Section Stack");
+       takeCrossSectionImageStackButton.setToolTipText("Renders a stack of cross sections through the tissue and stores the images at the selected path.");
+       takeCrossSectionImageStackButton.addActionListener(new ActionListener() {
+      	public void actionPerformed(ActionEvent e) {
+      		Double deltaMikron = NumberInputDialog.showDialog((Frame)Display3DHack.OptionPane3D.this.getParent(), "Enter a value", "Cross section delta in mikron",1d);
+      		Double startMikron = NumberInputDialog.showDialog((Frame)Display3DHack.OptionPane3D.this.getParent(), "Enter a value", "Start value in mikron",100d);
+      		if(deltaMikron != null && startMikron != null){
+	      		double deltaInMikron = (deltaMikron.doubleValue() <= 0 ? 1 /* don't care */ : deltaMikron.doubleValue());
+	      		double startInMikron = (startMikron.doubleValue() <= 0 ? 0 /* don't care */ : startMikron.doubleValue());
+	      		
+	      		ModelSceneCrossSectionMode[] modes = new ModelSceneCrossSectionMode[]{ModelSceneCrossSectionMode.X_Y_PLANE,ModelSceneCrossSectionMode.X_Z_PLANE,ModelSceneCrossSectionMode.Y_Z_PLANE};
+	      		ModelSceneCrossSectionMode selectedMode = (ModelSceneCrossSectionMode) JOptionPane.showInputDialog((Frame)Display3DHack.OptionPane3D.this.getParent(),
+	                    OptionPane3D.MODEL_SCENE_CROSSSECTION_PLANE,
+	                    "Select Mode",
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    modes,
+	                    ModelSceneCrossSectionMode.Y_Z_PLANE);	      		
+	      		if(selectedMode != null) renderCrossSectionStack(deltaInMikron, startInMikron, selectedMode);
+      		}
+			}
+		});
+       if(crossSectionStackEnabled){
+	       resetAndAnimationBox.add(takeCrossSectionImageStackButton);
+	       resetAndAnimationBox.add(Box.createGlue());
+       }
        orbitRotateXCheckBox.addItemListener(new ItemListener()
            {
            public void itemStateChanged(ItemEvent e)
@@ -1399,11 +1635,10 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 							modelScenePlaneSliderLabel.setEnabled(true);
 							modelScenePlaneSliderLabel2.setEnabled(true);
 							
-							if(modelSceneCrossSectionMode!= ModelSceneCrossSectionMode.DISABLED){
+							if(modelSceneCrossSectionMode != ModelSceneCrossSectionMode.DISABLED){
 								modelClip.setEnable(modelSceneCrossSectionMode.ordinal()-1, false);
 							}
-							if(mode!= ModelSceneCrossSectionMode.DISABLED){
-								
+							if(mode != ModelSceneCrossSectionMode.DISABLED){								
 								modelClip.setEnable(mode.ordinal()-1, true);
 							}
 							Vector4d planePosition = new Vector4d();
@@ -1429,7 +1664,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 								TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 							}
 							
-							planePosition.w =result;
+							planePosition.w = result;
 							modelScenePlaneSliderLabel.setText(Math.round(-1*result) + " µm");
 							modelClip.setPlane(modeOrdinal-1, planePosition);										
 							modelClip.setEnable(modeOrdinal-1, true);

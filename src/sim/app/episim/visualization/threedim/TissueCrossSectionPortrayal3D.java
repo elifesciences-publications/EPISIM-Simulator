@@ -45,8 +45,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
       
       if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
 			optimizedGraphicsActivated = true;
-			standardColor = Color.BLACK;
-			
+			standardColor = Color.BLACK;			
 		}
 		setField(createInt2DField());
 		this.setMap(buildColorMap());
@@ -58,13 +57,14 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 	}
 	
 	public Object getField()
-   {
-		
+   {  		
 		if(tissueCrossSectionDirty)setField(createInt2DField());	
 		return this.field;
    }
 	
-	
+	 public void redrawField(){
+		 setField(createInt2DField());
+	 }
 	
 	private IntGrid2D createInt2DField(){
 		
@@ -75,11 +75,16 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 			actCrossSectionTranslationCoordinate = ((Display3DHack)getCurrentDisplay()).getActModelSceneCrossSectionCoordinate();
 		}
 		
+		boolean enableHiRes = false;
+		if(MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D){
+			enableHiRes = (((MiscalleneousGlobalParameters3D) MiscalleneousGlobalParameters.getInstance()).getHiResCrosssection());
+		}
+		
 		final double positionInMikrometer = actCrossSectionTranslationCoordinate;
 		double factorXY = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXYResolutionFactor();
 		double factorXZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXZResolutionFactor();
 		double factorYZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionYZResolutionFactor();
-		if(optimizedGraphicsActivated){
+		if(optimizedGraphicsActivated || enableHiRes){
 			factorXY*=2;
 			factorXZ*=2;
 			factorYZ*=2;
@@ -163,7 +168,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 				else if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.Y_Z_PLANE){
 					if(positionInMikrometer >= (boundariesCell.getMinXInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxXInMikron()*1.1)){
 						if(boundariesCell!= null) boundariesCell.getYZCrosssection(positionInMikrometer, field2DFinal, cellsInCrossSection.get(i).getCellColoring());						
-						if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2DFinal, new Color(140,140,240));
+						if(boundariesNucleus!= null) boundariesNucleus.getYZCrosssection(positionInMikrometer, field2DFinal, new Color(140,140,240));
 					}
 				}
 				}
@@ -180,7 +185,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 			field2D = new IntGrid2D(Math.round((float)(width*factorXY)), Math.round((float)(height*factorXY)));
 			addTransparentColorForWholeField(field2D);
 		}
-		tissueCrossSectionDirty=false;
+		tissueCrossSectionDirty=false;		
 		return field2D;
 	}
 	

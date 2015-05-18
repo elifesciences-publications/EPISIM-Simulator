@@ -56,7 +56,11 @@ public class EpisimProgressWindow {
 	
 	private void setProgressText(String text){
 		progressLabel.setText(text);
-	}	
+	}
+	
+	private void setModal(boolean modal){
+		progressWindow.setAlwaysOnTop(modal);
+	}
 	
 		
 	private synchronized void showProgressWindowForTask(final EpisimProgressWindowCallback callback){
@@ -82,9 +86,14 @@ public class EpisimProgressWindow {
 	}
 	
 	public static synchronized void showProgressWindowForTask(Frame owner, String text, EpisimProgressWindowCallback callback){
+		showProgressWindowForTask(owner, text, callback, false);
+	}
+	public static synchronized void showProgressWindowForTask(Frame owner, String text, EpisimProgressWindowCallback callback, boolean modal){
 		EpisimProgressWindow window = new EpisimProgressWindow(owner);
+		window.setModal(modal);
 		window.setProgressText(text);
 		window.showProgressWindowForTask(callback);
+		
 	}
 	
 	

@@ -195,12 +195,23 @@ public class DataExportController implements ClassLoaderChangeListener{
 		return false;
 	}
 	
-	public void loadDataExportDefinition(File file){		
+	public boolean loadDataExportDefinition(File file){		
 		try{
-			loadDataExportDefinition(file.toURI().toURL(), null);	
+			return loadDataExportDefinition(file.toURI().toURL(), null);	
 		}
 		catch (MalformedURLException e){
 			EpisimExceptionHandler.getInstance().displayException(new PropertyException("The Data-Export-Definition " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+			return false;
+		}		
+	}
+	
+	public boolean loadDataExportDefinition(File file, Frame parent){		
+		try{
+			return loadDataExportDefinition(file.toURI().toURL(), parent);			
+		}
+		catch (MalformedURLException e){
+			EpisimExceptionHandler.getInstance().displayException(new PropertyException("The Data-Export-Definition " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+			return false;
 		}		
 	}
 	
@@ -326,7 +337,7 @@ public class DataExportController implements ClassLoaderChangeListener{
       }
 		return false;
 	}
-	private void updateExpressionsInDataExportDefinition(EpisimDataExportDefinition definition){
+	private void updateExpressionsInDataExportDefinition(EpisimDataExportDefinition definition) throws ModelCompatibilityException{
 		int sessionID = 0;
 		TissueCellDataFieldsInspector inspector = new TissueCellDataFieldsInspector(this.dataExportMonitoredTissue, this.markerPrefixes, this.validDataTypes);
 		CalculationAlgorithmConfigurator config =  null;
@@ -348,7 +359,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 			
 		}
 		catch(ParseException e){
-			EpisimExceptionHandler.getInstance().displayException(e);
+			throw new ModelCompatibilityException(e.getMessage());
 		}
 	}
 	

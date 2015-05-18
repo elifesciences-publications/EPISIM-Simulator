@@ -54,11 +54,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    private double standardCellLength = 0;
    
    private InteractionResult finalInteractionResult;
-   
-   //TEST//
+      
    private double average_overlap;
-   //TEST//
-   
+     
    private EpisimFishEyeCenterBased3DMC modelConnector;
    
    private FishEyeCenterBased3DModelGP globalParameters = null;
@@ -67,7 +65,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
 	private static Continuous3DExt cellField;
 	
-   private static double FIELD_RESOLUTION_IN_MIKRON			  				= 7;  // Equal to cell diameter, I suppose?
+   private static double FIELD_RESOLUTION_IN_MIKRON			  				= 7;  // Equal to cell diameter, I suppose? ---> Not necessarily
    private static double DELTA_TIME_IN_SECONDS_PER_EULER_STEP 				= 36; // max biomechanical step size
    private static final double DELTA_TIME_IN_SECONDS_PER_EULER_STEP_MAX = 36; //
    private static final double MAX_DISPLACEMENT 								= 10;
@@ -80,7 +78,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    private HashMap<Long, Integer> lostNeighbourContactInSimSteps;
    
    private double motherCellInnerEyeRadius = 0;
-      
+         
    private static Continuous3DExt dummyCellField;
    private static boolean dummyCellsAdded = false;
    private static double dummyCellSize 	= 0;   
@@ -154,9 +152,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    		dummyCellField	= new Continuous3DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
    				TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
    				TissueController.getInstance().getTissueBorder().getHeightInMikron(),
-   				TissueController.getInstance().getTissueBorder().getLengthInMikron());
-	   		   	
-	   		
+   				TissueController.getInstance().getTissueBorder().getLengthInMikron()); 		
    		dummyCellsAdded = true;	   		
    		FishEyeCenterBased3DModel.dummyCellSize = dummyCellSize;
    	}
@@ -183,10 +179,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
    
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
+   	
    	if(modelConnector instanceof EpisimFishEyeCenterBased3DMC){
-   		
    		this.modelConnector = (EpisimFishEyeCenterBased3DMC) modelConnector;
-   		Double3D loc 		  = cellLocation == null ? cellField.getObjectLocation(getCell()):cellLocation;
+   		this.modelConnector.setCellId(getCell().getID());
+   		Double3D loc		  = cellLocation == null ? cellField.getObjectLocation(getCell()):cellLocation;
    		
    		if(loc != null){
    			this.modelConnector.setX(loc.x);
@@ -222,82 +219,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
        }
    }
    
-	//TEST//
-	//TEST//
-	//TEST//
-	//TEST//
-	//TEST//
-   
-   public double getAverageOverlap(Bag neighbours, Double3D thisloc)
-   {
-   	double averageOverlap = 0;
-   
-   	if (neighbours == null || neighbours.numObjs == 0 || thisloc == null) return averageOverlap;
-   
-	   double thisSemiAxisA 	 = getCellWidth()/2;      
-	   double thisSemiAxisB 	 = getCellHeight()/2;
-	   double thisSemiAxisC 	 = getCellLength()/2;
-	   Point3d thislocP		 	 = new Point3d(thisloc.x, thisloc.y, thisloc.z);
-	   
-	   //TEST//
-	   double sum_overlap       = 0;
-	   //TEST//
-	        
-	   // Loop over neighbors
-	   for(int i=0;i<neighbours.numObjs;i++)
-	   {
-		   // Check if the current neighbor exists or is a cell
-		  	if (neighbours.objs[i] == null || !(neighbours.objs[i] instanceof AbstractCell)) continue;          
-		   
-	      AbstractCell other 								= (AbstractCell)(neighbours.objs[i]);
-	      FishEyeCenterBased3DModel mechModelOther = (FishEyeCenterBased3DModel) other.getEpisimBioMechanicalModelObject();
-	      
-	      if (other != getCell() && mechModelOther != null)
-	      {   	 
-		     	double otherSemiAxisA = mechModelOther.getCellWidth()/2;             
-	         double otherSemiAxisB = mechModelOther.getCellHeight()/2;
-	         double otherSemiAxisC = mechModelOther.getCellLength()/2;
-	     	 
-	         Double3D otherloc 	  = mechModelOther.cellLocation == null ? cellField.getObjectLocation(other) : mechModelOther.cellLocation;
-	         
-	         double dx 				  = cellField.tdx(thisloc.x,otherloc.x); 
-	         double dy 				  = cellField.tdy(thisloc.y,otherloc.y);
-	         double dz				  = cellField.tdz(thisloc.z,otherloc.z); 
-	         
-	         Point3d otherlocP 	  = new Point3d(otherloc.x, otherloc.y, otherloc.z);
-	         
-	         // Calculate distance from cell's center to its boundary membrane and neighbor[i]'s center to its boundary membrane
-	         double requiredDistanceToMembraneThis  = calculateDistanceToCellCenter(thislocP, 
-																											   otherPosToroidalCorrection(thislocP, otherlocP), 
-																											   thisSemiAxisA, thisSemiAxisB, thisSemiAxisC);
-	         double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(otherlocP, 
-																											   otherPosToroidalCorrection(otherlocP, thislocP), 
-																											   otherSemiAxisA, otherSemiAxisB, otherSemiAxisC);            
-	         
-	         // Optimal distance - this is simply the sum of the cell-center to boundary membrane distance of both cells
-	         double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
-	      
-	         // Euclidean distance
-	         double actDist       = Math.sqrt(dx*dx+dy*dy+dz*dz);
-	         
-	         
-	        	 double overlap  = optDistScaled - actDist;
-	        	 
-	        	 //TEST//
-	        	 sum_overlap    += overlap;
-	        	 //TEST//
-	      }
-	   }
-	   
-	   averageOverlap = sum_overlap/neighbours.numObjs;
-	   return averageOverlap;
-   }
-	         
-	//TEST//
-	//TEST//
-	//TEST//
-	//TEST//
-	//TEST//
+	
 	   
    public InteractionResult calculateRepulsiveAdhesiveAndChemotacticForces(Bag neighbours, Double3D thisloc, boolean finalSimStep)
    {
@@ -312,6 +234,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
        double thisSemiAxisC 	 = getCellLength()/2;
        Point3d thislocP		 	 = new Point3d(thisloc.x, thisloc.y, thisloc.z);
        double totalContactArea = 0;
+       
+       double numberOfOverlappingNeighbours = 0;
+       double cumulativeOverlap = 0;
        
        // Loop over neighbors
        for(int i=0;i<neighbours.numObjs;i++)
@@ -350,10 +275,18 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
              // Euclidean distance
              double actDist       = Math.sqrt(dx*dx+dy*dy+dz*dz);
              
+             double overlapUnscaled = optDist - actDist;
+             if(overlapUnscaled >=0){
+            	 cumulativeOverlap += overlapUnscaled;
+            	 numberOfOverlappingNeighbours++;            	 
+             }
+             
              // If the difference from the optimal distance is really significant
              if (optDistScaled-actDist>MIN_OVERLAP_MICRON && actDist > 0) 
              {
-                // Linear-exponential law according to Pathmanathan et al. 2009
+                
+            	 // Linear-exponential law according to Pathmanathan et al. 2009
+            	 
             	 /* 
             	  * The response is linear up to some maximum overlap delta > 0, and thereafter rises rapidly.
             	  * The parameter alpha scales the exponent and lies within (0, 1].
@@ -502,11 +435,12 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 								((requiredDistanceToMembraneThis*globalParameters.getOptDistanceToBMScalingFactor())+globalParameters.getInnerEyeRadius()));
       	 
       	 contactAreaInnerEyeCorrect 		  = Double.isNaN(contactAreaInnerEyeCorrect) || Double.isInfinite(contactAreaInnerEyeCorrect) || contactAreaInnerEyeCorrect < 0  ? 0: contactAreaInnerEyeCorrect;
-      	 modelConnector.setContactAreaInnerEye(contactAreaInnerEyeCorrect);
-      	 
+      	 modelConnector.setContactAreaInnerEye(contactAreaInnerEyeCorrect);      	 
        }
        
 
+        average_overlap = numberOfOverlappingNeighbours > 0 ? (cumulativeOverlap/numberOfOverlappingNeighbours) : 0;
+        
      /* if(isChemotaxisEnabled){
 				String chemotacticFieldName = ((episimbiomechanics.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC)modelConnector).getChemotacticField();
 				if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
@@ -772,6 +706,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 			if(modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC){				
 		  		 ((episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector).getContactArea().clear();
 		  	}
+			this.modelConnector.setAverage_overlap(0);
 		}
 		//according to Pathmanathan et al.2008
 		Double3D loc = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;
@@ -808,24 +743,22 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 					setPositionRespectingBounds(new Point3d(newX, newY, newZ),getCellWidth()/2d, getCellHeight()/2d, getCellLength()/2d, false);
 				}				
 			}			
-			finalInteractionResult = interactionResult;
-			//TEST//
-			average_overlap = getAverageOverlap(neighbours, loc);
-			//TEST//
+			finalInteractionResult = interactionResult;			
 		}
 		
 	}
 	
 	public void finishNewSimStep(){
+		
 		Double3D newCellLocation = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;		
+		
 		modelConnector.setX(newCellLocation.getX());		
 		modelConnector.setY(newCellLocation.getY());
 		modelConnector.setZ(newCellLocation.getZ());
+		
   	 	modelConnector.setInnerEyeRadius(globalParameters.getInnerEyeRadius());
-  	 	//TEST//
   	 	modelConnector.setAverage_overlap(average_overlap);
-  	 	//TEST//
-  	 	
+   	 	
   	 	if(modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC){
   	 		episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC mc = (episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector;
   	 		mc.setCellSurfaceArea(getSurfaceArea());

@@ -104,15 +104,16 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
    	this.coloringThreshold = coloringThreshold;
    }
    
-   public static class MiscalleneousGlobalParameters3D extends MiscalleneousGlobalParameters{
-   	
+   public static class MiscalleneousGlobalParameters3D extends MiscalleneousGlobalParameters{   	
    	
    	private boolean standardMembrane_2_Dim_Gauss = false;
    	private boolean optimizedGraphics = false;
+   	private boolean drawOpaqueTissueCrosssection = false;
+   	private boolean drawCellContourInCrosssection = true;
+   	private boolean hiResCrosssection = false;
    	private MiscalleneousGlobalParameters3D(){}
    	
-   	public boolean getStandardMembrane_2_Dim_Gauss(){
-      
+   	public boolean getStandardMembrane_2_Dim_Gauss(){      
       	return standardMembrane_2_Dim_Gauss;
       }
 		
@@ -122,13 +123,36 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
       
    	@NoUserModification
       public boolean getOptimizedGraphics(){ return optimizedGraphics; }
+   	
    	@NoUserModification
       public void setOptimizedGraphics(boolean val){ this.optimizedGraphics = val; }
+		
+      public boolean getDrawOpaqueTissueCrosssection() {      
+      	return drawOpaqueTissueCrosssection;
+      }
+		
+      public void setDrawOpaqueTissueCrosssection(boolean drawOpaqueTissueCrosssection){      
+      	this.drawOpaqueTissueCrosssection = drawOpaqueTissueCrosssection;
+      }
+		
+      public boolean getDrawCellContourInCrosssection() {      
+      	return drawCellContourInCrosssection;
+      }
+		
+      public void setDrawCellContourInCrosssection(boolean drawCellContourInCrosssection) {      
+      	this.drawCellContourInCrosssection = drawCellContourInCrosssection;
+      }
+		
+      public boolean getHiResCrosssection() {      
+      	return hiResCrosssection;
+      }
+		
+      public void setHiResCrosssection(boolean hiResCrosssection) {      
+      	this.hiResCrosssection = hiResCrosssection;
+      }
    }
 	
    public void classLoaderHasChanged() {
 	   instance = null;
-   }
-   
-   
+   }   
 }

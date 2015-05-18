@@ -88,8 +88,14 @@ public class Ellipsoid {
 	private static final Color contourColor = Color.GRAY.brighter();
 	
 	public void getXYCrosssection(double z, double minX, double minY, double maxX, double maxY, IntGrid2D resultingColorPixelMap, Color pixelColor){
+		boolean enableContour = true;
+		boolean enableHiRes = false;
+		if(MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D){
+			enableContour = (((MiscalleneousGlobalParameters3D) MiscalleneousGlobalParameters.getInstance()).getDrawCellContourInCrosssection());
+			enableHiRes = (((MiscalleneousGlobalParameters3D) MiscalleneousGlobalParameters.getInstance()).getHiResCrosssection());
+		}
 		double factorXY = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXYResolutionFactor();
-		if(optimizedGraphicsActivated)factorXY*=2;
+		if(optimizedGraphicsActivated || enableHiRes)factorXY*=2;
 		double incrementX = 1 / factorXY;
 		double incrementY = 1 / factorXY;
 		int[][] colorMap = new int[(int)((maxX-minX)*factorXY+1)][(int)((maxY-minY)*factorXY+1)];
@@ -103,17 +109,25 @@ public class Ellipsoid {
 				}				
 			}
 		}
-		for(double y = minY; y <= maxY; y+= incrementY){
-			for(double x = minX; x <= maxX; x+= incrementX){
-				if(isContourPixel((int)((x-minX)*factorXY), (int)((y-minY)*factorXY), colorMap)){
-					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXY))][resultingColorPixelMap.sty((int)(y*factorXY))]= contourColor.getRGB();
-				}				
+		if(enableContour){
+			for(double y = minY; y <= maxY; y+= incrementY){
+				for(double x = minX; x <= maxX; x+= incrementX){
+					if(isContourPixel((int)((x-minX)*factorXY), (int)((y-minY)*factorXY), colorMap)){
+						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXY))][resultingColorPixelMap.sty((int)(y*factorXY))]= contourColor.getRGB();
+					}				
+				}
 			}
 		}
 	}
 	public void getXZCrosssection(double y, double minX, double minZ, double maxX, double maxZ, IntGrid2D resultingColorPixelMap, Color pixelColor){
+		boolean enableContour = true;
+		boolean enableHiRes = false;
+		if(MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D){
+			enableContour = (((MiscalleneousGlobalParameters3D) MiscalleneousGlobalParameters.getInstance()).getDrawCellContourInCrosssection());
+			enableHiRes = (((MiscalleneousGlobalParameters3D) MiscalleneousGlobalParameters.getInstance()).getHiResCrosssection());
+		}
 		double factorXZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXZResolutionFactor();
-		if(optimizedGraphicsActivated)factorXZ*=2;
+		if(optimizedGraphicsActivated || enableHiRes)factorXZ*=2;
 		double incrementX = 1 / factorXZ;
 		double incrementZ = 1 / factorXZ;
 		int[][] colorMap = new int[(int)((maxX-minX)*factorXZ)+1][(int)((maxZ-minZ)*factorXZ+1)];
@@ -127,17 +141,25 @@ public class Ellipsoid {
 				}
 			}
 		}
-		for(double z = minZ; z <= maxZ; z+= incrementZ){
-			for(double x = minX; x <= maxX; x+= incrementX){
-				if(isContourPixel((int)((x-minX)*factorXZ), (int)((z-minZ)*factorXZ), colorMap)){
-					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXZ))][resultingColorPixelMap.sty((int)(z*factorXZ))]= contourColor.getRGB();
-				}				
+		if(enableContour){
+			for(double z = minZ; z <= maxZ; z+= incrementZ){
+				for(double x = minX; x <= maxX; x+= incrementX){
+					if(isContourPixel((int)((x-minX)*factorXZ), (int)((z-minZ)*factorXZ), colorMap)){
+						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXZ))][resultingColorPixelMap.sty((int)(z*factorXZ))]= contourColor.getRGB();
+					}				
+				}
 			}
-		}		
+		}
 	}
 	public void getYZCrosssection(double x, double minY, double minZ, double maxY, double maxZ, IntGrid2D resultingColorPixelMap, Color pixelColor){
+		boolean enableContour = true;
+		boolean enableHiRes = false;
+		if(MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D){
+			enableContour = (((MiscalleneousGlobalParameters3D) MiscalleneousGlobalParameters.getInstance()).getDrawCellContourInCrosssection());
+			enableHiRes = (((MiscalleneousGlobalParameters3D) MiscalleneousGlobalParameters.getInstance()).getHiResCrosssection());
+		}
 		double factorYZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionYZResolutionFactor();
-		if(optimizedGraphicsActivated)factorYZ*=2;
+		if(optimizedGraphicsActivated || enableHiRes)factorYZ*=2;
 		double incrementZ = 1 / factorYZ;
 		double incrementY = 1 / factorYZ;
 		int[][] colorMap = new int[(int)((maxZ-minZ)*factorYZ+1)][(int)((maxY-minY)*factorYZ+1)];
@@ -151,13 +173,15 @@ public class Ellipsoid {
 				}
 			}
 		}
-		for(double y = minY; y <= maxY; y+= incrementY){
-			for(double z = minZ; z <= maxZ; z+= incrementZ){
-				if(isContourPixel((int)((z-minZ)*factorYZ), (int)((y-minY)*factorYZ), colorMap)){
-					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(z*factorYZ))][resultingColorPixelMap.sty((int)(y*factorYZ))]= contourColor.getRGB();
-				}				
+		if(enableContour){
+			for(double y = minY; y <= maxY; y+= incrementY){
+				for(double z = minZ; z <= maxZ; z+= incrementZ){
+					if(isContourPixel((int)((z-minZ)*factorYZ), (int)((y-minY)*factorYZ), colorMap)){
+						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(z*factorYZ))][resultingColorPixelMap.sty((int)(y*factorYZ))]= contourColor.getRGB();
+					}				
+				}
 			}
-		}	
+		}
 	}
 	private boolean isContourPixel(int x, int y, int[][] colorMap){
 		if(colorMap[x][y] == -1){

@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.display.Display2DHack;
 import sim.display.GUIState;
 import sim.display3d.CapturingCanvas3D;
@@ -34,7 +35,7 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 		if(ModeServer.guiMode()) simulationDisplay = new Display3DHack(width, height, simulation);
 		else simulationDisplay = new Display3DHack(DEFAULT_NO_GUI_WIDTH, DEFAULT_NO_GUI_HEIGHT, simulation);
 		this.simulation = simulation;
-		
+			
 	}
 	public void takeSnapshot()
 	{

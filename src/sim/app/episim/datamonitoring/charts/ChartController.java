@@ -196,12 +196,23 @@ public class ChartController implements ClassLoaderChangeListener{
 		return false;
 	}
 	
-	public void loadChartSet(File file){
+	public boolean loadChartSet(File file, Component parent){
 		try{
-			loadEpisimChartSet(file.toURI().toURL(), null);	
+			return loadEpisimChartSet(file.toURI().toURL(), parent);	
 		}
 		catch (MalformedURLException e){
 			EpisimExceptionHandler.getInstance().displayException(new PropertyException("The Chart-Set " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+			return false;
+		}
+	}
+	
+	public boolean loadChartSet(File file){
+		try{
+			return loadEpisimChartSet(file.toURI().toURL(), null);	
+		}
+		catch (MalformedURLException e){
+			EpisimExceptionHandler.getInstance().displayException(new PropertyException("The Chart-Set " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+			return false;
 		}
 	}
 	
@@ -337,7 +348,7 @@ public class ChartController implements ClassLoaderChangeListener{
 			}
 		}
 		catch (ModelCompatibilityException e){
-			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded EPISIM Cell-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 			EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
 		}
@@ -346,14 +357,14 @@ public class ChartController implements ClassLoaderChangeListener{
 			return false;
       }
       catch (CompilationFailedException e){
-      	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+      	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded EPISIM Cell-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 			EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
       }
 		return false;
 	}
 	
-	private void updateExpressionsInChart(EpisimChart chart){
+	private void updateExpressionsInChart(EpisimChart chart) throws ModelCompatibilityException{
 		int sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
 		TissueCellDataFieldsInspector inspector = new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes);
 		CalculationAlgorithmConfigurator config =  chart.getBaselineCalculationAlgorithmConfigurator();
@@ -388,12 +399,13 @@ public class ChartController implements ClassLoaderChangeListener{
 			}
 			
 		}
-		catch(ParseException e){
-			EpisimExceptionHandler.getInstance().displayException(e);
+		catch(ParseException e){			
+			//EpisimExceptionHandler.getInstance().displayException(e);
+			throw new ModelCompatibilityException(e.getMessage());
 		}
 	}
 	
-	private void updateExpressionsInCellVisualizationChart(EpisimCellVisualizationChart chart){
+	private void updateExpressionsInCellVisualizationChart(EpisimCellVisualizationChart chart) throws ModelCompatibilityException{
 		int sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
 		TissueCellDataFieldsInspector inspector = new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypesCellVisualization);
 		CellColoringConfigurator config =  chart.getCellColoringConfigurator();
@@ -417,7 +429,8 @@ public class ChartController implements ClassLoaderChangeListener{
 			}			
 		}
 		catch(ParseException e){
-			EpisimExceptionHandler.getInstance().displayException(e);
+			//EpisimExceptionHandler.getInstance().displayException(e);
+			throw new ModelCompatibilityException(e.getMessage());
 		}
 	}
 	

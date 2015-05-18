@@ -95,7 +95,7 @@ import sim.util.Double2D;
 
 public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.1.1.0";
+	public static final String versionID = "1.5.1.1.3";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -123,21 +123,15 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 	private EpisimGUIState epiUI;
 	
 	public static final ObservedByteArrayOutputStream errorOutputStream = new ObservedByteArrayOutputStream();
-	public static final ObservedByteArrayOutputStream standardOutputStream = new ObservedByteArrayOutputStream();
+	public static final ObservedByteArrayOutputStream standardOutputStream = new ObservedByteArrayOutputStream();	
 	
-	
-	
-	private StatusBar statusbar;
-	
+	private StatusBar statusbar;	
 	
 	private File previouslyLoadedModelFile = null;
 	
-	private SimulationStateData actLoadedSimulationStateData = null;
+	private SimulationStateData actLoadedSimulationStateData = null;	
 	
-	
-	
-	private EpisimMenuBarFactory menuBarFactory;
-	
+	private EpisimMenuBarFactory menuBarFactory;	
 	
 	private boolean updateAvailable=false;
 
@@ -147,22 +141,20 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 		
 		if(ModeServer.guiMode()){
 			
-			mainFrame = new JFrame();	
-			
+			mainFrame = new JFrame();			
 			
 			List<Image> icons = new ArrayList<Image>();
 			icons.add(new ImageIcon(ImageLoader.class.getResource("episim_16_16.png")).getImage());
 			icons.add(new ImageIcon(ImageLoader.class.getResource("episim_32_32.png")).getImage());
 			icons.add(new ImageIcon(ImageLoader.class.getResource("episim_48_48.png")).getImage());
+			
 			mainFrame.setIconImages(icons);
-			
-			//mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("episim_16_16.png")).getImage());
-	
-			
+						
 			EpisimExceptionHandler.getInstance().registerParentComp(mainFrame);
 			
 			EpisimUpdater updater = new EpisimUpdater();
 			EpisimUpdateState state = null;
+			
 			try{
 				state = updater.checkForUpdates();
 			}
@@ -171,6 +163,7 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
+			
 			this.updateAvailable = (state==EpisimUpdateState.POSSIBLE);
 		}
 		else{
@@ -297,12 +290,14 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 								File chartSetFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH));
 								if(!chartSetFile.exists() || !chartSetFile.isFile()) throw new PropertyException("No existing Chart-Set File defined: "+chartSetFile.getAbsolutePath());
 								else{
-									ChartController.getInstance().loadChartSet(chartSetFile);
+									boolean loadSuccess = false;
+									if(ModeServer.guiMode()) loadSuccess = ChartController.getInstance().loadChartSet(chartSetFile, mainFrame);
+									else loadSuccess = ChartController.getInstance().loadChartSet(chartSetFile);
 									if(ModeServer.guiMode()){
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_CHART_SET).setEnabled(false);
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(false);
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(true);
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(true);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_CHART_SET).setEnabled(!loadSuccess);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(!loadSuccess);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(loadSuccess);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(loadSuccess);
 									}
 								}
 							}
@@ -310,14 +305,15 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 								File dataExportDefinitionFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTPATH));
 								if(!dataExportDefinitionFile.exists() || !dataExportDefinitionFile.isFile()) throw new PropertyException("No existing Data Export Definition File defined: "+dataExportDefinitionFile.getAbsolutePath());
 								else{
-									DataExportController.getInstance().loadDataExportDefinition(dataExportDefinitionFile);
-									
+									boolean loadSuccess = false;
+									if(ModeServer.guiMode()) loadSuccess = DataExportController.getInstance().loadDataExportDefinition(dataExportDefinitionFile, mainFrame);
+									else loadSuccess = DataExportController.getInstance().loadDataExportDefinition(dataExportDefinitionFile);
 									if(ModeServer.guiMode()){
 										this.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(false);
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(false);
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(true);
-										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(!loadSuccess);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(!loadSuccess);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(loadSuccess);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(loadSuccess);
 									}
 								}
 							}					
@@ -804,14 +800,34 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 	   			epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 	   			if(simulationStateData != null)  SimStateServer.getInstance().setSimStepNumberAtStart(simulationStateData.getSimStepNumber());			
 	   			boolean chartSetloaded = currentlyLoadedChartSet != null;
-	   			if(chartSetloaded) ChartController.getInstance().loadChartSet(currentlyLoadedChartSet);
+	   			if(chartSetloaded){
+	   				boolean reloadSuccess = false;
+	   				if(ModeServer.guiMode()){
+	   					reloadSuccess = ChartController.getInstance().loadChartSet(currentlyLoadedChartSet, mainFrame);
+	   				}
+	   				else{
+	   					reloadSuccess = ChartController.getInstance().loadChartSet(currentlyLoadedChartSet);
+	   				}
+	   				if(!reloadSuccess) ChartController.getInstance().closeActLoadedChartSet();
+	   				chartSetloaded = reloadSuccess;
+	   			}
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(chartSetloaded);
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(chartSetloaded);
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(!chartSetloaded);
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_CHART_SET).setEnabled(!chartSetloaded);
 	   			
 	   			boolean dataExportLoaded = currentlyLoadedDataExportDefinitionSet !=null;
-	   			if(dataExportLoaded) DataExportController.getInstance().loadDataExportDefinition(currentlyLoadedDataExportDefinitionSet);
+	   			if(dataExportLoaded){
+	   				boolean reloadSuccess = false;
+	   				if(ModeServer.guiMode()){
+	   					reloadSuccess = DataExportController.getInstance().loadDataExportDefinition(currentlyLoadedDataExportDefinitionSet, mainFrame);
+	   				}
+	   				else{
+	   					reloadSuccess = DataExportController.getInstance().loadDataExportDefinition(currentlyLoadedDataExportDefinitionSet);
+	   				}
+	   				if(!reloadSuccess) DataExportController.getInstance().closeActLoadedDataExportDefinitonSet();
+	   				dataExportLoaded = reloadSuccess;
+	   			}
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(dataExportLoaded);
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(dataExportLoaded);
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(!dataExportLoaded);

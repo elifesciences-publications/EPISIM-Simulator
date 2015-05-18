@@ -114,7 +114,9 @@ public class EpisimProperties {
 	public static final String DISPLAY_3D_ROTATION_X="display.3d.rotation.x";
 	public static final String DISPLAY_3D_ROTATION_Y="display.3d.rotation.y";
 	public static final String DISPLAY_3D_ROTATION_Z="display.3d.rotation.z";
-	public static final String DISPLAY_3D_ROTATION_PERSECOND="display.3d.rotation.persecond";	
+	public static final String DISPLAY_3D_ROTATION_PERSECOND="display.3d.rotation.persecond";
+	public static final String DISPLAY_3D_CROSSSECTION_STACK="display.3d.crosssectionstack";
+	public static final String DISPLAY_3D_CROSSSECTION_STACK_WAITMS="display.3d.crosssectionstack.waitms";
 	
 	public static final String DISPLAY_SIZE_WIDTH = "display.size.width";
 	public static final String DISPLAY_SIZE_HEIGHT = "display.size.height";
@@ -326,10 +328,16 @@ public class EpisimProperties {
 	}
 	
 	public static File getFileForPathOfAProperty(final String property, final String filename, final String fileExtension, long counter){
+		String path = EpisimProperties.getProperty(property);
+		File f = new File(path);
+		if(!f.exists() || !f.isDirectory() || !f.canWrite()) throw new PropertyException("Property -  " + property +": " + f.getAbsolutePath() + " is not an (existing or accessable) directory!");
+		return getFileForDirectoryPath(path, filename, fileExtension, counter);
+	}
 	
-	   	String path = EpisimProperties.getProperty(property);
-	   	File f = new File(path);
-	   	if(!f.exists() || !f.isDirectory() || !f.canWrite()) throw new PropertyException("Property -  " + property +": " + f.getAbsolutePath() + " is not an (existing or accessable) directory!");
+	public static File getFileForDirectoryPath(final String dirPath, final String filename, final String fileExtension, long counter){	
+	   	
+	   	File f = new File(dirPath);
+	   	if(!f.exists() || !f.isDirectory() || !f.canWrite()) throw new PropertyException(f.getAbsolutePath() + " is not an (existing or accessable) directory!");
 	   	GregorianCalendar cal = new GregorianCalendar();
 	   	cal.setTime(new Date());
 	   	String date = cal.get(Calendar.YEAR)+"_"
@@ -345,14 +353,11 @@ public class EpisimProperties {
 	   										+ filename 
 	   										+(fileExtension.startsWith(".") ? fileExtension : ("."+fileExtension)));
 	   	int index = 1;
-	   	while(file.exists()){
-	   		
+	   	while(file.exists()){	   		
 	   		file = new File(f.getAbsolutePath()+System.getProperty("file.separator")						
 						+ (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID) != null ? (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID).trim() +"_"):date)
 						+ filename  +"_"+(index++)+ (fileExtension.startsWith(".") ? fileExtension : ("."+fileExtension)));
 	   	}
-	   	return file;
-	   
+	   	return file;	   
 	}
-
 }

@@ -410,7 +410,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	         	 double alpha							   = 1;
 	         	 
 	         	 //without hard core
-	         	 double force 								 = overlap<= (optDistScaled*linearToExpMaxOverlapPerc) ? overlap*stiffness: stiffness * (optDistScaled*linearToExpMaxOverlapPerc)*Math.exp(alpha*((overlap/(optDistScaled*linearToExpMaxOverlapPerc))-1));
+	         	 double force 								 = overlap <= (optDistScaled*linearToExpMaxOverlapPerc) ? overlap*stiffness: stiffness * (optDistScaled*linearToExpMaxOverlapPerc)*Math.exp(alpha*((overlap/(optDistScaled*linearToExpMaxOverlapPerc))-1));
 	         	 interactionResult.repulsiveForce.x += force*dx/actDist;
 	         	 interactionResult.repulsiveForce.y += force*dy/actDist;
 	         	 interactionResult.repulsiveForce.z += force*dz/actDist;                                                           

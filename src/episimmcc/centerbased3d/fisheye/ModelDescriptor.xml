@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2015-01-27_episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC"/>
-  <visiblename name="average_overlap_test"/>
+  <visiblename name="Fish Eye Model - 3D Center Based Model"/>
   <modelname name="Fish Eye Center Based Biomechanical 3D Model"/>
   <modelconnectorclass name="episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC"/>
   <modelparameters>
@@ -35,8 +35,8 @@
     <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="cellVolume"
       pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="average_overlap"
       pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
   </modelparameters>
 </modeldescriptor>

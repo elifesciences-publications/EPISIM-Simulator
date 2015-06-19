@@ -286,7 +286,7 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
           					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, otherSemiAxisA, otherSemiAxisB, otherSemiAxisC, requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
           			((episimmcc.centerbased3d.newmodel.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
-             		totalContactArea+= Math.abs(contactAreaCorrect); 
+             		totalContactArea+=Math.abs(contactAreaCorrect); 
           		}          		
           		        		
              }
@@ -380,7 +380,7 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 			Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-otherSemiAxisA, posOther.y-otherSemiAxisB, 2*otherSemiAxisA, 2*otherSemiAxisB);
 			Rectangle2D.Double intersectionRectXY = new Rectangle2D.Double();
 			Rectangle2D.Double.intersect(rect1, rect2, intersectionRectXY);
-			double contactRadiusXY =  intersectionRectXY.height < thisSemiAxisB && intersectionRectXY.height < otherSemiAxisB ? intersectionRectXY.width : intersectionRectXY.height;						
+			double contactRadiusXY = intersectionRectXY.height < thisSemiAxisB && intersectionRectXY.height < otherSemiAxisB ? intersectionRectXY.width : intersectionRectXY.height;						
 			contactRadiusXY/=2;
 			
 			rect1 = new Rectangle2D.Double(posThis.z-thisSemiAxisC, posThis.y-thisSemiAxisB, 2*thisSemiAxisC, 2*thisSemiAxisB);
@@ -415,7 +415,8 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 	   																		+2*radius_this_square*radius_other_square
 	   																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
 	   																		-Math.pow(actDist_square, 2));
-	   /*	double intercell_gap = actDist_scaled - optDistScaled;
+	   
+	   	/*	double intercell_gap = actDist_scaled - optDistScaled;
 	   	smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
 					 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
 					 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))

@@ -74,8 +74,7 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
          }
          catch (InterruptedException e){
 	        EpisimExceptionHandler.getInstance().displayException(e);
-         }
-				
+         }				
 		}
 		noOfCalls++;
 		long timeStart = (new Date()).getTime();
@@ -114,9 +113,10 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 	private IntersectionPoints calculateClippedEllipses(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
 		double distanceEllipses =distance(actEllipse.getX(), actEllipse.getY(), otherEllipse.getX(), otherEllipse.getY());
 		//System.out.println("Ellipsen Distanz: "+ distanceEllipses);
+						
 		if(distanceEllipses > 0 && distanceEllipses < ((actEllipse.getMajorAxis()/2)+(otherEllipse.getMajorAxis()/2))){
-		double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, otherEllipse);
 			
+			double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, otherEllipse);
 			if(intersectionPoints != null && getNumberOfIntersectionPoints(intersectionPoints)>=2){
 				
 				CellEllipseIntersectionCalculationRegistry.getInstance().addIntersectionCellEllipses(actEllipse.getId(), otherEllipse.getId());
@@ -153,7 +153,10 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 		double a1 = ((double) actEllipse.getMajorAxis())/2;
 		double b1 = ((double) actEllipse.getMinorAxis())/2;
 		double a2 = ((double) otherEllipse.getMajorAxis())/2;
-		double[][] foci = calculateFoci(otherEllipse.getX(), otherEllipse.getY(), otherEllipse.getMajorAxis(), otherEllipse.getMinorAxis(), otherEllipse.getOrientationInRadians());
+		
+		double[][] foci = calculateFoci(otherEllipse.getX(), otherEllipse.getY(),otherEllipse.getMajorAxis(), 
+				otherEllipse.getMinorAxis(), 
+				otherEllipse.getOrientationInRadians());
 		double[] f21 = foci[0];
 		double[] f22 = foci[1];
 		double phi = actEllipse.getOrientationInRadians();
@@ -254,8 +257,7 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 				
 				if(Math.abs(f_alpha) > 0.00000000001){
 					df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
-			 		           + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*sin_2alpha); 
-						
+			 		          + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*sin_2alpha);						
 					alpha = alpha - (f_alpha / df_dalpha);		
 				}
 				else{
@@ -309,7 +311,7 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 		double cos_phi = Math.cos(orientation);
 		double sin_phi = Math.sin(orientation);
 		
-		double point_x = x + major_axis * cos_phi*cos_alpha -  minor_axis*sin_phi*sin_alpha;
+		double point_x = x + major_axis*cos_phi*cos_alpha - minor_axis*sin_phi*sin_alpha;
 		double point_y = y + minor_axis*cos_phi*sin_alpha + major_axis*sin_phi*cos_alpha;
 		
 		return new double[]{point_x, point_y};

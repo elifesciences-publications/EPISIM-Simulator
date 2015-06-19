@@ -38,20 +38,14 @@ public abstract class AbstractCellEllipse implements Serializable{
 	private Path2D.Double ellipseBoundingBox;
 	private Color color;
 	
-	
 	private transient SimulationDisplayProperties lastDisplayProps = null;
 	
 	private HashMap<String, IntersectionPoints> intersectionPointsOfEllipse;
-  
-
 	
-	
-	public static final char  SEPARATORCHAR = ';';
-	
-	
-	
+	public static final char  SEPARATORCHAR = ';';	
 	
 	public AbstractCellEllipse(long id, double x, double y, double majorAxis, double minorAxis, double height, double width, double orientationInDegrees, double area, double perimeter, double distanceToBL,  Color c){
+		
 		this.id = id;			
 		
 		this.x = x;
@@ -115,12 +109,11 @@ public abstract class AbstractCellEllipse implements Serializable{
    
   
 	
-   public double getMajorAxis() { 
-   	
+   public double getMajorAxis(){   	
    	 if(lastDisplayProps != null){
 	      	return (majorAxis * lastDisplayProps.displayScaleX);
-	      }
-	      else return majorAxis;  	
+	    }
+	    else return majorAxis;  	
    }
 	
    public void setMajorAxis(int majorAxis) {     
@@ -153,17 +146,13 @@ public abstract class AbstractCellEllipse implements Serializable{
    
    }
 	
-   public void setMinorAxis(int minorAxis) {
-   	
-   	
+   public void setMinorAxis(int minorAxis){   	
    	this.minorAxis = minorAxis;
    	resetEllipseAsArea();
    	testMajorMinorAxisSwap();
    }
    
-   private void resetEllipseAsArea(){
-   	
-      	      	
+   private void resetEllipseAsArea(){      	      	
       ellipseAsArea = new Area(new Ellipse2D.Double(getX() - (getMajorAxis()/2),getY()-(getMinorAxis()/2),getMajorAxis(),getMinorAxis()));
       
       ellipseBoundingBox = convertRectangleToPath(ellipseAsArea.getBounds2D());	
@@ -260,7 +249,7 @@ public abstract class AbstractCellEllipse implements Serializable{
    	if(getMinorAxis() > getMajorAxis()) {
    		double tmp = minorAxis;
    		minorAxis = majorAxis;
-   		majorAxis = tmp;
+   		majorAxis = tmp;   		
    	}
    }
    

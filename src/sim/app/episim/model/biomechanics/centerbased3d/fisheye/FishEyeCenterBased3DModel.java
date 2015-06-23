@@ -105,7 +105,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	  		 			instanceof FishEyeCenterBased3DModelGP){
 	  		 		globalParameters = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	  		 	}   	
-	  		 	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
+	  		 	else 
+	  		 		throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
 	  		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
 	 
 	 	}
@@ -182,7 +183,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	
    	if(modelConnector instanceof EpisimFishEyeCenterBased3DMC){
    		this.modelConnector = (EpisimFishEyeCenterBased3DMC) modelConnector;
-   		this.modelConnector.setCellId(getCell().getID());
+   		this.modelConnector.setCellId((int)getCell().getID());
    		Double3D loc		  = cellLocation == null ? cellField.getObjectLocation(getCell()):cellLocation;
    		
    		if(loc != null){

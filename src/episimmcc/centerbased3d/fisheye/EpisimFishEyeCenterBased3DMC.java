@@ -45,7 +45,7 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 		
 	private double adhesionMembrane=0;
 	
-	private long cellId = -1;
+	private int cellId = -1;
 		
 	public double getX() {	
 		return x;
@@ -277,13 +277,13 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 	   this.average_overlap = average_overlap;
    }
 	
-   public long getCellId() {
+   public int getCellId() {
    
    	return cellId;
    }
 
    @Hidden
-   public void setCellId(long cellId) {   
+   public void setCellId(int cellId) {   
    	this.cellId = cellId;
    }
 	

@@ -95,7 +95,7 @@ import sim.util.Double2D;
 
 public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.1.1.4";
+	public static final String versionID = "1.5.1.1.5";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -1024,11 +1024,11 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 	}
 	
 	public void simulationWasStopped(){
+		DataExportController.getInstance().simulationWasStopped();
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(true);
-		this.menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);
-		DataExportController.getInstance().simulationWasStopped();
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);		
 	}
 	
 	public void close(final int exitCode){

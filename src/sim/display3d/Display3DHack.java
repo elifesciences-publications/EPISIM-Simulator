@@ -58,6 +58,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -89,6 +90,7 @@ import episiminterfaces.EpisimSimulationDisplay;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimDisplay3D;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimProgressWindow;
@@ -137,17 +139,20 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	private static final double ROTATION_FACTOR=0.5;
 	private NumberTextField cellColoringField =null;
 	public enum ModelSceneCrossSectionMode{
+		
 		DISABLED("Disabled"),
 		X_Y_PLANE("X-Y-Plane"),
 		X_Z_PLANE("X-Z-Plane"),
 		Y_Z_PLANE("Y-Z-Plane");
 		
 		private String name;
-		ModelSceneCrossSectionMode(String name){
-			this.name = name;
 		
-		}		
+		ModelSceneCrossSectionMode(String name){
+			this.name = name;		
+		}
+		
 		public String toString(){ return this.name; }
+		
 	}
 	
 	private ModelSceneCrossSectionMode modelSceneCrossSectionMode = ModelSceneCrossSectionMode.DISABLED;
@@ -1304,6 +1309,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	private Box diffCrossectionPanel = null;
    	private JButton sceneAnimationButton;
    	private JButton takeCrossSectionImageStackButton;
+   	private JCheckBox enableRotationPerSimStep;
    	OptionPane3D(Component parent, String label)
        {
        super((JFrame)parent, label, false);
@@ -1434,13 +1440,26 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
            public void itemStateChanged(ItemEvent e)
                {       if (mSelectBehavior!=null) mSelectBehavior.setEnable(selectBehCheckBox.isSelected()); }
            });         
-
+       
+       enableRotationPerSimStep = new JCheckBox();
+       enableRotationPerSimStep.setSelected(false);
+       enableRotationPerSimStep.addActionListener(new ActionListener() {			
+			
+			public void actionPerformed(ActionEvent e) {		
+				spinDuration.setEnabled(!enableRotationPerSimStep.isSelected());
+				rotationPerSimStepDuration.setEnabled(enableRotationPerSimStep.isSelected());
+			}
+		});
+      
+       
        // Auto-Orbiting
        LabelledList rotatePanel = new LabelledList("Auto-Rotate About <X,Y,Z> Axis");
        rotatePanel.addLabelled("X", rotAxis_X);
        rotatePanel.addLabelled("Y", rotAxis_Y);
        rotatePanel.addLabelled("Z", rotAxis_Z);
        rotatePanel.addLabelled("Rotations/Sec", spinDuration);
+       rotatePanel.addLabelled("Enable Rotations/Sim Step", enableRotationPerSimStep);
+       rotatePanel.addLabelled("Rotations/Sim Step", rotationPerSimStepDuration);
                                    
        Box polyPanel = new Box(BoxLayout.X_AXIS);
        polyPanel.setBorder(new javax.swing.border.TitledBorder("Polygon Attributes"));

@@ -132,7 +132,7 @@ public class DataExportCSVWriter implements SimStateChangeListener{
 				public void observedDataSourceChanged(EntityChangeEvent event){
 					if(event.getEventType() == EntityChangeEventType.CELLCHANGE) aCellHasBeenChanged = true;
 				}
-				public void simStepChanged(long simStep){
+				public void simStepChanged(long simStep){					
 					if(simStep > simStepCounter){
 						simStepCounter = simStep;
 						
@@ -167,7 +167,7 @@ public class DataExportCSVWriter implements SimStateChangeListener{
 					if(event.getEventType() == EntityChangeEventType.CELLCHANGE) aCellHasBeenChanged = true;
 					//if(event.getEventType() == EntityChangeEventType.SIMULATIONSTEPCHANGE) simStepCounter++;
 				}
-				public void simStepChanged(long simStep){
+				public void simStepChanged(long simStep){					
 					if(simStep > simStepCounter){
 						simStepCounter = simStep;
 					}
@@ -326,9 +326,7 @@ public class DataExportCSVWriter implements SimStateChangeListener{
 	   }		
 	}
 	
-	public void simulationWasStopped(){
-		
-		  
+	public void simulationWasStopped(){		  
 	     if(csvWriter != null){
 	   	  Thread t = null;
 	   	  Runnable r = new Runnable(){
@@ -347,15 +345,14 @@ public class DataExportCSVWriter implements SimStateChangeListener{
             }};
             t = new Thread(r);
             t.start();
-	     }
-	     aCellHasBeenChanged = false;
-	     simStepCounter = 0;
-	     initialValueWrittenCounter=0;
-	    lastSimStepCounterWritten=-1;
-      
+	     }     
 	}
 	
 	public void simulationWasStarted() {
+		aCellHasBeenChanged = false;
+	   simStepCounter = 0;
+	   initialValueWrittenCounter=0;
+	   lastSimStepCounterWritten=-1;
 		try{
 			csvWriter = new BufferedWriter(new FileWriter(csvFile, true));
 		}

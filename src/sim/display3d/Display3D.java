@@ -1579,7 +1579,7 @@ public class Display3D extends JPanel implements Steppable
     JCheckBox tooltips = new JCheckBox("ToolTips");
     JCheckBox showSpotlightCheckBox = new JCheckBox("Spotlight");
     JCheckBox showAmbientLightCheckBox = new JCheckBox("Ambient Light");
-        
+    private double rotationPerSimStep = 0;    
     //JCheckBox antialiasCheckBox = new JCheckBox("Antialias Graphics");
     //JRadioButton viewPerspective = new JRadioButton("Perspective Projection", true);
     //JRadioButton viewParallel = new JRadioButton("Parallel Projection", false);
@@ -1679,7 +1679,15 @@ public class Display3D extends JPanel implements Steppable
             else setSpinningEnabled(true);
             return newValue;  // rounding errors ignored...
             }
-        };    
+        };
+        NumberTextField rotationPerSimStepDuration = new NumberTextField(null, 0, 1, 0.02) // 0, true)
+        {       
+        public double newValue(double newValue)
+            {
+      	  		rotationPerSimStep= newValue>=0? newValue : 0;
+      	  		return rotationPerSimStep;  // rounding errors ignored...
+            }
+        };
 
     /** Sets the rasterization mode for configurable polygon portrayals. 
         Mode can be PolygonAttributes.POLYGON_FILL, PolygonAttributes.POLYGON_LINE, 

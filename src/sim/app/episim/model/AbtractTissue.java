@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimSimulationDisplay;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
@@ -19,6 +21,7 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
+import sim.app.episim.gui.EpisimDisplay3D;
 import sim.app.episim.model.biomechanics.centerbased2d.newmodel.psoriasis.PsoriasisCenterBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.GenericBag;
@@ -85,9 +88,9 @@ public abstract class AbtractTissue extends SimStateHack implements java.io.Seri
 	private long start = System.currentTimeMillis();
 	 public void start() {
 
-			super.start(timeStepsAfterSnapshotReload);			
+			super.start(timeStepsAfterSnapshotReload);
+			
 			schedule.scheduleRepeating(new Steppable(){
-
 				public void step(SimState state) {
 	            ModelController.getInstance().getBioMechanicalModelController().newSimStepGloballyFinished(SimStateServer.getInstance().getSimStepNumber(), state);
 	            TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
@@ -104,8 +107,17 @@ public abstract class AbtractTissue extends SimStateHack implements java.io.Seri
 				public void step(SimState state) {
 	           SimStateServer.getInstance().executeSimulationTriggers();
             }}, SchedulePriority.OTHER.getPriority(), 1);
-			
-			
+			if(ModelController.getInstance().getModelDimensionality()==ModelDimensionality.THREE_DIMENSIONAL){
+				EpisimSimulationDisplay display =SimStateServer.getInstance().getEpisimGUIState().getDisplay();
+				if(display != null && display instanceof EpisimDisplay3D){
+					final EpisimDisplay3D display3D = (EpisimDisplay3D) display;
+					final Steppable rotationSteppable = display3D.getDisplayRotationSteppable();
+					schedule.scheduleRepeating(new Steppable(){
+						public void step(SimState state) {			           
+							if(rotationSteppable != null)rotationSteppable.step(state);					
+		            }}, SchedulePriority.OTHER.getPriority(), 1);
+				}
+			}
 			schedule.scheduleRepeating(new Steppable(){
 				public void step(SimState state) {
 	            ModelController.getInstance().getBioMechanicalModelController().newGlobalSimStep(SimStateServer.getInstance().getSimStepNumber(), state);	            

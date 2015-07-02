@@ -16,6 +16,7 @@ import sim.display.Display2DHack;
 import sim.display.GUIState;
 import sim.display3d.CapturingCanvas3D;
 import sim.display3d.Display3DHack;
+import sim.engine.Steppable;
 import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.Portrayal;
 import sim.portrayal3d.FieldPortrayal3D;
@@ -136,5 +137,8 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
    public void stopRenderer(){
    	simulationDisplay.stopRenderer();
    }
-  
+   
+   public Steppable getDisplayRotationSteppable(){
+   	return simulationDisplay.getDisplayRotationSteppable();
+   }
 }

@@ -176,6 +176,9 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	private Method cellColoringSetterMethod;
 	private boolean optimizedGraphicsActivated = false;
 	private boolean automatedPNGSnapshotsEnabled = false;
+	
+	private Steppable displayRotationSteppable;
+	
 	public Display3DHack(double width, double height, GUIState simulation) {
 
 		super(width, height, simulation);
@@ -241,6 +244,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
         header.add(scaleField);
         if(ModeServer.guiMode()){
       	  optionPane = new OptionPane3D(epiSimulation.getMainGUIComponent(), "3D Options");
+      	  displayRotationSteppable = new Steppable(){
+					public void step(SimState state){
+						if(optionPane != null) optionPane.updateDisplayRotationSpeed(state);
+					}
+      	  };
         }
     
       	setRotationToPropertyValues();
@@ -1286,6 +1294,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 
 		return modelSceneCrossSectionMode;
 	}
+	
+	 public Steppable getDisplayRotationSteppable(){
+	   	
+		 return displayRotationSteppable;
+	 }
    
    public class OptionPane3D extends JDialog
    {
@@ -1309,7 +1322,9 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	private Box diffCrossectionPanel = null;
    	private JButton sceneAnimationButton;
    	private JButton takeCrossSectionImageStackButton;
+   	private double rotationPerSimStep = 0;    
    	private JCheckBox enableRotationPerSimStep;
+   	private NumberTextField rotationPerSimStepDuration;
    	OptionPane3D(Component parent, String label)
        {
        super((JFrame)parent, label, false);
@@ -1441,6 +1456,16 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
                {       if (mSelectBehavior!=null) mSelectBehavior.setEnable(selectBehCheckBox.isSelected()); }
            });         
        
+       
+       rotationPerSimStepDuration = new NumberTextField(null, 0, 1, 0.02) // 0, true)
+       {       
+       public double newValue(double newValue)
+           {
+     	  		rotationPerSimStep= newValue>=0? newValue : 0;
+     	  		return rotationPerSimStep;  // rounding errors ignored...
+           }
+       };
+       rotationPerSimStepDuration.setEnabled(false);
        enableRotationPerSimStep = new JCheckBox();
        enableRotationPerSimStep.setSelected(false);
        enableRotationPerSimStep.addActionListener(new ActionListener() {			
@@ -1450,7 +1475,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 				rotationPerSimStepDuration.setEnabled(enableRotationPerSimStep.isSelected());
 			}
 		});
-      
+    
        
        // Auto-Orbiting
        LabelledList rotatePanel = new LabelledList("Auto-Rotate About <X,Y,Z> Axis");
@@ -1702,9 +1727,9 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       modelScenePlaneSlider.setPaintLabels(false);
 	       modelScenePlaneSlider.setEnabled(false);
 	       modelScenePlaneSliderLabel = new JLabel(TissueController.getInstance().getTissueBorder().getLengthInMikron()+ " µm");
-	       modelScenePlaneSliderLabel.setEnabled(false);
-	      
+	       modelScenePlaneSliderLabel.setEnabled(false);	      
 	       modelScenePlaneSliderLabel2.setEnabled(false);
+	       
 	       modelScenePlaneSlider.addChangeListener(new ChangeListener(){
 				public void stateChanged(ChangeEvent e) {
 					if(lastModelScenePlaneSliderPosition != modelScenePlaneSlider.getValue()){
@@ -1868,7 +1893,49 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 			frame.setLocation(((int)((screenDim.getWidth()/2)-(frame.getPreferredSize().getWidth()/2))), 
 			((int)((screenDim.getHeight()/2)-(frame.getPreferredSize().getHeight()/2))));
 		}
-	}   
+	}
+   private long lastTimeStamp = System.currentTimeMillis();
+   private long lastSimStep = -1;
+   boolean spinningEnabled = false;
+   public void updateDisplayRotationSpeed(SimState state){
+   /*	 long mSecsPerRot = 0;
+   	 if(enableRotationPerSimStep.isSelected()){
+   		 if(lastSimStep > state.schedule.getSteps()){
+   			 lastTimeStamp = System.currentTimeMillis();
+   		 }
+   		 lastSimStep = state.schedule.getSteps();
+   		 long currentTimeStamp = System.currentTimeMillis();
+   		 long timePerSimStep = currentTimeStamp - lastTimeStamp;
+   		 lastTimeStamp = currentTimeStamp;
+   		 timePerSimStep= timePerSimStep <=0 ? 1: timePerSimStep;
+   		    		 
+   		 if(rotationPerSimStep == 0 ||
+  	           (rotAxis_X.getValue() == 0 && rotAxis_Y.getValue() == 0 && rotAxis_Z.getValue()==0)){
+   			 setSpinningEnabled(false);
+   			 spinningEnabled=false;
+   		 }
+   		 else{
+   			 mSecsPerRot =(long)(timePerSimStep/rotationPerSimStep);
+   			 autoSpin.getAlpha().setIncreasingAlphaDuration(mSecsPerRot);
+   	       // spin background too
+   	       autoSpinBackground.getAlpha().setIncreasingAlphaDuration(mSecsPerRot);   	       
+   			 if(!spinningEnabled)setSpinningEnabled(true);
+   			 spinningEnabled=true;
+   		 }
+   	 }
+   	 else{
+   		 
+   		 double value = spinDuration.getValue();
+	   	 mSecsPerRot = (value == 0 ? 1  : (long)(1000 / value));	       
+	       autoSpin.getAlpha().setIncreasingAlphaDuration(mSecsPerRot);
+	       // spin background too
+	       autoSpinBackground.getAlpha().setIncreasingAlphaDuration(mSecsPerRot);
+	       if (value == 0 ||
+	           (rotAxis_X.getValue() == 0 && rotAxis_Y.getValue() == 0 && rotAxis_Z.getValue()==0))
+	           setSpinningEnabled(false);
+	       else setSpinningEnabled(true);
+   	 }*/
+   }
                    
    static final String ROTATE_LEFT_RIGHT_KEY = "Rotate Left Right";
    static final String TRANSLATE_LEFT_RIGHT_KEY = "Translate Left Right";

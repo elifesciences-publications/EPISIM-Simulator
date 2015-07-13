@@ -126,6 +126,15 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		// Simulations and additional calculations reveal that this currently generates too many cells.
 		// Adjust it later such that initial cell number fits perfectly to initial available area.
 		
+		/* Possible improvement to control initial cell density with arbitrary given initial radius:
+		 * - get eye radius, cell radius, ideal average overlap (new parameter)
+		 * double radius 			 = mechModelGP.getInitialInnerEyeRadius();
+		 * double cellradius     = mechModel.getCellWidth()
+		 * - calculate area of hemisphere
+		 * - calculate approximately how many cells would fit (area of cells ~circle)
+		 * - use this number as cut-off when choosing mesh nodes
+		 */
+		
 	   for (int i = 0; i < ico.getVertexList().size(); i+=3 ) {
 	         // Get icosahedral mesh vertex coordinates (normalized) and blow them up to initial eye radius
 				double x = ico.getVertexList().get(i)   * radius;

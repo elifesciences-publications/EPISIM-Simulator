@@ -178,7 +178,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		}
 	}
    
-   
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
    	
    	if(modelConnector instanceof EpisimFishEyeCenterBased3DMC){
@@ -220,8 +219,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
        }
    }
    
-	
-	   
    public InteractionResult calculateRepulsiveAdhesiveAndChemotacticForces(Bag neighbours, Double3D thisloc, boolean finalSimStep)
    {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
@@ -285,7 +282,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
              // If the difference from the optimal distance is really significant
              if (optDistScaled-actDist>MIN_OVERLAP_MICRON && actDist > 0) 
              {
-                
             	 // Linear-exponential law according to Pathmanathan et al. 2009
             	 
             	 /* 
@@ -343,8 +339,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
             	interactionResult.adhesionForce.x += adhesion*((-dx)/actDist);
             	interactionResult.adhesionForce.y += adhesion*((-dy)/actDist);
             	interactionResult.adhesionForce.z += adhesion*((-dz)/actDist);
-            	
-            	
              }
              
              if(this.modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
@@ -361,10 +355,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
           			((episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
              		totalContactArea  += Math.abs(contactAreaCorrect); 
-          		}          		
-          		        		
+          		}        		
              }
-             
            }          
         }
        
@@ -398,8 +390,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 																											   otherSemiAxisA, otherSemiAxisB, otherSemiAxisC);            
 	          double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
 	          double optDist 		 = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
-	       
-	                                  
+	        
 	          double actDist		= Math.sqrt(dx*dx+dy*dy+dz*dz);
 	                
 	          if (optDistScaled-actDist>MIN_OVERLAP_MICRON && actDist > 0) // is the difference from the optimal distance really significant
@@ -419,7 +410,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
       	 }
        }
        	
-       
         modelConnector.setContactAreaInnerEye(0);
         if(this.modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
       	 ((episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
@@ -439,7 +429,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
       	 modelConnector.setContactAreaInnerEye(contactAreaInnerEyeCorrect);      	 
        }
        
-
         average_overlap = numberOfOverlappingNeighbours > 0 ? (cumulativeOverlap/numberOfOverlappingNeighbours) : 0;
         
      /* if(isChemotaxisEnabled){
@@ -578,9 +567,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		return new Vector3d((m.m00*v.x + m.m01*v.y+ m.m02*v.z), (m.m10*v.x + m.m11*v.y+ m.m12*v.z), (m.m20*v.x + m.m21*v.y+ m.m22*v.z));
 	}
    
-   
-   
-
    private double getAdhesionFactor(AbstractCell otherCell){   	
    	return modelConnector.getAdhesionFactorForCell(otherCell);
    } 
@@ -616,8 +602,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   double linefactor = hit;// < hitsecond ? hit : hitsecond;
 	   return new Point3d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y),(cellCenter.z+ linefactor*rayDirection.z));
    }
-   
-   
+    
    // Pin cells to spherical surface
    public void setPositionRespectingBounds(Point3d cellPosition, double aAxis, double bAxis, double cAxis, boolean setPostionInCellField)
 	{
@@ -635,6 +620,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   	setCellLocationInCellField(cellLocation);
 	   }
 	   else{
+	   	oldCellLocation = cellLocation;
 	   	newCellLocation = new Double3D(newloc.x, newloc.y, newloc.z);
 	   }
 	}   
@@ -696,11 +682,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	  		 	}   	
 	  		 	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
 	  		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
- 	 
  	 	}
 		migrationDistPerSimStep=0;
 	}
-	
+
+	// Calculation of balance of forces and cell displacement
 	public void calculateSimStep(boolean finalSimStep){
 		if(finalSimStep){
 			this.modelConnector.resetPairwiseParameters();
@@ -744,9 +730,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 					setPositionRespectingBounds(new Point3d(newX, newY, newZ),getCellWidth()/2d, getCellHeight()/2d, getCellLength()/2d, false);
 				}				
 			}			
-			finalInteractionResult = interactionResult;			
+			finalInteractionResult = interactionResult;
 		}
-		
 	}
 	
 	public void finishNewSimStep(){
@@ -822,9 +807,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		double c 		= (modelConnector.getLength()/2d)+extCellSpaceDelta;		
 		return ((4.0d/3.0d)*Math.PI*a*b*c)-getCellVolume();
 	} 
-   
-   
-   
    
    public void newSimStep(long simstepNumber){/* NOT NEEDED HERE*/ }
    
@@ -931,7 +913,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    		DELTA_TIME_IN_SECONDS_PER_EULER_STEP = numberOfSeconds > DELTA_TIME_IN_SECONDS_PER_EULER_STEP_MAX ? DELTA_TIME_IN_SECONDS_PER_EULER_STEP_MAX : numberOfSeconds;   		   		
    	}
    	
-   	numberOfIterationsDouble 	  =(numberOfSeconds/DELTA_TIME_IN_SECONDS_PER_EULER_STEP); //according to Pathmanathan et al.2008
+   	numberOfIterationsDouble 	  = (numberOfSeconds/DELTA_TIME_IN_SECONDS_PER_EULER_STEP); //according to Pathmanathan et al.2008
    	final int numberOfIterations = ((int)numberOfIterationsDouble);
    	boolean parallelizationOn 	  = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
 	   
@@ -939,6 +921,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   		allCells.shuffle(random);
 	   		final int totalCellNumber = allCells.size();
 	   		final int iterationNo 	  = i;
+	   		// Loop when parallelization active
 	   		if(parallelizationOn){
 		   		Loop.withIndex(0, totalCellNumber, new Loop.Each() {
 		             public void run(int n) {
@@ -948,6 +931,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		             }
 		         });  		
 	   		}
+	   		// Loop when no parallelization
 	   		else{
 	   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
 		   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
@@ -969,6 +953,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   				cellBM.updateDirectNeighbours();
 	   				cellBM.finishNewSimStep();
 	   			}
+
 	   		}
    	}   	  
    	

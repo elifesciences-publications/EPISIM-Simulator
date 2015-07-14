@@ -126,14 +126,17 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		// Simulations and additional calculations reveal that this currently generates too many cells.
 		// Adjust it later such that initial cell number fits perfectly to initial available area.
 		
-		/* Possible improvement to control initial cell density with arbitrary given initial radius:
-		 * - get eye radius, cell radius, ideal average overlap (new parameter)
-		 * double radius 			 = mechModelGP.getInitialInnerEyeRadius();
-		 * double cellradius     = mechModel.getCellWidth()
-		 * - calculate area of hemisphere
-		 * - calculate approximately how many cells would fit (area of cells ~circle)
-		 * - use this number as cut-off when choosing mesh nodes
-		 */
+		// Possible improvement to control initial cell density with arbitrary given initial radius:
+		
+		double cellradius     = cellSize/2d;
+		double tol_overlap    = 1 - mechModelGP.getLinearToExpMaxOverlap_perc();
+		double hemispherearea = 2*Math.PI*Math.pow(radius,2);
+		double cellarea       = Math.PI*Math.pow(cellradius*(1-tol_overlap),2);
+		int num_cells_fit  	 = (int) Math.ceil(hemispherearea/cellarea);
+		System.out.println("Cells that fit:" + num_cells_fit);
+		//System.out.println(ico.getVertexList().size());
+		
+		int cell_counter = 0;
 		
 	   for (int i = 0; i < ico.getVertexList().size(); i+=3 ) {
 	         // Get icosahedral mesh vertex coordinates (normalized) and blow them up to initial eye radius
@@ -148,22 +151,27 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 				// Check if this new position already exists, if its x coordinate is > 50 and if 
 				// the previous point is null or is at a distance greater than a cell from the new point
 				if(!existingCoordinates.contains(newPos) && newPos.x >= fishEyeCenter.x && (previousPoint == null || previousPoint.distance(newPos)>=cellSize)){
-					//if(previousPoint==null ||(previousPoint.distance(newPos))>=cellSize){
-					UniversalCell stemCell = new UniversalCell(null, null, true);
-					FishEyeCenterBased3DModel mechModel=((FishEyeCenterBased3DModel) stemCell.getEpisimBioMechanicalModelObject());					
+					
+					if (cell_counter <= num_cells_fit) {
+						cell_counter += 1;
 						
-					mechModel.setCellWidth(CELL_WIDTH);
-					mechModel.setCellHeight(CELL_HEIGHT);
-					mechModel.setCellLength(CELL_LENGTH);
-					mechModel.setStandardCellWidth(CELL_WIDTH);
-					mechModel.setStandardCellHeight(CELL_HEIGHT);
-					mechModel.setStandardCellLength(CELL_LENGTH);
-						
-					existingCoordinates.add(newPos);
-					previousPoint = newPos;
-					mechModel.setPositionRespectingBounds(newPos, CELL_WIDTH/2d, CELL_HEIGHT/2d, CELL_LENGTH/2d, mechModelGP.getOptDistanceToBMScalingFactor(), true);			
-					standardCellEnsemble.add(stemCell);					
-				//	}
+						//if(previousPoint==null ||(previousPoint.distance(newPos))>=cellSize){
+						UniversalCell stemCell = new UniversalCell(null, null, true);
+						FishEyeCenterBased3DModel mechModel=((FishEyeCenterBased3DModel) stemCell.getEpisimBioMechanicalModelObject());					
+							
+						mechModel.setCellWidth(CELL_WIDTH);
+						mechModel.setCellHeight(CELL_HEIGHT);
+						mechModel.setCellLength(CELL_LENGTH);
+						mechModel.setStandardCellWidth(CELL_WIDTH);
+						mechModel.setStandardCellHeight(CELL_HEIGHT);
+						mechModel.setStandardCellLength(CELL_LENGTH);
+							
+						existingCoordinates.add(newPos);
+						previousPoint = newPos;
+						mechModel.setPositionRespectingBounds(newPos, CELL_WIDTH/2d, CELL_HEIGHT/2d, CELL_LENGTH/2d, mechModelGP.getOptDistanceToBMScalingFactor(), true);			
+						standardCellEnsemble.add(stemCell);					
+					}
+					else ignoredCells++;
 				}
 				else ignoredCells++;
 				
@@ -172,8 +180,8 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		initializeBiomechanics(standardCellEnsemble);
 		setDiffLevels(standardCellEnsemble, cellSize);
 		FishEyeCenterBased3DModel.setDummyCellSize(cellSize);
-		 
-		System.out.println("No of stem cells: " + standardCellEnsemble.size()+ "    Cells Ignored: " + ignoredCells);
+		
+		System.out.println("No of cells: " + standardCellEnsemble.size()+ "    Cells Ignored: " + ignoredCells);
 		return standardCellEnsemble;
 	}
 	
@@ -231,11 +239,12 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		if(biomech instanceof FishEyeCenterBased3DModel){
 			
 			FishEyeCenterBased3DModel cbBioMech = (FishEyeCenterBased3DModel) biomech;			
-			double cumulativeMigrationDist=0;
+			double cumulativeMigrationDist      = 0;
 			
 			do{
 				cbBioMech.initialisationGlobalSimStep();
-				cumulativeMigrationDist = getCumulativeMigrationDistance(standardCellEnsemble);	
+				cumulativeMigrationDist = getCumulativeMigrationDistance(standardCellEnsemble);
+				System.out.println("Average migration:" + cumulativeMigrationDist/standardCellEnsemble.size());
 			}
 			while(standardCellEnsemble.size() > 0 && ((cumulativeMigrationDist / standardCellEnsemble.size()) > mechModelGP.getInitMinAverageMigration()));
 			
@@ -250,6 +259,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		for(int i = 0; i < standardCellEnsemble.size(); i++){
 			FishEyeCenterBased3DModel mechModel = ((FishEyeCenterBased3DModel) standardCellEnsemble.get(i).getEpisimBioMechanicalModelObject());
 			cumulativeMigrationDistance += mechModel.getMigrationDistPerSimStep();
+			
 		}
 		
 		return cumulativeMigrationDistance;

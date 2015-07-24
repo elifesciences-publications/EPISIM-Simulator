@@ -394,7 +394,7 @@ public class TestContactAreaCalculation {
 				contactRadiusZY/=2;
 				
 				double contactArea = Math.PI*contactRadiusXY*contactRadiusZY;
-			
+				System.out.println("contactRadiusXY: "+contactRadiusXY+"   contactRadiusZY: "+contactRadiusZY);
 				contactRadius = 0;
 				if(intersectionRectXY.height > 0 && intersectionRectXY.width > 0 && intersectionRectZY.width >0){
 					contactRadius = Math.sqrt(contactArea /Math.PI);
@@ -476,12 +476,12 @@ public class TestContactAreaCalculation {
 	}
 	
 	public void start(){
-		double a1 = 7;
-		double b1 = 7;
-		double c1 = 7;
-		double a2 =100;
-		double b2 =100;
-		double c2 =100;
+		double a1 = 250;
+		double b1 = 25;
+		double c1 = 250;
+		double a2 =250;
+		double b2 =25;
+		double c2 =250;
 		Point3d centerEllipse1 = new Point3d(0, 200,0);
 		Point3d centerEllipse2 = new Point3d(100, 200, deltaZ);
 		

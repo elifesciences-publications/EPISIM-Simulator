@@ -254,8 +254,7 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
        
                
        InteractionResult()
-       {
-           
+       {           
            numhits=0;
            adhesionForce=new Vector2d(0,0);
            repulsiveForce=new Vector2d(0,0);

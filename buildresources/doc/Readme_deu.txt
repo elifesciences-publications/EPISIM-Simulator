@@ -1,5 +1,5 @@
-EPISIM Simulator version 1.5.0 ist eine Software, 
-welche erlaubt Zellverhalten in einem multi-zellulären Gewebe 
+EPISIM Simulator version 1.5.1 ist eine Software, 
+welche erlaubt Zellverhalten in einem multizellulären Gewebe 
 auf Basis eines Multiagentensystems zu simulieren.
 
 Einige Features des EPISIM Simulators:
@@ -11,7 +11,7 @@ Einige Features des EPISIM Simulators:
   vorverarbeiteten Datenexporten
 
 Hardware- und Softwareanforderungen:
-- Betriebssystem: für Version 1.5.0 Windows 98/2000/XP/Vista/7/8
+- Betriebssystem: für Version 1.5.1 Windows 98/2000/XP/Vista/7/8/10
 
 
 Contact:
@@ -27,4 +27,4 @@ Hamamatsu TIGA Center
 Universitätsklinikum Heidelberg
 niels.grabe@bioquant.uni-heidelberg.de
 
-Heidelberg, 2014
+Heidelberg, 2015

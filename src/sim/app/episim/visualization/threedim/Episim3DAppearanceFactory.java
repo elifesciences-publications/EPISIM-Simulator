@@ -137,16 +137,9 @@ public class Episim3DAppearanceFactory {
 	public static Appearance getCellAppearanceForColorNoMaterial(PolygonAttributes polygonAttributes, Color color, float opacity){
 		Appearance appearance = new Appearance();
 		appearance.setRenderingAttributes(new RenderingAttributes());
-      SimplePortrayal3D.setAppearanceFlags(appearance);      
-      MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
-      boolean optimizedGraphicsActivated =false;
-      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
-			optimizedGraphicsActivated = true;
-		}
-      
-     
+      SimplePortrayal3D.setAppearanceFlags(appearance);    
 	     
-    Color3f color3f =new Color3f(color);
+      Color3f color3f =new Color3f(color);
      
 	   
 	  appearance.setColoringAttributes(new ColoringAttributes(color3f, ColoringAttributes.NICEST));
@@ -161,15 +154,7 @@ public class Episim3DAppearanceFactory {
       } 
       if(polygonAttributes != null) appearance.setPolygonAttributes(polygonAttributes);
       return appearance;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
+	}	
 	
 	private static Color3f getDarkColor(float[] hsbColor){
 		Color resultingColor = Color.getHSBColor(hsbColor[0],hsbColor[1], hsbColor[2]);

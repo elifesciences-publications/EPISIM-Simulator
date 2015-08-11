@@ -73,10 +73,7 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	 }	 
 	 
 	 public void setField(Object grid)
-    {
-	   
-	            
-	   
+    {	   
 		 Grid2D localField = (Grid2D)grid;
 		 this.field = localField;
 	    tmpGCI = new ValueGridCellInfo(this, localField);

@@ -16,6 +16,7 @@ import javax.vecmath.Vector3d;
 import sim.app.episim.EpisimExceptionHandler;
 
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.DummyCell;
 import sim.app.episim.model.biomechanics.centerbased3d.newmodel.CenterBased3DModel;
@@ -56,7 +57,7 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 	private float standardCellRadius =1;
 	
 	private boolean optimizedGraphicsActivated =false;
-
+	private boolean drawInnerCellSurface = true;
 	private PolygonAttributes polygonAttributes;
 	private final Color nucleusColor = new Color(140,140,240);
 	
@@ -75,6 +76,10 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 	      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
 				optimizedGraphicsActivated = true;
 			}
+	      if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_DRAW_INNER_CELL_SURFACE) != null 
+	      		&&EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_DRAW_INNER_CELL_SURFACE).equalsIgnoreCase(EpisimProperties.OFF)){
+	      	drawInnerCellSurface=false;
+	      }
 		if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.oldmodel.CenterBased3DModelGP)
 		{
 			standardCellRadius = (float)(sim.app.episim.model.biomechanics.centerbased3d.oldmodel.CenterBased3DModel.INITIAL_KERATINO_HEIGHT/2d);
@@ -130,14 +135,16 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 		
 		setShape3DFlags(cellSphere.getShape(Sphere.BODY));
 		if(optimizedGraphicsActivated){
-			this.innerCellSphere = new Sphere(standardCellRadius*0.95f, (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);
-			setShape3DFlags(innerCellSphere.getShape(Sphere.BODY));
-			
+			if(drawInnerCellSurface){
+				this.innerCellSphere = new Sphere(standardCellRadius*0.95f, (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);
+				setShape3DFlags(innerCellSphere.getShape(Sphere.BODY));
+			}			
 			this.nucleusSphere = new Sphere((standardCellRadius/3f), (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);
 			setShape3DFlags(nucleusSphere.getShape(Sphere.BODY));
-			
-			this.innerNucleusSphere = new Sphere((standardCellRadius/3f)*0.95f, (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);
-			setShape3DFlags(innerNucleusSphere.getShape(Sphere.BODY));
+			if(drawInnerCellSurface){
+				this.innerNucleusSphere = new Sphere((standardCellRadius/3f)*0.95f, (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);
+				setShape3DFlags(innerNucleusSphere.getShape(Sphere.BODY));
+			}
 		}
 		
 		
@@ -173,18 +180,18 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 		           tg.setCapability(Group.ALLOW_CHILDREN_READ);
 		           tg.addChild(cellSphere.cloneTree(true));
 		           if(optimizedGraphicsActivated){
-			           tg.addChild(innerCellSphere.cloneTree(true));
+			           if(drawInnerCellSurface)tg.addChild(innerCellSphere.cloneTree(true));
 			           tg.addChild(nucleusSphere.cloneTree(true));
-			           tg.addChild(innerNucleusSphere.cloneTree(true));
+			           if(drawInnerCellSurface)tg.addChild(innerNucleusSphere.cloneTree(true));
 		           }
 		           j3dModel.addChild(tg);
 		       }
 		       else{
 		      	 j3dModel.addChild(cellSphere.cloneTree(true));
 		      	 if(optimizedGraphicsActivated){
-		      		 j3dModel.addChild(innerCellSphere.cloneTree(true));
+		      		 if(drawInnerCellSurface)j3dModel.addChild(innerCellSphere.cloneTree(true));
 		      		 j3dModel.addChild(nucleusSphere.cloneTree(true));
-		      		 j3dModel.addChild(innerNucleusSphere.cloneTree(true));
+		      		 if(drawInnerCellSurface)j3dModel.addChild(innerNucleusSphere.cloneTree(true));
 		      	 }
 		       }
 		   	 boolean isNucleated = true;
@@ -199,25 +206,27 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 		       shape.setUserData(pickI);
 		       
 		       if(optimizedGraphicsActivated){
-		      	 Shape3D shapeInnerCell = getShape(j3dModel, 1);		      	
-		      	 Appearance a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, Color.WHITE,1.0f);
-		      	 if(a.getRenderingAttributes() !=null) a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED);
-		      	 shapeInnerCell.setAppearance(a);
+		      	 Appearance a =null;
+		      	 if(drawInnerCellSurface){
+			      	 Shape3D shapeInnerCell = getShape(j3dModel, 1);		      	 
+			      	 a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, Color.WHITE,1.0f);
+			      	 if(a.getRenderingAttributes() !=null) a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED);
+			      	 shapeInnerCell.setAppearance(a);
+		      	 }
 		      	 
-		      	 Shape3D shapeNucleus = getShape(j3dModel, 2);		      	
-		      	 a = Episim3DAppearanceFactory.getNucleusAppearance(polygonAttributes, 1.0f);
-		      	 
-		      
-		      		
+		      	 int nucleusShapeIndex = drawInnerCellSurface ? 2 : 1;
+		      	 Shape3D shapeNucleus = getShape(j3dModel, nucleusShapeIndex);		      	
+		      	 a = Episim3DAppearanceFactory.getNucleusAppearance(polygonAttributes, 1.0f);      		
 		      	 if(a.getRenderingAttributes() !=null){      		
 		      		 a.getRenderingAttributes().setVisible(!(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED) && isNucleated);
 		      	 }
 		      	 shapeNucleus.setAppearance(a);  	 
-		      	 
-		      	 Shape3D shapeInnerNucleus = getShape(j3dModel, 3);		      	
-		      	 a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, nucleusColor,1.0f);
-		      	 if(a.getRenderingAttributes() !=null) a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED && isNucleated);
-		      	 shapeInnerNucleus.setAppearance(a);
+		      	 if(drawInnerCellSurface){
+			      	 Shape3D shapeInnerNucleus = getShape(j3dModel, 3);		      	
+			      	 a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, nucleusColor,1.0f);
+			      	 if(a.getRenderingAttributes() !=null) a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED && isNucleated);
+			      	 shapeInnerNucleus.setAppearance(a);
+		      	 }
 		       }
 		       
 	       }
@@ -236,21 +245,24 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 			Shape3D shapeCell = getShape(j3dModel, 0);
 			shapeCell.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, cellColor,transparencyFactor, isViable));
 			if(optimizedGraphicsActivated){
-				
-				Shape3D shapeInnerCell = getShape(j3dModel, 1);
-				Appearance a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, cellColor,transparencyFactor);
-				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED);
-				shapeInnerCell.setAppearance(a);
-				
-				Shape3D shapeNucleus = getShape(j3dModel, 2);
+				Appearance a = null;
+				if(drawInnerCellSurface){
+					Shape3D shapeInnerCell = getShape(j3dModel, 1);
+					a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, cellColor,transparencyFactor);
+					if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED);
+					shapeInnerCell.setAppearance(a);
+				}
+				int nucleusShapeIndex = drawInnerCellSurface ? 2 : 1;
+				Shape3D shapeNucleus = getShape(j3dModel, nucleusShapeIndex);
 				a = Episim3DAppearanceFactory.getNucleusAppearance(polygonAttributes, transparencyFactor);
 				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(!(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED) &&isNucleated);
 				shapeNucleus.setAppearance(a);
-				
-				Shape3D shapeInnerNucleus = getShape(j3dModel, 3);
-				a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, nucleusColor,transparencyFactor);
-				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED&&isNucleated);
-				shapeInnerNucleus.setAppearance(a);
+				if(drawInnerCellSurface){
+					Shape3D shapeInnerNucleus = getShape(j3dModel, 3);
+					a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, nucleusColor,transparencyFactor);
+					if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED&&isNucleated);
+					shapeInnerNucleus.setAppearance(a);
+				}
 			}
 		}
 		else if (obj instanceof DummyCell){
@@ -279,18 +291,18 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 		           tg.setCapability(Group.ALLOW_CHILDREN_READ);
 		           tg.addChild(cellSphere.cloneTree(true));
 		           if(optimizedGraphicsActivated){
-			           tg.addChild(innerCellSphere.cloneTree(true));
+			           if(drawInnerCellSurface)tg.addChild(innerCellSphere.cloneTree(true));
 			           tg.addChild(nucleusSphere.cloneTree(true));
-			           tg.addChild(innerNucleusSphere.cloneTree(true));
+			           if(drawInnerCellSurface)tg.addChild(innerNucleusSphere.cloneTree(true));
 		           }
 		           j3dModel.addChild(tg);
 		       }
 		       else{
 		      	 j3dModel.addChild(cellSphere.cloneTree(true));
 		      	 if(optimizedGraphicsActivated){
-		      		 j3dModel.addChild(innerCellSphere.cloneTree(true));
+		      		 if(drawInnerCellSurface)j3dModel.addChild(innerCellSphere.cloneTree(true));
 		      		 j3dModel.addChild(nucleusSphere.cloneTree(true));
-		      		 j3dModel.addChild(innerNucleusSphere.cloneTree(true));
+		      		 if(drawInnerCellSurface)j3dModel.addChild(innerNucleusSphere.cloneTree(true));
 		      	 }
 		       }
 		   	  Shape3D shape = getShape(j3dModel, 0);

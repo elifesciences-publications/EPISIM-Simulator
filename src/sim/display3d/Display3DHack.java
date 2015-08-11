@@ -1669,6 +1669,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 						ModelSceneCrossSectionMode mode = (ModelSceneCrossSectionMode)modelScenePlaneCombo.getSelectedItem();
 						int modeOrdinal = mode.ordinal();
 						if(mode == ModelSceneCrossSectionMode.DISABLED){
+							TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 							modelScenePlaneSlider.setEnabled(false);
 							modelScenePlaneSliderLabel.setEnabled(false);
 							modelScenePlaneSliderLabel2.setEnabled(false);

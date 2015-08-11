@@ -96,19 +96,19 @@ public class CellBoundaries {
 		return false;
 	}
 	
-	public void getXYCrosssection(double z, IntGrid2D resultingColorPixelMap, Color pixelColor){
+	public void getXYCrosssection(double z, double xOffset, double yOffset, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		if(ellipsoid != null){
-			ellipsoid.getXYCrosssection(z, getMinXInMikron()*0.9, getMinYInMikron()*0.9, getMaxXInMikron()*1.1, getMaxYInMikron()*1.1, resultingColorPixelMap, pixelColor);
+			ellipsoid.getXYCrosssection(z, getMinXInMikron()*0.9, getMinYInMikron()*0.9, getMaxXInMikron()*1.1, getMaxYInMikron()*1.1, xOffset, yOffset, resultingColorPixelMap, pixelColor);
 		}
 	}
-	public void getXZCrosssection(double y, IntGrid2D resultingColorPixelMap, Color pixelColor){
+	public void getXZCrosssection(double y, double xOffset, double zOffset, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		if(ellipsoid != null){
-			ellipsoid.getXZCrosssection(y, getMinXInMikron()*0.9, getMinZInMikron()*0.9, getMaxXInMikron()*1.1, getMaxZInMikron()*1.1, resultingColorPixelMap, pixelColor);
+			ellipsoid.getXZCrosssection(y, getMinXInMikron()*0.9, getMinZInMikron()*0.9, getMaxXInMikron()*1.1, getMaxZInMikron()*1.1, xOffset, zOffset, resultingColorPixelMap, pixelColor);
 		}
 	}
-	public void getYZCrosssection(double x, IntGrid2D resultingColorPixelMap, Color pixelColor){
+	public void getYZCrosssection(double x, double yOffset, double zOffset, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		if(ellipsoid != null){
-			ellipsoid.getYZCrosssection(x, getMinYInMikron()*0.9, getMinZInMikron()*0.9, getMaxYInMikron()*1.1, getMaxZInMikron()*1.1, resultingColorPixelMap, pixelColor);
+			ellipsoid.getYZCrosssection(x, getMinYInMikron()*0.9, getMinZInMikron()*0.9, getMaxYInMikron()*1.1, getMaxZInMikron()*1.1, yOffset, zOffset, resultingColorPixelMap, pixelColor);
 		}
 	}
 	

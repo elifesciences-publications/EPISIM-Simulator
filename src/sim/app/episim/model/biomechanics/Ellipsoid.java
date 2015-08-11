@@ -87,7 +87,7 @@ public class Ellipsoid {
 	
 	private static final Color contourColor = Color.GRAY.brighter();
 	
-	public void getXYCrosssection(double z, double minX, double minY, double maxX, double maxY, IntGrid2D resultingColorPixelMap, Color pixelColor){
+	public void getXYCrosssection(double z, double minX, double minY, double maxX, double maxY, double xOffset, double yOffset, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		boolean enableContour = true;
 		boolean enableHiRes = false;
 		if(MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D){
@@ -104,7 +104,7 @@ public class Ellipsoid {
 			for(double x = minX; x <= maxX; x+= incrementX){
 				double distance = getPointEllipsoidDistance(x, y, z);
 				if(distance <= (1)){
-					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXY))][resultingColorPixelMap.sty((int)(y*factorXY))]= pixelColor.getRGB();
+					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)((x+xOffset)*factorXY))][resultingColorPixelMap.sty((int)((y+yOffset)*factorXY))]= pixelColor.getRGB();
 					colorMap[(int)((x-minX)*factorXY)][(int)((y-minY)*factorXY)] = 1;
 				}				
 			}
@@ -113,13 +113,13 @@ public class Ellipsoid {
 			for(double y = minY; y <= maxY; y+= incrementY){
 				for(double x = minX; x <= maxX; x+= incrementX){
 					if(isContourPixel((int)((x-minX)*factorXY), (int)((y-minY)*factorXY), colorMap)){
-						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXY))][resultingColorPixelMap.sty((int)(y*factorXY))]= contourColor.getRGB();
+						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)((x+xOffset)*factorXY))][resultingColorPixelMap.sty((int)((y+yOffset)*factorXY))]= contourColor.getRGB();
 					}				
 				}
 			}
 		}
 	}
-	public void getXZCrosssection(double y, double minX, double minZ, double maxX, double maxZ, IntGrid2D resultingColorPixelMap, Color pixelColor){
+	public void getXZCrosssection(double y, double minX, double minZ, double maxX, double maxZ, double xOffset, double zOffset, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		boolean enableContour = true;
 		boolean enableHiRes = false;
 		if(MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D){
@@ -136,7 +136,7 @@ public class Ellipsoid {
 			for(double x = minX; x <= maxX; x+= incrementX){
 				double distance = getPointEllipsoidDistance(x, y, z);
 				if(distance <=1){
-					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXZ))][resultingColorPixelMap.sty((int)(z*factorXZ))]= pixelColor.getRGB();
+					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)((x+xOffset)*factorXZ))][resultingColorPixelMap.sty((int)((z+zOffset)*factorXZ))]= pixelColor.getRGB();
 					colorMap[(int)((x-minX)*factorXZ)][(int)((z-minZ)*factorXZ)] = 1;
 				}
 			}
@@ -145,13 +145,13 @@ public class Ellipsoid {
 			for(double z = minZ; z <= maxZ; z+= incrementZ){
 				for(double x = minX; x <= maxX; x+= incrementX){
 					if(isContourPixel((int)((x-minX)*factorXZ), (int)((z-minZ)*factorXZ), colorMap)){
-						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(x*factorXZ))][resultingColorPixelMap.sty((int)(z*factorXZ))]= contourColor.getRGB();
+						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)((x+xOffset)*factorXZ))][resultingColorPixelMap.sty((int)((z+zOffset)*factorXZ))]= contourColor.getRGB();
 					}				
 				}
 			}
 		}
 	}
-	public void getYZCrosssection(double x, double minY, double minZ, double maxY, double maxZ, IntGrid2D resultingColorPixelMap, Color pixelColor){
+	public void getYZCrosssection(double x, double minY, double minZ, double maxY, double maxZ, double yOffset, double zOffset, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		boolean enableContour = true;
 		boolean enableHiRes = false;
 		if(MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D){
@@ -168,7 +168,7 @@ public class Ellipsoid {
 			for(double z = minZ; z <= maxZ; z+= incrementZ){
 				double distance = getPointEllipsoidDistance(x, y, z);
 				if(distance <= 1){
-					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(z*factorYZ))][resultingColorPixelMap.sty((int)(y*factorYZ))]= pixelColor.getRGB();
+					resultingColorPixelMap.field[resultingColorPixelMap.stx((int)((z+zOffset)*factorYZ))][resultingColorPixelMap.sty((int)((y+yOffset)*factorYZ))]= pixelColor.getRGB();
 					colorMap[(int)((z-minZ)*factorYZ)][(int)((y-minY)*factorYZ)] = 1;
 				}
 			}
@@ -177,7 +177,7 @@ public class Ellipsoid {
 			for(double y = minY; y <= maxY; y+= incrementY){
 				for(double z = minZ; z <= maxZ; z+= incrementZ){
 					if(isContourPixel((int)((z-minZ)*factorYZ), (int)((y-minY)*factorYZ), colorMap)){
-						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)(z*factorYZ))][resultingColorPixelMap.sty((int)(y*factorYZ))]= contourColor.getRGB();
+						resultingColorPixelMap.field[resultingColorPixelMap.stx((int)((z+zOffset)*factorYZ))][resultingColorPixelMap.sty((int)((y+yOffset)*factorYZ))]= contourColor.getRGB();
 					}				
 				}
 			}

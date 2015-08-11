@@ -124,6 +124,7 @@ public class EpisimProperties {
 	public static final String DISPLAY_COLORMODE_MIN = "display.colormode.min";	
 	public static final String DISPLAY_COLORMODE_MAX = "display.colormode.max";
 	public static final String DISPLAY_COLORMODE_INCR = "display.colormode.incr";
+	public static final String DISPLAY_3D_DRAW_INNER_CELL_SURFACE="display.3d.drawinnercellsurface";
 	
 	
 	public static final String SIMULATOR_DIFFUSION_FIELD_TESTMODE = "simulator.diffusionfield.testmode";

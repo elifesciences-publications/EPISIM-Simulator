@@ -716,7 +716,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5),
 						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));				
 				
-				
+				// Explicit forward Euler integration
 				double newX = loc.x+randomPositionData.x+((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.x+interactionResult.adhesionForce.x+interactionResult.chemotacticForce.x));
 				double newY = loc.y+randomPositionData.y+((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.y+interactionResult.adhesionForce.y+interactionResult.chemotacticForce.y));
 				double newZ = loc.z+randomPositionData.z+((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.z+interactionResult.adhesionForce.z+interactionResult.chemotacticForce.z));
@@ -891,7 +891,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
    // Simulation step
    protected void newGlobalSimStep(long simStepNumber, SimState state){
-   //	long start = System.currentTimeMillis();   	
+   	long start = System.currentTimeMillis();   	
    	final MersenneTwisterFast random 		 = state!= null ? state.random : new MersenneTwisterFast(System.currentTimeMillis());
    	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
    	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
@@ -953,12 +953,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   				cellBM.updateDirectNeighbours();
 	   				cellBM.finishNewSimStep();
 	   			}
-
 	   		}
    	}   	  
    	
-   //	long end = System.currentTimeMillis();
-  // 	System.out.println("Global BM Sim Step: "+(end-start)+" ms");
+   	long end = System.currentTimeMillis();
+    	System.out.println("Global BM Sim Step: "+(end - start)+" ms");
    }
    
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state){

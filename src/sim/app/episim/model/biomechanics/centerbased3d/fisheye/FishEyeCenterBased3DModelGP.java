@@ -24,7 +24,7 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 		
 	private double neighborhood_mikron							 = 20.0; 
 	private double numberOfPixelsPerMicrometer				 = 1;
-	private int numberOfSecondsPerSimStep						 = 3600;
+	private int numberOfSecondsPerSimStep						 = 3600; //7200;
 	
 	private double mechanicalNeighbourhoodOptDistFact		 = 1.5;
 	private double directNeighbourhoodOptDistFact			 = 1.3;	

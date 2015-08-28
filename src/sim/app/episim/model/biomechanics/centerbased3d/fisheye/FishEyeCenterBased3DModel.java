@@ -906,24 +906,27 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	//////////////////////////////////////SETTING OF EYE RADIUS/////////////////////////////////////////////////////
    	//setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
    	///TEST///
-   	int totalCells = allCells.size(); double CELL_WIDTH=0; double CELL_HEIGHT=0; double CELL_LENGTH=0;
-
-   	EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
-		try{
-	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");	CELL_WIDTH = field.getDouble(cbGP);
-	      field = cbGP.getClass().getDeclaredField("HEIGHT_DEFAULT");	      CELL_HEIGHT = field.getDouble(cbGP);
-	      field = cbGP.getClass().getDeclaredField("LENGTH_DEFAULT");	      CELL_LENGTH = field.getDouble(cbGP);   
-      }
-      catch (NoSuchFieldException e){EpisimExceptionHandler.getInstance().displayException(e);}
-      catch (SecurityException e){EpisimExceptionHandler.getInstance().displayException(e);}
-      catch (IllegalArgumentException e){EpisimExceptionHandler.getInstance().displayException(e);}
-      catch (IllegalAccessException e){EpisimExceptionHandler.getInstance().displayException(e);}	
-		
+   	int totalCells = allCells.size(); 
+   	double cell_width=0; 
+   	double cell_height=0; 
+   	double cell_length=0;
+   	if(allCells.size() > 0 && allCells.get(0) != null){
+   		AbstractCell selectedCell = allCells.get(0);   	
+   		 if(selectedCell.getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
+ 	      	EpisimModelConnector cellConnector = ((FishEyeCenterBased3DModel) selectedCell.getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
+ 	      	if(cellConnector instanceof EpisimFishEyeCenterBased3DMC){
+ 	      		cell_width=((EpisimFishEyeCenterBased3DMC)cellConnector).getWidth(); 
+ 	      		cell_height=((EpisimFishEyeCenterBased3DMC)cellConnector).getHeight(); 
+ 	      		cell_length=((EpisimFishEyeCenterBased3DMC)cellConnector).getLength();
+ 	      	}
+   		 }
+   	}
+   
    	// Get the biomechanical global parameters
 		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
-		double cellSize 	 = Math.max(CELL_WIDTH, CELL_HEIGHT);
-				 cellSize 	 = Math.max(cellSize, CELL_LENGTH);
+		double cellSize 	 = Math.max(cell_width, cell_height);
+				 cellSize 	 = Math.max(cellSize, cell_length);
 		double cellradius  = cellSize/2d;
 		double tol_overlap = 1 - mechModelGP.getLinearToExpMaxOverlap_perc();
 		double cellarea    = Math.PI*Math.pow(cellradius*(1-tol_overlap),2);

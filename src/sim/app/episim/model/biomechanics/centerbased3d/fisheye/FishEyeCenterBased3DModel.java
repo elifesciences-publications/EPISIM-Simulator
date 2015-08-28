@@ -64,7 +64,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
    private FishEyeCenterBased3DModelGP globalParameters = null;
    
-   private double migrationDistPerSimStep = 0;
+   private double migrationDistWholeSimStep = 0;
    
 	private static Continuous3DExt cellField;
 	
@@ -689,7 +689,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	  		 	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
 	  		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
  	 	}
-		migrationDistPerSimStep=0;
+		migrationDistWholeSimStep=0;
 	}
 
 	// Calculation of balance of forces and cell displacement
@@ -954,10 +954,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	numberOfIterationsDouble 	  = (numberOfSeconds/DELTA_TIME_IN_SECONDS_PER_EULER_STEP); //according to Pathmanathan et al.2008
    	final int numberOfIterations = ((int)numberOfIterationsDouble);
    	boolean parallelizationOn 	  = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
-	   
+	   boolean cutOffStop = false;
    	for(int i = 0; i<numberOfIterations; i++){	   		
 	   		allCells.shuffle(random);
 	   		final int totalCellNumber = allCells.size();
+	   		if(cutOffStop) i = (numberOfIterations-1);
 	   		final int iterationNo 	  = i;
 	   		// Loop when parallelization active
 	   		if(parallelizationOn){
@@ -977,11 +978,14 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		   			cellBM.calculateSimStep((i == (numberOfIterations-1)));		   			
 		   		}
 	   		}
+	   		double cumulativeMigrationDistance = 0;
+	   		double migrationDistanceThisStep = 0;
 	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
 	   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
 	   			if(cellBM.newCellLocation!=null){
 	   				if(cellBM.oldCellLocation != null){
-	   					cellBM.migrationDistPerSimStep += cellBM.oldCellLocation.distance(cellBM.newCellLocation);
+	   					migrationDistanceThisStep = cellBM.oldCellLocation.distance(cellBM.newCellLocation);
+	   					cellBM.migrationDistWholeSimStep += migrationDistanceThisStep;
 	   				}
 	   				
 	   				if(cellBM.newCellLocation != null)cellBM.setCellLocationInCellField(cellBM.newCellLocation);
@@ -991,6 +995,14 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   				cellBM.updateDirectNeighbours();
 	   				cellBM.finishNewSimStep();
 	   			}
+	   			cumulativeMigrationDistance+=migrationDistanceThisStep;
+	   			migrationDistanceThisStep=0;
+	   		}
+	   		//TEST
+	   		if(totalCellNumber>0
+	   				&& mechModelGP.getNumberOfSecondsPerSimStep()>0
+	   				&& (cumulativeMigrationDistance/totalCellNumber)<(mechModelGP.getMinAverageMigrationMikron()/mechModelGP.getNumberOfSecondsPerSimStep())){
+	   			cutOffStop=true;
 	   		}
    	}   	  
    	
@@ -1268,7 +1280,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	
    public double getMigrationDistPerSimStep() {
    
-   	return migrationDistPerSimStep;
+   	return migrationDistWholeSimStep;
    }
 
 

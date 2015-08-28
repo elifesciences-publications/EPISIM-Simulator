@@ -38,7 +38,7 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 	//Pathmanathan et al. 2009: 2.2x10^-3 [N m^-1]; multiply with 1*10^-6 to convert to Newtons per micrometer
 	private double adhSpringStiffness_N_per_square_micro_m = 0.0000000022;//0.000000000022; //0.000000000149;
 	
-	private double initMinAverageMigration 					 = 0.1;
+	private double minAverageMigrationMikron 					 = 0.1;
 	private double prolifCompWidthMikron						 = 25;
 	private int neighbourLostThres								 = 10;
 	
@@ -231,15 +231,15 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 	}
 
 	
-   public double getInitMinAverageMigration() {
+   public double getMinAverageMigrationMikron() {
    
-   	return initMinAverageMigration;
+   	return minAverageMigrationMikron;
    }
 
 	
-   public void setInitMinAverageMigration(double initMinAverageMigration) {
+   public void setMinAverageMigrationMikron(double minAverageMigrationMikron) {
    
-   	this.initMinAverageMigration = initMinAverageMigration;
+   	this.minAverageMigrationMikron = minAverageMigrationMikron;
    }
 
 	

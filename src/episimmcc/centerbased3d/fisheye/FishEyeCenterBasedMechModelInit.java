@@ -240,7 +240,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 				cumulativeMigrationDist = getCumulativeMigrationDistance(standardCellEnsemble);
 				System.out.println("Average migration:" + cumulativeMigrationDist/standardCellEnsemble.size());
 			}
-			while(standardCellEnsemble.size() > 0 && ((cumulativeMigrationDist / standardCellEnsemble.size()) > mechModelGP.getInitMinAverageMigration()));
+			while(standardCellEnsemble.size() > 0 && ((cumulativeMigrationDist / standardCellEnsemble.size()) > mechModelGP.getMinAverageMigrationMikron()));
 			
 		}
 	}

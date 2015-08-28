@@ -124,6 +124,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	      		setCellWidth(((EpisimFishEyeCenterBased3DMC)motherCellConnector).getWidth()); 
 	      		setCellHeight(((EpisimFishEyeCenterBased3DMC)motherCellConnector).getHeight());
 	      		setCellLength(((EpisimFishEyeCenterBased3DMC)motherCellConnector).getLength());
+	      		deltaX = ((EpisimFishEyeCenterBased3DMC)motherCellConnector).getBiasX();
+	    	      deltaY = ((EpisimFishEyeCenterBased3DMC)motherCellConnector).getBiasY();
+	    	      deltaZ = ((EpisimFishEyeCenterBased3DMC)motherCellConnector).getBiasZ();    
 	      	}
 	      }
 	      

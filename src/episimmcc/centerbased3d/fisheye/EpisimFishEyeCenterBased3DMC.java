@@ -42,6 +42,9 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 	private double width=0;
 	private double height=0;
 	private double length=0;
+	private double biasX =0;
+	private double biasY =0;
+	private double biasZ =0;
 		
 	private double adhesionMembrane=0;
 	
@@ -285,6 +288,36 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
    @Hidden
    public void setCellId(int cellId) {   
    	this.cellId = cellId;
+   }
+
+	
+   public double getBiasX() {   
+   	return biasX;
+   }
+
+	
+   public void setBiasX(double biasX) {   
+   	this.biasX = biasX;
+   }
+
+	
+   public double getBiasY() {   
+   	return biasY;
+   }
+
+	
+   public void setBiasY(double biasY) {   
+   	this.biasY = biasY;
+   }
+
+	
+   public double getBiasZ() {   
+   	return biasZ;
+   }
+
+	
+   public void setBiasZ(double biasZ) {   
+   	this.biasZ = biasZ;
    }
 	
 }

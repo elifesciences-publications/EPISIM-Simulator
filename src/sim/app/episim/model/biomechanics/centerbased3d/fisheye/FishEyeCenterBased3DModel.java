@@ -5,6 +5,7 @@ package sim.app.episim.model.biomechanics.centerbased3d.fisheye;
  */
 
 import java.awt.geom.Rectangle2D;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -37,6 +39,7 @@ import sim.util.Bag;
 import sim.util.Double3D;
 import ec.util.MersenneTwisterFast;
 import episimexceptions.GlobalParameterException;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
@@ -47,7 +50,7 @@ import episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC;
 public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	
 	// Fields
-	private double MIN_OVERLAP_MICRON = 0.1; // minimum deviation from optimal distance considered significant
+	private double MIN_OVERLAP_MICRON = 0.05;//0.1; // minimum deviation from optimal distance considered significant
 	   
    private double standardCellWidth  = 0; 
    private double standardCellHeight = 0; 
@@ -110,13 +113,12 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	  		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
 	 
 	 	}
+     	double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
+      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025; 
+      double deltaZ = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025; 
      	// If cell exists and has a mother cell
       if(cell != null && cell.getMotherCell() != null){
-      	// Wobble interval of initial cell position
-	      double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
-	      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025; 
-	      double deltaZ = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;    
-	      
+      	// Wobble interval of initial cell position      	
 	      if(cell.getMotherCell().getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
 	      	EpisimModelConnector motherCellConnector = ((FishEyeCenterBased3DModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
 	      	if(motherCellConnector instanceof EpisimFishEyeCenterBased3DMC){
@@ -129,6 +131,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	    	      deltaZ = ((EpisimFishEyeCenterBased3DMC)motherCellConnector).getBiasZ();    
 	      	}
 	      }
+	      
 	      
 	      Double3D oldLoc = cellField.getObjectLocation(cell.getMotherCell());
 	      
@@ -711,6 +714,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 					getCellHeight()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),
 					getCellLength()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),					
 					true, true);
+			
 			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, loc, finalSimStep);
 						
 			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
@@ -898,7 +902,35 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	final MersenneTwisterFast random 		 = state!= null ? state.random : new MersenneTwisterFast(System.currentTimeMillis());
    	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
    	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
-   	setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
+   	
+   	//////////////////////////////////////SETTING OF EYE RADIUS/////////////////////////////////////////////////////
+   	//setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
+   	///TEST///
+   	int totalCells = allCells.size(); double CELL_WIDTH=0; double CELL_HEIGHT=0; double CELL_LENGTH=0;
+
+   	EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
+		try{
+	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");	CELL_WIDTH = field.getDouble(cbGP);
+	      field = cbGP.getClass().getDeclaredField("HEIGHT_DEFAULT");	      CELL_HEIGHT = field.getDouble(cbGP);
+	      field = cbGP.getClass().getDeclaredField("LENGTH_DEFAULT");	      CELL_LENGTH = field.getDouble(cbGP);   
+      }
+      catch (NoSuchFieldException e){EpisimExceptionHandler.getInstance().displayException(e);}
+      catch (SecurityException e){EpisimExceptionHandler.getInstance().displayException(e);}
+      catch (IllegalArgumentException e){EpisimExceptionHandler.getInstance().displayException(e);}
+      catch (IllegalAccessException e){EpisimExceptionHandler.getInstance().displayException(e);}	
+		
+   	// Get the biomechanical global parameters
+		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		
+		double cellSize 	 = Math.max(CELL_WIDTH, CELL_HEIGHT);
+				 cellSize 	 = Math.max(cellSize, CELL_LENGTH);
+		double cellradius  = cellSize/2d;
+		double tol_overlap = 1 - mechModelGP.getLinearToExpMaxOverlap_perc();
+		double cellarea    = Math.PI*Math.pow(cellradius*(1-tol_overlap),2);
+		double newradius   = Math.sqrt((totalCells*cellarea)/(2*Math.PI));
+		
+   	globalParameters.setInnerEyeRadius(newradius);
+   	///TEST///
    	
    	if(dummyCellsAdded){
    		generateDummyCells(dummyCellSize);

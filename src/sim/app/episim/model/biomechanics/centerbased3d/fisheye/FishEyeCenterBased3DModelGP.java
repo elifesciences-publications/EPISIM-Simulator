@@ -24,7 +24,7 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 		
 	private double neighborhood_mikron							 = 20.0; 
 	private double numberOfPixelsPerMicrometer				 = 1;
-	private int numberOfSecondsPerSimStep						 = 3600; //7200;
+	private int numberOfSecondsPerSimStep						 = 7200; //3600; //7200;
 	
 	private double mechanicalNeighbourhoodOptDistFact		 = 1.5;
 	private double directNeighbourhoodOptDistFact			 = 1.3;	
@@ -32,11 +32,11 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 	private double optDistanceScalingFactor					 = 0.95;
 	private double optDistanceToBMScalingFactor				 = 0.95;
 	private double dummyCellOptDistanceScalingFactor		 = 0.5;
-	private double linearToExpMaxOverlap_Perc					 = 0.8;
+	private double linearToExpMaxOverlap_Perc					 = 0.85;
 	private double repulSpringStiffness_N_per_micro_m 		 = 0.0000000022;
 	
 	//Pathmanathan et al. 2009: 2.2x10^-3 [N m^-1]; multiply with 1*10^-6 to convert to Newtons per micrometer
-	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022; //0.000000000149;
+	private double adhSpringStiffness_N_per_square_micro_m = 0.0000000022;//0.000000000022; //0.000000000149;
 	
 	private double initMinAverageMigration 					 = 0.1;
 	private double prolifCompWidthMikron						 = 25;

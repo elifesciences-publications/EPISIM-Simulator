@@ -120,13 +120,8 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		double radius    = mechModelGP.getInitialInnerEyeRadius();
 		Icosahedron ico  = new Icosahedron(5);  							// generate icosahedral mesh and subdivide it 5 times
 		int ignoredCells = 0;
-		
-		
-		// Simulations and additional calculations reveal that this currently generates too many cells.
-		// Adjust it later such that initial cell number fits perfectly to initial available area.
-		
-		// Possible improvement to control initial cell density with arbitrary given initial radius:
-		
+
+		// Set allowed initial cell number to given initial radius and density:		
 		double cellradius     = cellSize/2d;
 		double tol_overlap    = 1 - mechModelGP.getLinearToExpMaxOverlap_perc();
 		double hemispherearea = 2*Math.PI*Math.pow(radius,2);

@@ -245,7 +245,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		}
 	}
 	
-	// Get migration of cells during initial relaxation
+	// Get migration of cells during relaxation
 	private double getCumulativeMigrationDistance(ArrayList<UniversalCell> standardCellEnsemble){
 		
 		double cumulativeMigrationDistance = 0;

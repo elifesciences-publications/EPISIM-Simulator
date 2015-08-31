@@ -1001,7 +1001,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   		//TEST
 	   		if(totalCellNumber>0
 	   				&& mechModelGP.getNumberOfSecondsPerSimStep()>0
-	   				&& (cumulativeMigrationDistance/totalCellNumber)<(mechModelGP.getMinAverageMigrationMikron()/mechModelGP.getNumberOfSecondsPerSimStep())){
+	   				&& (cumulativeMigrationDistance/totalCellNumber)<(mechModelGP.getMinAverageMigrationMikron()/(mechModelGP.getNumberOfSecondsPerSimStep()/36) )){
 	   			cutOffStop=true;
 	   		}
    	}   	  

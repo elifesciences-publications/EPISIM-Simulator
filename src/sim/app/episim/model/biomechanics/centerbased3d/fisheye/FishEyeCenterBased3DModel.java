@@ -50,7 +50,7 @@ import episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC;
 public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	
 	// Fields
-	private double MIN_OVERLAP_MICRON = 0.05;//0.1; // minimum deviation from optimal distance considered significant
+	private double MIN_OVERLAP_MICRON = 0.1; // minimum deviation from optimal distance considered significant
 	   
    private double standardCellWidth  = 0; 
    private double standardCellHeight = 0; 
@@ -673,6 +673,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	if(!dummyCellsAdded) newX = newX < globalParameters.getInnerEyeCenter().x ? globalParameters.getInnerEyeCenter().x : newX;
    	
    	return new Point3d(newX, innerEyeCenter.y + rayDirection.y, innerEyeCenter.z + rayDirection.z);	
+   	// TEST
+   	// Quick-and-dirty fix to prevent cell adjustment
+//   	return new Point3d(cellCenter.x, cellCenter.y, cellCenter.z);	
 	}
    
    // unused?
@@ -928,9 +931,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		double cellSize 	 = Math.max(cell_width, cell_height);
 				 cellSize 	 = Math.max(cellSize, cell_length);
 		double cellradius  = cellSize/2d;
-		double tol_overlap = 1 - mechModelGP.getLinearToExpMaxOverlap_perc();
+		double tol_overlap = 1 - (mechModelGP.getLinearToExpMaxOverlap_perc());
 		double cellarea    = Math.PI*Math.pow(cellradius*(1-tol_overlap),2);
-		double newradius   = Math.sqrt((totalCells*cellarea)/(2*Math.PI));
+		double newradius   = Math.sqrt((totalCells*cellarea)/(2*Math.PI)) ;
 		
    	globalParameters.setInnerEyeRadius(newradius);
    	///TEST///
@@ -958,7 +961,10 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	for(int i = 0; i<numberOfIterations; i++){	   		
 	   		allCells.shuffle(random);
 	   		final int totalCellNumber = allCells.size();
-	   		if(cutOffStop) i = (numberOfIterations-1);
+	   		if(cutOffStop) {
+	   			i = (numberOfIterations-1);
+	   			System.out.println("Min threshold reached: Interrupted Biomechanical calculation");
+	   		}
 	   		final int iterationNo 	  = i;
 	   		// Loop when parallelization active
 	   		if(parallelizationOn){

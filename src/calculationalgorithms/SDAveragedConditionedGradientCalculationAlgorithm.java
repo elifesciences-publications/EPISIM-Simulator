@@ -80,6 +80,7 @@ public class SDAveragedConditionedGradientCalculationAlgorithm extends AbstractC
 			double[] numberOfCellsInBin = new double[arraySize];
 			ArrayList<ArrayList<Double>> individualResults = new ArrayList<ArrayList<Double>>();
 			for(int i = 0; i < arraySize; i++)individualResults.add(new ArrayList<Double>());
+			
 			for(AbstractCell actCell: allCells){
 				if((handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())) && handler.conditionFulfilled(actCell)){
 					EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
@@ -87,10 +88,10 @@ public class SDAveragedConditionedGradientCalculationAlgorithm extends AbstractC
 					double result = handler.calculate(actCell);
 					individualResults.get(index).add(result);
 					numberOfCellsInBin[index] += 1;
-					cummulativeValues[index] += result;
-					
+					cummulativeValues[index] += result;					
 				}
 			}
+			
 			for(double i = 0; i < arraySize; i++){
 				if(numberOfCellsInBin[(int)i] > 1){
 					final double meanValue = cummulativeValues[(int)i] / numberOfCellsInBin[(int)i];
@@ -99,7 +100,10 @@ public class SDAveragedConditionedGradientCalculationAlgorithm extends AbstractC
 					for(double actVal : indVals)sum += Math.pow((actVal-meanValue), 2);
 					sum /= (numberOfCellsInBin[(int)i]-1);
 					resultMap.put(i*binSizeMikron, Math.sqrt(sum));
-				}			
+				}
+				else if(numberOfCellsInBin[(int)i] == 1){
+					resultMap.put(i*binSizeMikron, 0d);
+				}
 			}
 		   Sorting.sort2DMapValuesIntoResultSet(resultMap, results);							
 		}

@@ -197,7 +197,8 @@ public class DataExportCSVWriter implements SimStateChangeListener{
 			
 		
 				try{
-					if(simStepCounter >0 || (simStepCounter==0 && (initialValueWrittenCounter == 0 || initialValueWrittenCounter==2))){
+					/* TODO: Check this condition especially initialValueWrittenCounter*/
+					if(simStepCounter >0 || (simStepCounter==0 && (initialValueWrittenCounter == 0 || initialValueWrittenCounter>0))){
 						if(simStepCounter > lastSimStepCounterWritten || (simStepCounter==0)){
 							if(simStepCounter==0 && initialValueWrittenCounter == 0)csvWriter.write((simStepCounter)+";");
 							else csvWriter.write((simStepCounter+1)+";");
@@ -345,7 +346,7 @@ public class DataExportCSVWriter implements SimStateChangeListener{
             }};
             t = new Thread(r);
             t.start();
-	     }     
+	     }	    
 	}
 	
 	public void simulationWasStarted() {

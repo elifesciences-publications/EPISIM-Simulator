@@ -79,6 +79,7 @@ public class AveragedConditionedGradientCalculationAlgorithm extends AbstractCom
 				final int arraySize = ((int)(TissueController.getInstance().getTissueBorder().getHeightInMikron() / binSizeMikron)+1);
 				double[] cummulativeValues = new double[arraySize];
 				double[] numberOfCellsInBin = new double[arraySize];
+				
 				for(AbstractCell actCell: allCells){
 					if((handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())) && handler.conditionFulfilled(actCell)){
 						EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
@@ -86,9 +87,9 @@ public class AveragedConditionedGradientCalculationAlgorithm extends AbstractCom
 						double result = handler.calculate(actCell);
 						numberOfCellsInBin[index] += 1;
 						cummulativeValues[index] += result;
-						
 					}
 				}
+				
 				for(double i = 0; i < arraySize; i++){
 					if(numberOfCellsInBin[(int)i] > 0){
 						resultMap.put(i*binSizeMikron, cummulativeValues[(int)i] / numberOfCellsInBin[(int)i]);

@@ -14,12 +14,12 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 
 public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private double width 										    = 850;  // 1050
-	private double height 											 = 1350; // 2050
-	private double length 											 = 1350; // 2050
+	private double width 										    = 1100; //850;  // 
+	private double height 											 = 2050; //1350; // 
+	private double length 											 = 2050; //1350; // 
 	
-	private double initialInnerEyeRadius						 = 100; //150;
-	private double innerEyeRadius									 = 100; //150;
+	private double initialInnerEyeRadius						 = 150; //100; //
+	private double innerEyeRadius									 = 150; //100; //
 	private double randomness										 = 0;   //0.00000000125;
 		
 	private double neighborhood_mikron							 = 20.0; 

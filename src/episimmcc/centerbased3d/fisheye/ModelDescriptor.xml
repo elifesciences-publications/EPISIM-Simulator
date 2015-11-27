@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2015-01-27_episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC"/>
-  <visiblename name="fish eye"/>
+  <visiblename name="151106_MCC_divisionBias"/>
   <modelname name="Fish Eye Center Based Biomechanical 3D Model"/>
   <modelconnectorclass name="episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC"/>
   <modelparameters>
@@ -30,12 +30,12 @@
     <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="cellSurfaceArea"
       pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="totalContactArea"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="height"
-      pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0" name="contactArea"
       pairwise="true" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="height"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="totalContactArea"
+      pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="contactAreaInnerEye" pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="length"

@@ -118,7 +118,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	*/
 		
 		double radius    = mechModelGP.getInitialInnerEyeRadius();
-		Icosahedron ico  = new Icosahedron(5); //5 							// generate icosahedral mesh and subdivide it 5 times
+		Icosahedron ico  = new Icosahedron(6); //5 							// generate icosahedral mesh and subdivide it x times
 		int ignoredCells = 0;
 
 		// Set allowed initial cell number to given initial radius and density:		

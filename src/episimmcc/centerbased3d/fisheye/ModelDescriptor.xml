@@ -7,10 +7,10 @@
   <modelparameters>
     <parameter datatype="double" default="0.0" name="biasY"
       pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="50.0" name="centerX"
-      pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="biasZ"
       pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="50.0" name="centerX"
+      pairwise="false" readonly="true"/>
     <parameter datatype="double" default="1050.0" name="centerY"
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="1050.0" name="centerZ"
@@ -36,10 +36,10 @@
     <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="cellSurfaceArea"
       pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0" name="contactArea"
-      pairwise="true" readonly="true"/>
     <parameter datatype="double" default="0.0" name="height"
       pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0" name="contactArea"
+      pairwise="true" readonly="true"/>
     <parameter datatype="double" default="0.0" name="totalContactArea"
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
@@ -50,7 +50,7 @@
       pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="biasX"
       pairwise="false" readonly="false"/>
-    <parameter datatype="int" default="0" name="eyeGrowthMode"
+    <parameter datatype="double" default="0.0" name="eyeGrowthMode"
       pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="average_overlap"
       pairwise="false" readonly="true"/>

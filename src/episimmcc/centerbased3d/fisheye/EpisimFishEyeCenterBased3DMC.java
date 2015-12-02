@@ -49,7 +49,7 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 	private double centerY = 1050;
 	private double centerZ = 1050;
 	
-	private int eyeGrowthMode = 0;
+	private double eyeGrowthMode = 0;
 	
 	private double adhesionMembrane=0;
 	
@@ -355,12 +355,12 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 	   this.centerZ = centerZ;
    }
 
-	public int getEyeGrowthMode() {
+	public double getEyeGrowthMode() {
 
 	   return eyeGrowthMode;
    }
 
-	public void setEyeGrowthMode(int eyeGrowthMode) {
+	public void setEyeGrowthMode(double eyeGrowthMode) {
 
 	   this.eyeGrowthMode = eyeGrowthMode;
    }

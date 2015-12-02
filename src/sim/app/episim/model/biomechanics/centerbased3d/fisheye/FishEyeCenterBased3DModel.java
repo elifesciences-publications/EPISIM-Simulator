@@ -931,11 +931,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    	
 		// Expansion of tissue independent on cell proliferation
-   	if (modelConnector.getEyeGrowthMode() == 0) {
+   	if (modelConnector.getEyeGrowthMode() == 0d) {
    		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
    	}
 		// Expansion of tissue depends on cell proliferation
-   	else if (modelConnector.getEyeGrowthMode() == 1) {
+   	else if (modelConnector.getEyeGrowthMode() == 1d) {
    		// Get the total number of cells
 	   	int totalCells = allCells.size();
 	   	// Get the dimensions of an individual cell
@@ -965,7 +965,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   	globalParameters.setInnerEyeRadius(newradius);
    	}
 		// Both growth and shape of tissue depends on cell proliferation (ellipsoid eye growth)
-   	else if (modelConnector.getEyeGrowthMode() == 2) {
+   	else if (modelConnector.getEyeGrowthMode() == 2d) {
    		//placeholder
    		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
    	}

@@ -684,7 +684,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	
    	return new Point3d(newX, innerEyeCenter.y + rayDirection.y, innerEyeCenter.z + rayDirection.z);	
    	// TEST
-   	// Quick-and-dirty fix to prevent cell adjustment
+   	// Quick-and-dirty way to prevent cell adjustment
 //   	return new Point3d(cellCenter.x, cellCenter.y, cellCenter.z);	
 	}
    
@@ -930,44 +930,50 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	// Get the biomechanical global parameters
    	FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    	
-		// Expansion of tissue independent on cell proliferation
-   	if (modelConnector.getEyeGrowthMode() == 0d) {
-   		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
-   	}
-		// Expansion of tissue depends on cell proliferation
-   	else if (modelConnector.getEyeGrowthMode() == 1d) {
-   		// Get the total number of cells
-	   	int totalCells = allCells.size();
-	   	// Get the dimensions of an individual cell
-	   	double cell_width=0; 
-	   	double cell_height=0; 
-	   	double cell_length=0;
-	   	if(allCells.size() > 0 && allCells.get(0) != null){
-	   		AbstractCell selectedCell = allCells.get(0);   	
-	   		 if(selectedCell.getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
-	 	      	EpisimModelConnector cellConnector = ((FishEyeCenterBased3DModel) selectedCell.getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
-	 	      	if(cellConnector instanceof EpisimFishEyeCenterBased3DMC){
-	 	      		cell_width=((EpisimFishEyeCenterBased3DMC)cellConnector).getWidth(); 
-	 	      		cell_height=((EpisimFishEyeCenterBased3DMC)cellConnector).getHeight(); 
-	 	      		cell_length=((EpisimFishEyeCenterBased3DMC)cellConnector).getLength();
-	 	      	}
-	   		}
+   	if(modelConnector != null) {
+			// Expansion of tissue independent on cell proliferation
+	   	if (modelConnector.getEyeGrowthMode() == 0d) {
+	   		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
 	   	}
-			// Get the maximum semi-axis of this cell, and use it to estimate how much the radius would have to grow to accommodate a number of spherical cells
-	   	// of that size.
-			double cellSize 	 = Math.max(cell_width, cell_height);
-					 cellSize 	 = Math.max(cellSize, cell_length);
-			double cellradius  = cellSize/2d;
-			double tol_overlap = 1 - (mechModelGP.getLinearToExpMaxOverlap_perc());
-			double cellarea    = Math.PI*Math.pow(cellradius*(1-tol_overlap),2);
-			double newradius   = Math.sqrt((totalCells*cellarea)/(2*Math.PI)) ;
-			
-	   	globalParameters.setInnerEyeRadius(newradius);
-   	}
-		// Both growth and shape of tissue depends on cell proliferation (ellipsoid eye growth)
-   	else if (modelConnector.getEyeGrowthMode() == 2d) {
-   		//placeholder
-   		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
+			// Expansion of tissue depends on cell proliferation
+	   	else if (modelConnector.getEyeGrowthMode() == 1d) {
+	   		// Get the total number of cells
+		   	int totalCells = allCells.size();
+		   	// Get the dimensions of an individual cell
+		   	double cell_width=0; 
+		   	double cell_height=0; 
+		   	double cell_length=0;
+		   	if(allCells.size() > 0 && allCells.get(0) != null){
+		   		AbstractCell selectedCell = allCells.get(0);   	
+		   		 if(selectedCell.getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
+		 	      	EpisimModelConnector cellConnector = ((FishEyeCenterBased3DModel) selectedCell.getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
+		 	      	if(cellConnector instanceof EpisimFishEyeCenterBased3DMC){
+		 	      		cell_width=((EpisimFishEyeCenterBased3DMC)cellConnector).getWidth(); 
+		 	      		cell_height=((EpisimFishEyeCenterBased3DMC)cellConnector).getHeight(); 
+		 	      		cell_length=((EpisimFishEyeCenterBased3DMC)cellConnector).getLength();
+		 	      	}
+		   		}
+		   	}
+				// Get the maximum semi-axis of this cell, and use it to estimate how much the radius would have to grow to accommodate a number of spherical cells
+		   	// of that size.
+				double cellSize 	 = Math.max(cell_width, cell_height);
+						 cellSize 	 = Math.max(cellSize, cell_length);
+				double cellradius  = cellSize/2d;
+				double tol_overlap = 1 - (mechModelGP.getLinearToExpMaxOverlap_perc());
+				double cellarea    = Math.PI*Math.pow(cellradius*(1-tol_overlap),2);
+				double newradius   = Math.sqrt((totalCells*cellarea)/(2*Math.PI)) ;
+				
+		   	globalParameters.setInnerEyeRadius(newradius);
+	   	}
+			// Both growth and shape of tissue depends on cell proliferation (ellipsoid eye growth)
+	   	else if (modelConnector.getEyeGrowthMode() == 2d) {
+	   		//placeholder
+	   		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
+	   	}
+			// Default to passive growth
+	   	else {
+	   		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
+	   	}
    	}
 		// Default to passive growth
    	else {

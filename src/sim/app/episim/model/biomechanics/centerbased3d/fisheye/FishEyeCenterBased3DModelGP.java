@@ -18,8 +18,8 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 	private double height 											 = 2050; //1350; // 
 	private double length 											 = 2050; //1350; // 
 	
-	private double initialInnerEyeRadius						 = 150; //100; //
-	private double innerEyeRadius									 = 150; //100; //
+	private double initialInnerEyeRadius						 = 100; //
+	private double innerEyeRadius									 = 100; //
 	private double randomness										 = 0;   //0.00000000125;
 		
 	private double neighborhood_mikron							 = 20.0; 

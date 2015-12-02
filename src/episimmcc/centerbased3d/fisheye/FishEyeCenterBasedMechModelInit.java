@@ -118,7 +118,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	*/
 		
 		double radius    = mechModelGP.getInitialInnerEyeRadius();
-		Icosahedron ico  = new Icosahedron(6); //5 							// generate icosahedral mesh and subdivide it x times
+		Icosahedron ico  = new Icosahedron(6); // generate icosahedral mesh and subdivide it x times
 		int ignoredCells = 0;
 
 		// Set allowed initial cell number to given initial radius and density:		
@@ -188,21 +188,11 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		double radius 			 = mechModelGP.getInitialInnerEyeRadius();
 		
 		// The following is used to calculate the x interval within which initialized cells are assigned to diffLevel[1] (proliferative)
-		
-		// Similar to the formula for calculating the angle subtended by a chord from a given steradian angle, but why is everything squared?
-		// with radius = 100 and prolifBeltSize = 20, the expression in parenthesis evaluates to 0.98 (radians)
-		// the arccos of 0.98 radians is 0.20033484232311968
-		// double angleIncrement  = Math.acos(((Math.pow(radius, 2) + Math.pow(radius, 2) - Math.pow(prolifBeltSize, 2))/(2d*radius*radius)));
-		
 		// The angle subtended by the proliferative belt can be calculated for the 2D case due to symmetry
-//		double angleIncrement = 2d * Math.asin((prolifBeltSize/2d)/radius); // = 0.2003348423231196
-		// 150505 - More intuitive: proliferative belt is distance as measured by ruler (not distance on surface, as it was before)
+		// The proliferative belt spans the distance as measured by a ruler
 		double angleIncrement = Math.PI/2d - Math.acos(prolifBeltSize/radius);
 
-		// double xDelta 			 = radius * Math.sin(Math.PI/2d) * Math.sin(angleIncrement);
-		// sin(pi/2) = 1, can be left out of the equation.
-//		double xDelta 			 = radius * Math.sin(angleIncrement); // = 19.89974874213241
-		// 150505 - xDelta redefined to be the arc subtended by the angle
+		// xDelta is the arc given by the angle
 		double xDelta 			 = radius * angleIncrement;
 		
 		// Set differentiation levels of cells
@@ -238,7 +228,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 			do{
 				cbBioMech.initialisationGlobalSimStep();
 				cumulativeMigrationDist = getCumulativeMigrationDistance(standardCellEnsemble);
-				System.out.println("Average migration:" + cumulativeMigrationDist/standardCellEnsemble.size());
+				//System.out.println("Average migration:" + cumulativeMigrationDist/standardCellEnsemble.size());
 			}
 			while(standardCellEnsemble.size() > 0 && ((cumulativeMigrationDist / standardCellEnsemble.size()) > mechModelGP.getMinAverageMigrationMikron()));
 			

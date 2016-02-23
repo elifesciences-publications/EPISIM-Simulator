@@ -15,12 +15,18 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 
 public class ApicalMeristemCenterBased3DModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private double width 										    = 1100; //850;  // 
-	private double height 											 = 2050; //1350; // 
-	private double length 											 = 2050; //1350; // 
+	private static final double COLONY_DELTA_X = 50;
 	
-	private double initialInnerEyeRadius						 = 100; //
-	private double innerEyeRadius									 = 100; //
+	private double width 										    = 150;//1100; //850;  // 
+	private double height 											 = 150;//2050; //1350; // 
+	private double length 											 = 150;//2050; //1350; // 
+	
+	private double cellColonyRadius     						 = 55; //
+	private double l2MaxRadius			     						 = 55; //
+	private double l3MaxRadius			     						 = 55; //
+	
+	private double cellColonyHeight     						 = 40; //
+	
 	private double randomness										 = 0;   //0.00000000125;
 		
 	private double neighborhood_mikron							 = 20.0; 
@@ -36,11 +42,13 @@ public class ApicalMeristemCenterBased3DModelGP implements EpisimBiomechanicalMo
 	private double linearToExpMaxOverlap_Perc					 = 0.85; //0.85;
 	private double repulSpringStiffness_N_per_micro_m 		 = 0.0000000022;
 	
+	private double stemCellNicheAngleDegrees = 40;
+	private double stemCellNicheDepthMikron = 20;
+	
 	//Pathmanathan et al. 2009: 2.2x10^-3 [N m^-1]; multiply with 1*10^-6 to convert to Newtons per micrometer
 	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022; //0.000000000149;
 	
-	private double minAverageMigrationMikron 					 = 0.2;
-	private double prolifCompWidthMikron						 = 25;
+	private double minAverageMigrationMikron 					 = 1.2;
 	private int neighbourLostThres								 = 10;
 	
 	
@@ -209,52 +217,29 @@ public class ApicalMeristemCenterBased3DModelGP implements EpisimBiomechanicalMo
   	this.neighbourLostThres = neighbourLostThres;
   }
 	
-  public double getInitialInnerEyeRadius(){   
-  	return initialInnerEyeRadius;
+  public double getCellColonyRadius(){   
+  	return cellColonyRadius;
   }
 	
-  public void setInitialInnerEyeRadius(double initialInnerEyeRadius) {   
-  	this.initialInnerEyeRadius = initialInnerEyeRadius;
+  public void setCellColonyRadius(double cellColonyRadius) {   
+  	this.cellColonyRadius = cellColonyRadius > cellColonyHeight ? cellColonyHeight : cellColonyRadius;
   }
 
+	
 	@NoUserModification
-  public double getInnerEyeRadius() {   
-  	return innerEyeRadius;
-  }
-
-	@NoUserModification
-  public void setInnerEyeRadius(double innerEyeRadius) {   
-  	this.innerEyeRadius = innerEyeRadius;
-  }
-	@NoUserModification
-	public Point3d getInnerEyeCenter(){
-		return new Point3d(50d, getHeightInMikron()/2d, getLengthInMikron()/2d );
+	public Point3d getCellColonyCenter(){
+		return new Point3d(COLONY_DELTA_X, getHeightInMikron()/2d, getLengthInMikron()/2d );
 	}
 
 	
-  public double getMinAverageMigrationMikron() {
-  
+  public double getMinAverageMigrationMikron() {  
   	return minAverageMigrationMikron;
   }
 
 	
-  public void setMinAverageMigrationMikron(double minAverageMigrationMikron) {
-  
+  public void setMinAverageMigrationMikron(double minAverageMigrationMikron) {  
   	this.minAverageMigrationMikron = minAverageMigrationMikron;
   }
-
-	
-  public double getProlifCompWidthMikron() {
-  
-  	return prolifCompWidthMikron;
-  }
-
-	
-  public void setProlifCompWidthMikron(double prolifCompWidthMikron) {
-  
-  	this.prolifCompWidthMikron = prolifCompWidthMikron;
-  }
-
 	
   public double getDummyCellOptDistanceScalingFactor() {
   
@@ -262,9 +247,76 @@ public class ApicalMeristemCenterBased3DModelGP implements EpisimBiomechanicalMo
   }
 
 	
-  public void setDummyCellOptDistanceScalingFactor(double dummyCellOptDistanceScalingFactor) {
-  
+  public void setDummyCellOptDistanceScalingFactor(double dummyCellOptDistanceScalingFactor) {  
   	this.dummyCellOptDistanceScalingFactor = dummyCellOptDistanceScalingFactor;
   }
+
+
+  public double getCellColonyHeight() {	
+		return cellColonyHeight;
+  }
+		
+  public void setCellColonyHeight(double cellColonyHeight) {
+		this.cellColonyHeight = cellColonyHeight;
+  }
+
+  @NoUserModification
+  public double getL1MaxRadius() {
+		
+		return cellColonyRadius;
+	}
+	
+  @NoUserModification
+  public void setL1MaxRadius(double l1MaxRadius) {
+	
+		this.cellColonyRadius = l1MaxRadius;
+  }
+  
+	@NoUserModification
+	public double getL2MaxRadius() {
+	
+		return l2MaxRadius;
+	}
+	
+	@NoUserModification
+	public void setL2MaxRadius(double l2MaxRadius) {
+	
+		this.l2MaxRadius = l2MaxRadius;
+	}
+	
+	@NoUserModification
+	public double getL3MaxRadius() {
+	
+		return l3MaxRadius;
+	}
+	
+	@NoUserModification
+	public void setL3MaxRadius(double l3MaxRadius) {
+	
+		this.l3MaxRadius = l3MaxRadius;
+	}
+
+	
+   public double getStemCellNicheAngleDegrees() {
+   
+   	return stemCellNicheAngleDegrees;
+   }
+
+	
+   public void setStemCellNicheAngleDegrees(double stemCellNicheAngleDegrees) {
+   
+   	this.stemCellNicheAngleDegrees = stemCellNicheAngleDegrees;
+   }
+
+	
+   public double getStemCellNicheDepthMikron() {
+   
+   	return stemCellNicheDepthMikron;
+   }
+
+	
+   public void setStemCellNicheDepthMikron(double stemCellNicheDepthMikron){   
+   	this.stemCellNicheDepthMikron = stemCellNicheDepthMikron > this.cellColonyRadius ? this.cellColonyRadius : stemCellNicheDepthMikron;
+   }
 
 }

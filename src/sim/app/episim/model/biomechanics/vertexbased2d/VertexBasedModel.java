@@ -59,11 +59,11 @@ public class VertexBasedModel extends AbstractBiomechanical2DModel implements Ce
 	private static Continuous2D cellField;	
    
 	public VertexBasedModel(){
-   	this(null);
+   	this(null, null);
    }
 	
-	public VertexBasedModel(AbstractCell cell){
-		super(cell);
+	public VertexBasedModel(AbstractCell cell, EpisimModelConnector modelConnector){
+		super(cell, modelConnector);
 		if(cellField == null){
 			cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
 		   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron(), 
@@ -75,6 +75,9 @@ public class VertexBasedModel extends AbstractBiomechanical2DModel implements Ce
 				cellPolygon.addProliferationAndApoptosisListener(this);
 				cellField.setObjectLocation(cell, new Double2D(this.getX(), this.getY()));
 			}
+		}
+		if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
 		}
 	}
 	

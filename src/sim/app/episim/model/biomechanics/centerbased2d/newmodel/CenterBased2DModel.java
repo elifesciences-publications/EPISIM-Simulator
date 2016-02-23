@@ -122,17 +122,18 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	public double immuneCellYDelta_mikron = 0;
    
    public CenterBased2DModel(){
-   	this(null);
+   	this(null, null);
    }
    
-   public CenterBased2DModel(AbstractCell cell){
-   	super(cell);
+   public CenterBased2DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+   	super(cell, modelConnector);
    	
    	if(cellField == null){
    		cellField = new Continuous2DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
 					TissueController.getInstance().getTissueBorder().getHeightInMikron());
    	}
+   	
 		if(globalParameters == null){
 	  		 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
 	  		 			instanceof CenterBased2DModelGP){
@@ -173,6 +174,9 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 		 	  	this.setLastSimulationDisplayPropsForNewCellEllipse(props, cellLocation);
 	      }
       }
+      if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
       lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0), new Rectangle2D.Double(0, 0, 0, 0));
       directNeighbours = new GenericBag<AbstractCell>();
       directNeighbourIDs = new HashSet<Long>();

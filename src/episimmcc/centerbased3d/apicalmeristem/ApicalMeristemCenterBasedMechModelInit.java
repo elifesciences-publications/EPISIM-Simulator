@@ -10,31 +10,36 @@ package episimmcc.centerbased3d.apicalmeristem;
 	 */
 
 	import java.lang.reflect.Field;
-	import java.util.ArrayList;
-	import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 	import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 	import sim.app.episim.EpisimExceptionHandler;
-	import sim.app.episim.model.AbstractCell;
-	import sim.app.episim.model.UniversalCell;
-	import sim.app.episim.model.biomechanics.centerbased3d.apicalmeristem.DummyCell;
-	import sim.app.episim.model.biomechanics.centerbased3d.apicalmeristem.ApicalMeristemCenterBased3DModel;
-	import sim.app.episim.model.biomechanics.centerbased3d.apicalmeristem.ApicalMeristemCenterBased3DModelGP;
-	import sim.app.episim.model.controller.ModelController;
-	import sim.app.episim.model.controller.TissueController;
-	import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-	import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-	import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-	import sim.app.episim.persistence.SimulationStateData;
-	import sim.app.episim.util.GenericBag;
-	import sim.app.episim.util.Icosahedron;
-	import sim.app.episim.visualization.threedim.ContinuousCellFieldPortrayal3D;
-	import sim.util.Double3D;
-	import episiminterfaces.EpisimBiomechanicalModel;
-	import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-	import episiminterfaces.EpisimDifferentiationLevel;
-	import episiminterfaces.EpisimPortrayal;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
+import sim.app.episim.model.biomechanics.centerbased3d.apicalmeristem.ApicalMeristemCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3d.apicalmeristem.ApicalMeristemCenterBased3DModelGP;
+import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.TissueController;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
+import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.Icosahedron;
+import sim.app.episim.visualization.threedim.ContinuousCellFieldPortrayal3D;
+import sim.field.continuous.Continuous3DExt;
+import sim.util.Bag;
+import sim.util.Double3D;
+import ec.util.MersenneTwisterFast;
+import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.EpisimPortrayal;
+import episimmcc.EpisimModelConnector;
 
 
 	public class ApicalMeristemCenterBasedMechModelInit extends BiomechanicalModelInitializer {
@@ -44,7 +49,7 @@ package episimmcc.centerbased3d.apicalmeristem;
 		private static double CELL_WIDTH=0;
 		private static double CELL_HEIGHT=0;
 		private static double CELL_LENGTH=0;
-
+		private MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
 		// Constructor
 		public ApicalMeristemCenterBasedMechModelInit() {
 			super();
@@ -94,118 +99,151 @@ package episimmcc.centerbased3d.apicalmeristem;
 
 			// Get the biomechanical global parameters
 			ApicalMeristemCenterBased3DModelGP mechModelGP = (ApicalMeristemCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-			mechModelGP.setInnerEyeRadius(mechModelGP.getInitialInnerEyeRadius());
-			
-			Point3d fishEyeCenter = mechModelGP.getInnerEyeCenter();
+					
+			Point3d colonyCenter = mechModelGP.getCellColonyCenter();
 			double cellSize = Math.max(CELL_WIDTH, CELL_HEIGHT);
-			cellSize = Math.max(cellSize, CELL_LENGTH);
-			
-			
-			HashSet<Point3d> existingCoordinates = new HashSet<Point3d>();
-			
-			//	double radius2 = radius*Math.cos((Math.PI/2d - (theta/2d)));
-			//	double angleIncrement2 = Math.acos(((Math.pow(radius2, 2)+Math.pow(radius2, 2)-Math.pow(cellSize, 2))/(2d*radius2*radius2)));
-			
-			Point3d previousPoint = null;
-			
-		/*		An attempt to use spherical coordinates to calculate vertices?
-		 * 
-		   	for(double phi = 0; phi <= Math.PI ; phi+=angleIncrement){				
+			cellSize = Math.max(cellSize, CELL_LENGTH);		
 					
-					for(double theta =  Math.PI; theta >= Math.PI/2d; theta-=angleIncrement){
-					
-					double z = radius*Math.sin(theta)*Math.cos(phi);
-					double x = radius*Math.sin(theta)*Math.sin(phi);
-					double y = radius*Math.cos(theta);
-		*/
+			int overlapCells = 0;
+			int invalidPositions = 0;
 			
-			double radius    = mechModelGP.getInitialInnerEyeRadius();
+			double colonyRadius    = mechModelGP.getCellColonyRadius();
+			double colonyHeight    = mechModelGP.getCellColonyHeight(); 
+			mechModelGP.setL2MaxRadius(colonyRadius-cellSize);
+			mechModelGP.setL3MaxRadius(colonyRadius-2*cellSize);
+			
+			
 			Icosahedron ico  = new Icosahedron(6); // generate icosahedral mesh and subdivide it x times
-			int ignoredCells = 0;
-
-			// Set allowed initial cell number to given initial radius and density:		
-			double cellradius     = cellSize/2d;
-			double tol_overlap    = 1 - mechModelGP.getLinearToExpMaxOverlap_perc();
-			double hemispherearea = 2*Math.PI*Math.pow(radius,2);
-			double cellarea       = Math.PI*Math.pow(cellradius*(1-tol_overlap),2);
-			int num_cells_fit  	 = (int) Math.ceil(hemispherearea/cellarea);
-			System.out.println("Cells that fit:" + num_cells_fit);
-			//System.out.println(ico.getVertexList().size());
-			
-			int cell_counter = 0;
-			
-		   for (int i = 0; i < ico.getVertexList().size(); i+=3 ) {
-		         // Get icosahedral mesh vertex coordinates (normalized) and blow them up to initial eye radius
-					double x = ico.getVertexList().get(i)   * radius;
-					double y = ico.getVertexList().get(i+1) * radius;
-					double z = ico.getVertexList().get(i+2) * radius;
+			Continuous3DExt cellField = new Continuous3DExt(cellSize / 1.5, 
+						  TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
+						  TissueController.getInstance().getTissueBorder().getHeightInMikron(),
+						  TissueController.getInstance().getTissueBorder().getLengthInMikron());
+			int numberOfVertices = ico.getVertexList().size();
+			for(int i = 1; colonyRadius > 0 && colonyHeight > 0; i++){	
+				
+				// Set allowed initial cell number to given initial radius and density:		
+				double cellradius     = cellSize/2d;
+				double tol_overlap    = mechModelGP.getLinearToExpMaxOverlap_perc();
+				double hemispherearea = 2*Math.PI*colonyRadius*colonyHeight;
+				double cellarea       = Math.PI*Math.pow(cellradius*tol_overlap,2);
+				double num_cells_fit  	 = (int) Math.ceil(hemispherearea/cellarea);
+				System.out.println("Possible Cell Number:" + num_cells_fit);
+				
+				
+				double cell_counter = 0;
+				
+				long timeStampLastCell = System.currentTimeMillis();
+				while(cell_counter <= num_cells_fit && (System.currentTimeMillis()-timeStampLastCell) < 1000){
 					
-					// Translate coordinates to be centered around fishEyeCenter
-					// By default fishEyeCenter.x is at 50, so no cell should sit at x = 50, i.e. the cell's x coordinate is > 50
-					Point3d newPos = new Point3d(fishEyeCenter.x + x, fishEyeCenter.y + y, fishEyeCenter.z + z);
+					double heightRadiusDelta = mechModelGP.getCellColonyRadius()-mechModelGP.getCellColonyHeight();
+			
+					int vertexNumber = (random.nextInt(numberOfVertices)/3)*3;
 					
+			       // Get icosahedral mesh vertex coordinates (normalized) and blow them up to initial eye radius
+					double x = ico.getVertexList().get(vertexNumber)   * colonyRadius;
+					double y = ico.getVertexList().get(vertexNumber+1) * colonyRadius;
+					double z = ico.getVertexList().get(vertexNumber+2) * colonyRadius;
+						
+					Point3d newPos = new Point3d(colonyCenter.x + x, colonyCenter.y + y, colonyCenter.z + z);
+						
 					// Check if this new position already exists, if its x coordinate is > 50 and if 
 					// the previous point is null or is at a distance greater than a cell from the new point
-					if(!existingCoordinates.contains(newPos) && newPos.x >= fishEyeCenter.x && (previousPoint == null || previousPoint.distance(newPos)>=cellSize)){
+					if(newPos.x >= (colonyCenter.x+heightRadiusDelta)){// && (previousPoint == null || previousPoint.distance(newPos)>=cellSize)){ 
+						Bag neighbors = cellField.getNeighborsWithinDistance(new Double3D(newPos.x, newPos.y, newPos.z), cellSize);
+						boolean overlapFound = false;
+							
+						for(int n = 0; n < neighbors.size();n++){								
+							UniversalCell cell = (UniversalCell) neighbors.get(n);								
+							EpisimBiomechanicalModel bm = cell.getEpisimBioMechanicalModelObject();
+							Point3d neighborPos = new Point3d(bm.getX(), bm.getY(), bm.getZ());								
+							if(neighborPos.distance(newPos) < cellSize*0.5){									
+								overlapFound = true;
+							}
+						}
 						
-						if (cell_counter <= num_cells_fit) {
+						if(!overlapFound){						
+							
 							cell_counter += 1;
 							
-							//if(previousPoint==null ||(previousPoint.distance(newPos))>=cellSize){
 							UniversalCell stemCell = new UniversalCell(null, null, true);
 							ApicalMeristemCenterBased3DModel mechModel=((ApicalMeristemCenterBased3DModel) stemCell.getEpisimBioMechanicalModelObject());					
 								
 							mechModel.setCellWidth(CELL_WIDTH);
 							mechModel.setCellHeight(CELL_HEIGHT);
 							mechModel.setCellLength(CELL_LENGTH);
+							
 							mechModel.setStandardCellWidth(CELL_WIDTH);
 							mechModel.setStandardCellHeight(CELL_HEIGHT);
 							mechModel.setStandardCellLength(CELL_LENGTH);
-								
-							existingCoordinates.add(newPos);
-							previousPoint = newPos;
-							mechModel.setPositionRespectingBounds(newPos, CELL_WIDTH/2d, CELL_HEIGHT/2d, CELL_LENGTH/2d, mechModelGP.getOptDistanceToBMScalingFactor(), true);			
-							standardCellEnsemble.add(stemCell);					
+							mechModel.setPositionRespectingBounds(newPos, CELL_WIDTH/2d, CELL_HEIGHT/2d, CELL_LENGTH/2d, mechModelGP.getOptDistanceToBMScalingFactor(), true);	
+							
+							EpisimModelConnector mc = mechModel.getEpisimModelConnector();
+							if(mc != null && mc instanceof EpisimApicalMeristemCenterBased3DMC){
+								EpisimApicalMeristemCenterBased3DMC meristemMc = (EpisimApicalMeristemCenterBased3DMC) mc;
+								if(i==1) meristemMc.setL1(true);
+								else if(i==2) meristemMc.setL2(true);
+								else meristemMc.setL3(true);
+							}
+							standardCellEnsemble.add(stemCell);	
+							cellField.setObjectLocation(stemCell, new Double3D(mechModel.getX(), mechModel.getY(), mechModel.getZ()));						
+							timeStampLastCell = System.currentTimeMillis();
 						}
-						else ignoredCells++;
+						else overlapCells++;
 					}
-					else ignoredCells++;
-					
-			//	}
+					else invalidPositions++;	
+						
+				}
+				colonyRadius -= cellSize;
+				colonyHeight -= cellSize;
+				System.out.println("Cell seeded: "+cell_counter);
 			}
+				
+			//	}
+			//}
 			initializeBiomechanics(standardCellEnsemble);
 			setDiffLevels(standardCellEnsemble, cellSize);
-			ApicalMeristemCenterBased3DModel.setDummyCellSize(cellSize);
 			
-			System.out.println("No of cells: " + standardCellEnsemble.size()+ "    Cells Ignored: " + ignoredCells);
+			
+			System.out.println("No of cells: " + standardCellEnsemble.size()+ "    Cells Ignored (Overlap): " + overlapCells+"    Invalid Positions: " + invalidPositions);
 			return standardCellEnsemble;
+		}
+		
+		private boolean isWithinStemCellCone(Point3d cellPosition){
+			ApicalMeristemCenterBased3DModelGP mechModelGP = (ApicalMeristemCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();			
+			Point3d colonyCenter = mechModelGP.getCellColonyCenter();
+					
+			double h = mechModelGP.getCellColonyRadius();
+			
+			double angle = mechModelGP.getStemCellNicheAngleDegrees()/2;
+			double depth = mechModelGP.getStemCellNicheDepthMikron();
+			double radiusCone = Math.tan(Math.toRadians(angle))*h;
+			
+			double closedFormResult = Math.pow(((cellPosition.y-colonyCenter.y)/radiusCone),2)
+												+Math.pow(((cellPosition.z-colonyCenter.z)/radiusCone),2)
+												-Math.pow(((cellPosition.x)/h),2);			
+			return closedFormResult <= 0 && cellPosition.x > (colonyCenter.x+h-depth);
 		}
 		
 		private void setDiffLevels(ArrayList<UniversalCell> standardCellEnsemble, double cellSize){
 			
 			ApicalMeristemCenterBased3DModelGP mechModelGP = (ApicalMeristemCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 			EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
-			
-			double prolifBeltSize = mechModelGP.getProlifCompWidthMikron();
-			double radius 			 = mechModelGP.getInitialInnerEyeRadius();
+			EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();					
+		
 			
 			// The following is used to calculate the x interval within which initialized cells are assigned to diffLevel[1] (proliferative)
 			// The angle subtended by the proliferative belt can be calculated for the 2D case due to symmetry
-			// The proliferative belt spans the distance as measured by a ruler
-			double angleIncrement = Math.PI/2d - Math.acos(prolifBeltSize/radius);
-
-			// xDelta is the arc given by the angle
-			double xDelta 			 = radius * angleIncrement;
+			// The proliferative belt spans the distance as measured by a ruler	
 			
 			// Set differentiation levels of cells
 			for(int i=0; i < standardCellEnsemble.size(); i++){
 				
 				UniversalCell actCell 				= standardCellEnsemble.get(i);
 				EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
-				
+				if(cellTypes.length>=2) actCell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 				if(biomech instanceof ApicalMeristemCenterBased3DModel){
 					if(diffLevels.length>2){
-						if((biomech.getX()+(cellSize/2d)) <= (mechModelGP.getInnerEyeCenter().x + xDelta)){
+						if(isWithinStemCellCone(new Point3d(biomech.getX(), biomech.getY(), biomech.getZ()))){
 							actCell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[1]);
 						}
 						else{
@@ -219,7 +257,7 @@ package episimmcc.centerbased3d.apicalmeristem;
 		// This part is the initial relaxation of the model, before the proper simulation starts
 		private void initializeBiomechanics(ArrayList<UniversalCell> standardCellEnsemble){
 			
-			EpisimBiomechanicalModel biomech 		 = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject(null);
+			EpisimBiomechanicalModel biomech 		 = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject(null, null);
 			ApicalMeristemCenterBased3DModelGP mechModelGP = (ApicalMeristemCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 			
 			if(biomech instanceof ApicalMeristemCenterBased3DModel){
@@ -230,7 +268,7 @@ package episimmcc.centerbased3d.apicalmeristem;
 				do{
 					cbBioMech.initialisationGlobalSimStep();
 					cumulativeMigrationDist = getCumulativeMigrationDistance(standardCellEnsemble);
-					//System.out.println("Average migration:" + cumulativeMigrationDist/standardCellEnsemble.size());
+				//	System.out.println("Average migration:" + cumulativeMigrationDist/standardCellEnsemble.size());
 				}
 				while(standardCellEnsemble.size() > 0 && ((cumulativeMigrationDist / standardCellEnsemble.size()) > mechModelGP.getMinAverageMigrationMikron()));
 				
@@ -282,8 +320,7 @@ package episimmcc.centerbased3d.apicalmeristem;
 			
 			double cellSize = Math.max(CELL_WIDTH, CELL_HEIGHT);
 			cellSize 		 = Math.max(cellSize, CELL_LENGTH);
-			ApicalMeristemCenterBased3DModel.setDummyCellSize(cellSize);
-			
+						
 			return loadedCells;
 		}
 
@@ -298,11 +335,8 @@ package episimmcc.centerbased3d.apicalmeristem;
 			return continuousPortrayal;
 		}
 
-		protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
-			ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Dummy Cells");
-			continuousPortrayal.setField(ApicalMeristemCenterBased3DModel.getDummyCellField());
-			
-			return new EpisimPortrayal[]{continuousPortrayal};
+		protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {					
+			return new EpisimPortrayal[0];
 		}
 
 		protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {

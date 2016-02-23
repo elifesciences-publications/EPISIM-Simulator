@@ -97,11 +97,11 @@ public class AdhesiveCenterBased2DModel extends AbstractCenterBased2DModel {
    private double standardHeight = 0;
    
    public AdhesiveCenterBased2DModel(){
-   	this(null);
+   	this(null, null);
    }
    
-   public AdhesiveCenterBased2DModel(AbstractCell cell){
-   	super(cell);
+   public AdhesiveCenterBased2DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+   	super(cell, modelConnector);
    	
    	if(cellField == null){
    		cellField = new Continuous2D(FIELD_RESOLUTION_IN_MIKRON, 
@@ -109,7 +109,9 @@ public class AdhesiveCenterBased2DModel extends AbstractCenterBased2DModel {
 					TissueController.getInstance().getTissueBorder().getHeightInMikron());
    		
    	}
-   
+   	if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
    	MIN_Y= TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0, 0);
    	externalForce=new Vector2d(0,0);      
    	 if(cell != null && getCellEllipseObject() == null && cell.getEpisimCellBehavioralModelObject() != null){

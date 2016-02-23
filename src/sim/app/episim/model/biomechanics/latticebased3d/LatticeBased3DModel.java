@@ -70,11 +70,11 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 	
 	private double standardCellRadius = 0.5;
 	public LatticeBased3DModel(){
-		this(null);
+		this(null, null);
 	}
 	
-	public LatticeBased3DModel(AbstractCell cell){
-		super(cell);
+	public LatticeBased3DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+		super(cell, modelConnector);
 		globalParameters = (LatticeBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		standardCellRadius = globalParameters.getCellRadius();
 		if(cellField == null){
@@ -84,8 +84,11 @@ public class LatticeBased3DModel extends AbstractBiomechanical3DModel {
 	   	int height = globalParameters.getNumber_of_rows();
 	   	cellField = new LatticeCellField3D(width, height, length);
 	   }
+		if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
 	   if(cell!= null){
-		   AbstractCell motherCell = cell.getMotherCell();
+		   AbstractCell motherCell = cell.getMotherCell();   
 		   
 		   if(motherCell != null && motherCell.getID() != cell.getID()){
 		   	LatticeBased3DModel motherCellMechModel = (LatticeBased3DModel) motherCell.getEpisimBioMechanicalModelObject();

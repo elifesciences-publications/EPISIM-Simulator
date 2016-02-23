@@ -19,6 +19,7 @@ import episimmcc.EpisimModelConnector.Hidden;
 import episimmcc.EpisimModelConnector.Pairwise;
 
 public class EpisimApicalMeristemCenterBased3DMC extends EpisimModelConnector {
+	
 	private static final String ID = "2016-01-28";
 	private static final String NAME = "Apical Meristem Center Based Biomechanical 3D Model";
 	
@@ -31,28 +32,23 @@ public class EpisimApicalMeristemCenterBased3DMC extends EpisimModelConnector {
 	private double cellVolume = 0;
 	private double extCellSpaceVolume = 0;
 	private double extCellSpaceMikron = 0.2d;
-	private double cellSurfaceArea=0;
-	private double totalContactArea=0;	
-	private double contactAreaInnerEye=0;	
-   
-	private double innerEyeRadius = 100;
+	private double cellSurfaceArea = 0;
+	private double totalContactArea = 0;	
+	   
+	private double x = 0;
+	private double y = 0;
+	private double z = 0;
+	private double width = 0;
+	private double height = 0;
+	private double length = 0;
+		
+	private boolean L1 = false;
+	private boolean L2 = false;
+	private boolean L3 = false;
 	
-	private double x=0;
-	private double y=0;
-	private double z=0;
-	private double width=0;
-	private double height=0;
-	private double length=0;
-	private double biasX =0;
-	private double biasY =0;
-	private double biasZ =0;
-	private double centerX = 50;
-	private double centerY = 1050;
-	private double centerZ = 1050;
+	private double boundaryCrossedMikron = 0;
 	
-	private double eyeGrowthMode = 0;
-	
-	private double adhesionMembrane=0;
+	private double adhesionMembrane = 0;
 	
 	private int cellId = -1;
 		
@@ -249,31 +245,7 @@ public class EpisimApicalMeristemCenterBased3DMC extends EpisimModelConnector {
    @Hidden
    public void setTotalContactArea(double totalContactArea) {   
    	this.totalContactArea = totalContactArea;
-   }
-
-	
-   public double getInnerEyeRadius() {
-   
-   	return innerEyeRadius;
-   }
-
-	
-   public void setInnerEyeRadius(double innerEyeRadius) {
-   
-   	this.innerEyeRadius = innerEyeRadius;
-   }
-
-	
-   public double getContactAreaInnerEye() {
-   
-   	return contactAreaInnerEye;
-   }
-
-	
-   public void setContactAreaInnerEye(double contactAreaInnerEye) {
-   
-   	this.contactAreaInnerEye = contactAreaInnerEye;
-   }
+   }   
 
    public double getAverage_overlap() {
 
@@ -296,75 +268,47 @@ public class EpisimApicalMeristemCenterBased3DMC extends EpisimModelConnector {
    	this.cellId = cellId;
    }
 
-	
-   public double getBiasX() {   
-   	return biasX;
+   public boolean getL1() {
+   
+   	return L1;
+   }
+
+   @Hidden
+   public void setL1(boolean l1) {   
+   	L1 = l1;   	
    }
 
 	
-   public void setBiasX(double biasX) {   
-   	this.biasX = biasX;
+   public boolean getL2() {   
+   	return L2;
+   }
+
+   @Hidden
+   public void setL2(boolean l2) {   
+   	L2 = l2;
    }
 
 	
-   public double getBiasY() {   
-   	return biasY;
+   public boolean getL3() {   
+   	return L3;
+   }
+
+   @Hidden
+   public void setL3(boolean l3) {   
+   	L3 = l3;
    }
 
 	
-   public void setBiasY(double biasY) {   
-   	this.biasY = biasY;
+   public double getBoundaryCrossedMikron() {
+   
+   	return boundaryCrossedMikron;
    }
 
-	
-   public double getBiasZ() {   
-   	return biasZ;
-   }
-
-	
-   public void setBiasZ(double biasZ) {   
-   	this.biasZ = biasZ;
-   }
-
-	public double getCenterY() {
-
-	   return centerY;
-   }
-	@Hidden
-	public void setCenterY(double centerY) {
-
-	   this.centerY = centerY;
-   }
-
-	public double getCenterX() {
-
-	   return centerX;
-   }
-	@Hidden
-	public void setCenterX(double centerX) {
-
-	   this.centerX = centerX;
-   }
-
-	public double getCenterZ() {
-
-	   return centerZ;
-   }
-	@Hidden
-	public void setCenterZ(double centerZ) {
-
-	   this.centerZ = centerZ;
-   }
-
-	public double getEyeGrowthMode() {
-
-	   return eyeGrowthMode;
-   }
-
-	public void setEyeGrowthMode(double eyeGrowthMode) {
-
-	   this.eyeGrowthMode = eyeGrowthMode;
-   }
+   @Hidden
+   public void setBoundaryCrossedMikron(double boundaryCrossedMikron) {
+   
+   	this.boundaryCrossedMikron = boundaryCrossedMikron;
+   }	
 	
 }
 

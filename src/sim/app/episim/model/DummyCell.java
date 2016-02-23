@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased3d.fisheye;
+package sim.app.episim.model;
 
 /*
  * Sets dummy cell position

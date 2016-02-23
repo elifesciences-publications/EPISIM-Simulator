@@ -10,12 +10,15 @@ public abstract class AbstractBiomechanicalModel<T> implements java.io.Serializa
 	
 	private AbstractCell cell;
 	
+	
+	
 	public AbstractBiomechanicalModel(){
-		this(null);
+		this(null, null);
 	}
 	
-	public AbstractBiomechanicalModel(AbstractCell cell){
+	public AbstractBiomechanicalModel(AbstractCell cell, EpisimModelConnector modelConnector){
 		this.cell = cell;
+		//model connector is handled in subclasses
 	}
 	
 	protected AbstractCell getCell(){ return this.cell; }	

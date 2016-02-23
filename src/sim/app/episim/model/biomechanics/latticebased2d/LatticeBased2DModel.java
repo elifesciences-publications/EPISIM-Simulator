@@ -60,11 +60,11 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 	private static final int UPPER_PROBABILITY_LIMIT = (int) Math.pow(10, 7);
 	
 	public LatticeBased2DModel(){
-		this(null);	
+		this(null, null);	
 	}
 
-	public LatticeBased2DModel(AbstractCell cell) {
-	   super(cell);
+	public LatticeBased2DModel(AbstractCell cell, EpisimModelConnector modelConnector) {
+	   super(cell, modelConnector);
 	   globalParameters = (LatticeBased2DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	  
 	   if(cellField == null){
@@ -90,6 +90,9 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 	  	  
 	   lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0),
 		 new Rectangle2D.Double(0, 0, 0, 0));
+	   if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
    }
 
 	 public void setEpisimModelConnector(EpisimModelConnector modelConnector){

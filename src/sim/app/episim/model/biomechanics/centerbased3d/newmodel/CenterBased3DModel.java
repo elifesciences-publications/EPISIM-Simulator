@@ -88,11 +88,11 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
    private HashMap<Long, Integer> lostNeighbourContactInSimSteps;
    
 	public CenterBased3DModel(){
-   	this(null);
+   	this(null, null);
    }
    
-   public CenterBased3DModel(AbstractCell cell){
-   	super(cell);   	
+   public CenterBased3DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+   	super(cell, modelConnector);   	
    	if(cellField == null){
    		cellField = new Continuous3DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
@@ -129,7 +129,10 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 		      cellLocation = newloc;
 		      cellField.setObjectLocation(cell, newloc);		      
 	      }
-      } 
+      }
+      if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
       directNeighbours = new GenericBag<AbstractCell>();
       directNeighbourIDs = new HashSet<Long>();
       lostNeighbourContactInSimSteps=new HashMap<Long, Integer>();

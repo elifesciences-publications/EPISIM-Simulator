@@ -12,6 +12,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
 import episiminterfaces.EpisimSbmlModelConnector;
+import episimmcc.EpisimModelConnector;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
@@ -103,8 +104,8 @@ public class ModelController implements java.io.Serializable, ClassLoaderChangeL
 		return initializer.getAdditionalPortrayalsCellForeground();
 	}
 	
-	public EpisimBiomechanicalModel getNewBioMechanicalModelObject(AbstractCell cell){		
-		return BiomechanicalModelController.getInstance().getNewEpisimBioMechanicalModelObject(cell);
+	public EpisimBiomechanicalModel getNewBioMechanicalModelObject(AbstractCell cell, EpisimModelConnector modelConnector){		
+		return BiomechanicalModelController.getInstance().getNewEpisimBioMechanicalModelObject(cell, modelConnector);
 	}
 	
 	public BiomechanicalModelController getBioMechanicalModelController(){ return BiomechanicalModelController.getInstance();}

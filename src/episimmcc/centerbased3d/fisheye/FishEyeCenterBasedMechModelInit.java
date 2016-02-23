@@ -15,8 +15,8 @@ import javax.vecmath.Point3d;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.DummyCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.DummyCell;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.FishEyeCenterBased3DModel;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.FishEyeCenterBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
@@ -217,7 +217,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	// This part is the initial relaxation of the model, before the proper simulation starts
 	private void initializeBiomechanics(ArrayList<UniversalCell> standardCellEnsemble){
 		
-		EpisimBiomechanicalModel biomech 		 = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject(null);
+		EpisimBiomechanicalModel biomech 		 = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject(null, null);
 		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		if(biomech instanceof FishEyeCenterBased3DModel){

@@ -17,8 +17,8 @@ import sim.app.episim.EpisimExceptionHandler;
 
 
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.model.DummyCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.DummyCell;
 import sim.app.episim.model.biomechanics.centerbased3d.newmodel.CenterBased3DModel;
 import sim.app.episim.model.biomechanics.centerbased3d.oldmodel.wound.AdhesiveCenterBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
@@ -103,7 +103,9 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 	      	EpisimExceptionHandler.getInstance().displayException(e);
 	      }	
 		}
-		else if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.fisheye.FishEyeCenterBased3DModelGP ||globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.newmodel.CenterBased3DMechanicalModelGP){
+		else if( globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.apicalmeristem.ApicalMeristemCenterBased3DModelGP
+				|| globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.fisheye.FishEyeCenterBased3DModelGP 
+				|| globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.newmodel.CenterBased3DMechanicalModelGP){
 			try{
 		      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
 		      standardCellRadius = (float)field.getDouble(cbGP);

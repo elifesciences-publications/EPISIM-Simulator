@@ -81,11 +81,11 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
    private boolean isSurfaceCell = false;
    
    public CenterBased3DModel(){
-   	this(null);
+   	this(null, null);
    }
    
-   public CenterBased3DModel(AbstractCell cell){
-   	super(cell);   	
+   public CenterBased3DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+   	super(cell, modelConnector);   	
    	if(cellField == null){
    		cellField = new Continuous3D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
@@ -110,7 +110,10 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 		      Double3D newloc=new Double3D(oldLoc.x + deltaX, oldLoc.y+deltaY, oldLoc.z+deltaZ);		      
 		      cellField.setObjectLocation(cell, newloc);		      
 	      }
-      }      
+      }
+      if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
    }
    
    public static GenericBag<AbstractCell> getAllCellsWithinDistance(Double3D location, double distance){

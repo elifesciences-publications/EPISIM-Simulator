@@ -58,9 +58,9 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 		return instance;
 	}
 		
-	public EpisimBiomechanicalModel getNewEpisimBioMechanicalModelObject(AbstractCell cell) {
+	public EpisimBiomechanicalModel getNewEpisimBioMechanicalModelObject(AbstractCell cell, EpisimModelConnector modelConnector) {
 		try{
-			return biomechanicalModel.getNewEpisimBiomechanicalModelObject(cell);
+			return biomechanicalModel.getNewEpisimBiomechanicalModelObject(cell, modelConnector);
 		}
 		catch (Exception e){
 			EpisimExceptionHandler.getInstance().displayException(e);

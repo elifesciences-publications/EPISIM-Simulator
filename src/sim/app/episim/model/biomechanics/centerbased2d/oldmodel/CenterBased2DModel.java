@@ -123,11 +123,11 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
    
    
    public CenterBased2DModel(){
-   	this(null);
+   	this(null, null);
    }
    
-   public CenterBased2DModel(AbstractCell cell){
-   	super(cell);
+   public CenterBased2DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+   	super(cell, modelConnector);
    	
    	if(cellField == null){
    		cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
@@ -153,6 +153,9 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 		 	  	this.setLastSimulationDisplayPropsForNewCellEllipse(props, newloc);
 	      }
       }
+      if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
       lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0), new Rectangle2D.Double(0, 0, 0, 0));
    }
    

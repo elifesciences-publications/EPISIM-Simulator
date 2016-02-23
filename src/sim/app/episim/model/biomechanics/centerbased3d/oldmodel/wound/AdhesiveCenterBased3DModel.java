@@ -101,11 +101,11 @@ public class AdhesiveCenterBased3DModel extends AbstractCenterBased3DModel {
    private final double MIN_Y;
   
    public AdhesiveCenterBased3DModel(){
-   	this(null);
+   	this(null, null);
    }
    
-   public AdhesiveCenterBased3DModel(AbstractCell cell){
-   	super(cell);
+   public AdhesiveCenterBased3DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+   	super(cell, modelConnector);
    	
    	if(cellField == null){
    		cellField = new Continuous3D(FIELD_RESOLUTION_IN_MIKRON, 
@@ -149,9 +149,11 @@ public class AdhesiveCenterBased3DModel extends AbstractCenterBased3DModel {
 		      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*-0.1;		      
 		      Double3D newloc=new Double3D(oldLoc.x + directionVect.x, oldLoc.y+deltaY,  oldLoc.z+directionVect.z);		      
 		      cellField.setObjectLocation(cell, newloc);		      
-	      }
+	      }	      
       }
-     
+      if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
    }
    
   

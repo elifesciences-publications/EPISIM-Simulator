@@ -21,6 +21,7 @@ import javax.vecmath.Vector3d;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.DummyCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
@@ -89,12 +90,12 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
    // Constructor
 	public FishEyeCenterBased3DModel(){
-   	this(null);
+   	this(null, null);
    }
    
 	// Instantiation of new cells
-   public FishEyeCenterBased3DModel(AbstractCell cell){
-   	super(cell);
+   public FishEyeCenterBased3DModel(AbstractCell cell, EpisimModelConnector modelConnector){
+   	super(cell, modelConnector);
    	// Representations of space are called 'fields' in MASON parlance.
    	// All cells exist in cell fields. If there is none defined, instantiate one.
    	if(cellField == null){
@@ -147,6 +148,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		      cellField.setObjectLocation(cell, newloc);		      
 	      }
       }
+      if(modelConnector != null){
+			setEpisimModelConnector(modelConnector);
+		}
       // Initialize neighbor containers
       directNeighbours				 	 = new GenericBag<AbstractCell>();
       directNeighbourIDs				 = new HashSet<Long>();

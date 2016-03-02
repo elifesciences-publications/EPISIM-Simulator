@@ -81,6 +81,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    private HashSet<Long> directNeighbourIDs;
    private HashMap<Long, Integer> lostNeighbourContactInSimSteps;
    
+   // RADIUS REF //
    private double motherCellInnerEyeRadius = 0;
    private double motherCellGrowthMode = 0;
          
@@ -126,6 +127,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	      if(cell.getMotherCell().getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
 	      	EpisimModelConnector motherCellConnector = ((FishEyeCenterBased3DModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
 	      	if(motherCellConnector instanceof EpisimFishEyeCenterBased3DMC){
+	      		// RADIUS REF //
 	      		motherCellInnerEyeRadius = ((EpisimFishEyeCenterBased3DMC) motherCellConnector).getInnerEyeRadius();
 	      		motherCellGrowthMode = ((EpisimFishEyeCenterBased3DMC) motherCellConnector).getEyeGrowthMode();
 	      		setCellWidth(((EpisimFishEyeCenterBased3DMC)motherCellConnector).getWidth()); 
@@ -177,6 +179,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    // Placement of dummy cells on circumference
    private void generateDummyCells(double cellSize){
 		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		// RADIUS REF //
 		double circumference 						 = 2*mechModelGP.getInnerEyeRadius()*Math.PI;
 		double scalingFact 							 = mechModelGP.getDummyCellOptDistanceScalingFactor();
 		double numberOfCells 						 = Math.ceil(circumference/(cellSize*scalingFact));
@@ -185,6 +188,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		dummyCellField.clear();
 		
 		for(double i = 0; i < (2*Math.PI);i+=angleIncrement){
+			// RADIUS REF //
 			double z 			  = fishEyeCenter.z + mechModelGP.getInnerEyeRadius()* Math.cos(i);
 			double y 			  = fishEyeCenter.y + mechModelGP.getInnerEyeRadius()* Math.sin(i);
 			Double3D newPos 	  = new Double3D((fishEyeCenter.x - (cellSize/2d)), y, z);			
@@ -209,6 +213,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    			this.modelConnector.setEyeGrowthMode(motherCellGrowthMode);
    			motherCellGrowthMode = -1;
    		}
+   		// RADIUS REF //
    		if(motherCellInnerEyeRadius>0){
    			 this.modelConnector.setInnerEyeRadius(motherCellInnerEyeRadius);
    			 motherCellInnerEyeRadius = -1;
@@ -219,6 +224,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    			 this.modelConnector.setCenterY(fishEyeCenter.y);
    			 this.modelConnector.setCenterZ(fishEyeCenter.z);
    		}
+   		// RADIUS REF //
    		else if(globalParameters != null) this.modelConnector.setInnerEyeRadius(globalParameters.getInnerEyeRadius());
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBased3DMC");
@@ -445,6 +451,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 																											thisSemiAxisA, thisSemiAxisB, thisSemiAxisC);
       	 Point3d thisLocPoint = new Point3d(thisloc.x, thisloc.y, thisloc.z);
       	 double dy 								  = cellField.tdy(thisloc.y,globalParameters.getInnerEyeCenter().y);
+      	 // RADIUS REF //
       	 double contactAreaInnerEyeCorrect = calculateContactAreaNew(thisLocPoint,
 								otherPosToroidalCorrection(thisLocPoint, globalParameters.getInnerEyeCenter()),
 								dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius(), 
@@ -679,12 +686,27 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	Vector3d rayDirection  					= new Vector3d((cellCenter.x-innerEyeCenter.x), (cellCenter.y-innerEyeCenter.y), (cellCenter.z-innerEyeCenter.z));
 		rayDirection.normalize();
 		
+		// TEST //// TEST //// TEST //
+		// Use a unit vector along the x-axis to find the angle to the x-axis
+		Vector3d ex = new Vector3d((cellCenter.x-innerEyeCenter.x), 0, 0);
+		ex.normalize();
+		double phi = Math.acos(rayDirection.dot(ex));
+		// placeholder calculation
+		// rad_a = globalParameters.getEyeAxisA()
+		// rad_c = globalParameters.getEyeAxisC()
+		double rad_a = 150.0;
+		double rad_c = 225.0;
+		double sphradius = (rad_a*rad_c)/(Math.sqrt(Math.pow(rad_c, 2)*Math.pow(Math.cos(phi),2)+Math.pow(rad_a, 2)*Math.pow(Math.sin(phi),2)));
+		
 		// Get cell-center to cell-membrane distance, scale by optimal distance factor
    	double cellMembraneToCenterDistance = calculateDistanceToCellCenter(cellCenter, innerEyeCenter, aAxis, bAxis, cAxis);
    	cellMembraneToCenterDistance		  *= optDistScalingFact;
    	
    	// Scale normalized vector by scaled cell-center-membrane distance + current eye radius
+   	// RADIUS REF //
    	rayDirection.scale((globalParameters.getInnerEyeRadius()+ cellMembraneToCenterDistance));
+   	//rayDirection.scale((sphradius + cellMembraneToCenterDistance));
+   	// TEST //// TEST //// TEST //
    	
    	// Set new x coordinate to the calculated optimal x coordinate
    	double newX 								= innerEyeCenter.x + rayDirection.x;
@@ -693,12 +715,12 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	if(!dummyCellsAdded) newX = newX < globalParameters.getInnerEyeCenter().x ? globalParameters.getInnerEyeCenter().x : newX;
    	
    	return new Point3d(newX, innerEyeCenter.y + rayDirection.y, innerEyeCenter.z + rayDirection.z);	
-   	// TEST
    	// Quick-and-dirty way to prevent cell adjustment
 //   	return new Point3d(cellCenter.x, cellCenter.y, cellCenter.z);	
 	}
    
    // unused?
+   // RADIUS REF //
    private Point3d findReferencePositionOnBoundary(Point3d cellPosition){
    	return calculateIntersectionPointOnEllipsoid(globalParameters.getInnerEyeCenter(), cellPosition, globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius());
 	}   
@@ -772,6 +794,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		modelConnector.setY(newCellLocation.getY());
 		modelConnector.setZ(newCellLocation.getZ());
 		
+		// RADIUS REF //
   	 	modelConnector.setInnerEyeRadius(globalParameters.getInnerEyeRadius());
   	 	modelConnector.setAverage_overlap(average_overlap);
   	 	
@@ -917,6 +940,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    } 
    
    // If a cell object is passed to the function, it goes to get the model connector InnerEyeRadius property.
+   // RADIUS REF //
    private void setInnerEyeRadius(AbstractCell cell){
    	((FishEyeCenterBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).setInnerEyeRadius(
    			((FishEyeCenterBased3DModel)cell.getEpisimBioMechanicalModelObject()).modelConnector.getInnerEyeRadius());
@@ -926,33 +950,13 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	newGlobalSimStep(Long.MIN_VALUE, null);
    }
    
-   // Simulation step
-   protected void newGlobalSimStep(long simStepNumber, SimState state){
-   	//long start = System.currentTimeMillis();   	
-   	final MersenneTwisterFast random 		 = state!= null ? state.random : new MersenneTwisterFast(System.currentTimeMillis());
-   	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
-   	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
-   	
-   	//////////////////////////////////////SETTING OF EYE RADIUS/////////////////////////////////////////////////////
-   	
-   	///TEST///
-
+   //////////////////////////////////////SETTING OF EYE RADIUS/////////////////////////////////////////////////////
+   // RADIUS REF //
+   public void eyeGrowth(int growthMode, MersenneTwisterFast random, GenericBag<AbstractCell> allCells) {
    	// Get the biomechanical global parameters
    	FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-
-   	// During model initialization the model connector does not exist: Default to mode 0.
-   	int growthMode = 0;
-   	if(allCells.size() > 0 && allCells.get(0) != null){
-   		AbstractCell selectedCell = allCells.get(random.nextInt(allCells.size()));   	
-   		 if(selectedCell.getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
- 	      	EpisimModelConnector cellConnector = ((FishEyeCenterBased3DModel) selectedCell.getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
- 	      	if(cellConnector instanceof EpisimFishEyeCenterBased3DMC){
- 	      		growthMode = ((EpisimFishEyeCenterBased3DMC)cellConnector) == null ? (int) 0 : (int) ((EpisimFishEyeCenterBased3DMC)cellConnector).getEyeGrowthMode();
- 	      	}
-   		}
-   	}
-   			
-		// Expansion of tissue independent on cell proliferation
+   	
+   	// Expansion of tissue independent on cell proliferation
    	if (growthMode == 0) {
    		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
    	}
@@ -995,7 +999,31 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	else {
    		setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
    	}
-   	///TEST///
+   }
+   
+   /*
+    * Simulation step
+    */
+   protected void newGlobalSimStep(long simStepNumber, SimState state){
+   	//long start = System.currentTimeMillis();   	
+   	final MersenneTwisterFast random 		 = state!= null ? state.random : new MersenneTwisterFast(System.currentTimeMillis());
+   	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
+   	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
+
+   	// Get the biomechanical global parameters
+   	FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+
+   	// During model initialization the model connector does not exist: Default to mode 0.
+   	int growthMode = 0;
+   	if(allCells.size() > 0 && allCells.get(0) != null){
+   		AbstractCell selectedCell = allCells.get(random.nextInt(allCells.size()));   	
+   		 if(selectedCell.getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
+ 	      	EpisimModelConnector cellConnector = ((FishEyeCenterBased3DModel) selectedCell.getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
+ 	      	if(cellConnector instanceof EpisimFishEyeCenterBased3DMC){
+ 	      		growthMode = ((EpisimFishEyeCenterBased3DMC)cellConnector) == null ? (int) 0 : (int) ((EpisimFishEyeCenterBased3DMC)cellConnector).getEyeGrowthMode();
+ 	      	}
+   		}
+   	}
    	
    	if(dummyCellsAdded){
    		generateDummyCells(dummyCellSize);
@@ -1017,60 +1045,65 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    	final int numberOfIterations = ((int)numberOfIterationsDouble);
    	boolean parallelizationOn 	  = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
 	   boolean cutOffStop = false;
-   	for(int i = 0; i<numberOfIterations; i++){	   		
-	   		allCells.shuffle(random);
-	   		final int totalCellNumber = allCells.size();
-	   		if(cutOffStop) {
-	   			i = (numberOfIterations-1);
-//	   			System.out.println("Min threshold reached: Interrupted Biomechanical calculation");
-	   		}
-	   		final int iterationNo 	  = i;
-	   		// Loop when parallelization active
-	   		if(parallelizationOn){
-		   		Loop.withIndex(0, totalCellNumber, new Loop.Each() {
-		             public void run(int n) {
-		            		FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
-				   			if(iterationNo == 0) cellBM.initNewSimStep();
-				   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));				   			
-		             }
-		         });  		
-	   		}
-	   		// Loop when no parallelization
-	   		else{
-	   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-		   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
-		   			if(i == 0) cellBM.initNewSimStep();
-		   			cellBM.calculateSimStep((i == (numberOfIterations-1)));		   			
-		   		}
-	   		}
-	   		double cumulativeMigrationDistance = 0;
-	   		double migrationDistanceThisStep = 0;
-	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-	   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
-	   			if(cellBM.newCellLocation!=null){
-	   				if(cellBM.oldCellLocation != null){
-	   					migrationDistanceThisStep = cellBM.oldCellLocation.distance(cellBM.newCellLocation);
-	   					cellBM.migrationDistWholeSimStep += migrationDistanceThisStep;
-	   				}
-	   				
-	   				if(cellBM.newCellLocation != null)cellBM.setCellLocationInCellField(cellBM.newCellLocation);
-	      			else if(cellBM.cellLocation != null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
-	   			}
-	   			if(iterationNo == (numberOfIterations-1)){
-	   				cellBM.updateDirectNeighbours();
-	   				cellBM.finishNewSimStep();
-	   			}
-	   			cumulativeMigrationDistance+=migrationDistanceThisStep;
-	   			migrationDistanceThisStep=0;
-	   		}
-	   		// Cut-off value of average migration to interrupt biomechanical simulation //TEST
-	   		if(totalCellNumber>0
-	   				&& mechModelGP.getNumberOfSecondsPerSimStep()>0
-	   				&& (cumulativeMigrationDistance/totalCellNumber)<(mechModelGP.getMinAverageMigrationMikron()/(mechModelGP.getNumberOfSecondsPerSimStep()/36) )){
-	   			cutOffStop=true;
-	   		}
-   	}   	  
    	
+	   for(int i = 0; i<numberOfIterations; i++){	   		
+   		allCells.shuffle(random);
+   		final int totalCellNumber = allCells.size();
+   		if(cutOffStop) {
+   			i = (numberOfIterations-1);
+//	   			System.out.println("Min threshold reached: Interrupted Biomechanical calculation");
+   		}
+   		final int iterationNo 	  = i;
+   		// Loop when parallelization active
+   		if(parallelizationOn){
+	   		Loop.withIndex(0, totalCellNumber, new Loop.Each() {
+	             public void run(int n) {
+	            		FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
+			   			if(iterationNo == 0) cellBM.initNewSimStep();
+			   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));				   			
+	             }
+	         });  		
+   		}
+   		// Loop when no parallelization
+   		else{
+   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+	   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+	   			if(i == 0) cellBM.initNewSimStep();
+	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));		   			
+	   		}
+   		}
+   		double cumulativeMigrationDistance = 0;
+   		double migrationDistanceThisStep = 0;
+   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
+   			if(cellBM.newCellLocation!=null){
+   				if(cellBM.oldCellLocation != null){
+   					migrationDistanceThisStep = cellBM.oldCellLocation.distance(cellBM.newCellLocation);
+   					cellBM.migrationDistWholeSimStep += migrationDistanceThisStep;
+   				}	
+   				if(cellBM.newCellLocation != null)cellBM.setCellLocationInCellField(cellBM.newCellLocation);
+      			else if(cellBM.cellLocation != null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
+   			}
+   			if(iterationNo == (numberOfIterations-1)){
+   				// Set the new eye radius
+   				///TEST///
+   				eyeGrowth(growthMode, random, allCells);
+   				///TEST///
+   				// Finish the simulation step
+   				cellBM.updateDirectNeighbours();
+   				cellBM.finishNewSimStep();
+   			}
+   			cumulativeMigrationDistance+=migrationDistanceThisStep;
+   			migrationDistanceThisStep=0;
+   		}
+   		
+   		// Cut-off value of average migration to interrupt biomechanical simulation
+   		if(totalCellNumber>0
+   				&& mechModelGP.getNumberOfSecondsPerSimStep()>0
+   				&& (cumulativeMigrationDistance/totalCellNumber)<(mechModelGP.getMinAverageMigrationMikron()/(mechModelGP.getNumberOfSecondsPerSimStep()/36) )){
+   			cutOffStop=true;
+   		}
+   	}
    	//long end = System.currentTimeMillis();
     	//System.out.println("Global BM Sim Step: "+(end - start)+" ms");
    }

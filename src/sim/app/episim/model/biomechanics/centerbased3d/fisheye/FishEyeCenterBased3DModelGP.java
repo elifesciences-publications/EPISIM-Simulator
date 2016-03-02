@@ -18,6 +18,7 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 	private double height 											 = 2050; //1350; // 
 	private double length 											 = 2050; //1350; // 
 	
+	// RADIUS REF //
 	private double initialInnerEyeRadius						 = 100; //
 	private double innerEyeRadius									 = 100; //
 	private double randomness										 = 0;   //0.00000000125;
@@ -208,6 +209,7 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
    	this.neighbourLostThres = neighbourLostThres;
    }
 	
+   // RADIUS REF //
    public double getInitialInnerEyeRadius(){   
    	return initialInnerEyeRadius;
    }

@@ -139,7 +139,7 @@ public class ModelController implements java.io.Serializable, ClassLoaderChangeL
    public ModelDimensionality getModelDimensionality(){ return getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality();}
    	
    public boolean isStandardKeratinocyteModel(){
-   	return CellBehavioralModelController.getInstance().isStandardKeratinocyteModel();
+   	return CellBehavioralModelController.getInstance().isStandardKeratinocyteModel();   	
    }
    
 	

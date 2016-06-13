@@ -46,6 +46,8 @@ public class EpisimApicalMeristemCenterBased3DMC extends EpisimModelConnector {
 	private boolean L2 = false;
 	private boolean L3 = false;
 	
+	private boolean inStemCellNiche = false;
+	
 	private double boundaryCrossedMikron = 0;
 	
 	private double adhesionMembrane = 0;
@@ -308,6 +310,18 @@ public class EpisimApicalMeristemCenterBased3DMC extends EpisimModelConnector {
    public void setBoundaryCrossedMikron(double boundaryCrossedMikron) {
    
    	this.boundaryCrossedMikron = boundaryCrossedMikron;
+   }
+
+	
+   public boolean getInStemCellNiche() {
+   
+   	return inStemCellNiche;
+   }
+
+   @Hidden
+   public void setInStemCellNiche(boolean inStemCellNiche) {
+   
+   	this.inStemCellNiche = inStemCellNiche;
    }	
 	
 }

@@ -157,8 +157,8 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	public void addCellDeathListener(CellDeathListener listener){ this.cellDeathListeners.add(listener); }   
    
    public void killCell(){
-   	 if(this.getEpisimBioMechanicalModelObject() instanceof AbstractBiomechanicalModel)((AbstractBiomechanicalModel)this.getEpisimBioMechanicalModelObject()).removeCellFromCellField();	
-	  	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);	  	 
+   	 if(this.getEpisimBioMechanicalModelObject() instanceof AbstractBiomechanicalModel)((AbstractBiomechanicalModel)this.getEpisimBioMechanicalModelObject()).removeCellFromCellField();
+   	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);	  	 
 	  	 this.getEpisimCellBehavioralModelObject().setIsAlive(false);
 	  	 removeFromSchedule();
    }   
@@ -190,8 +190,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
       // Limit the colors to 255
       green=(green>255)?255:((green<0)?0:green);
       red=(red>255)?255:((red<0)?0:red);
-      blue=(blue>255)?255:((blue<0)?0:blue);
-      
+      blue=(blue>255)?255:((blue<0)?0:blue);     
       if(kcyte.getIsTracked() && MiscalleneousGlobalParameters.getInstance().getHighlightTrackedCells()) return Color.RED;
       return new Color(red, green, blue);
    }

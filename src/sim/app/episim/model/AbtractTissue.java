@@ -83,7 +83,7 @@ public abstract class AbtractTissue extends SimStateHack implements java.io.Seri
 	}
 	
 	public void cellIsDead(AbstractCell cell) {
-		this.allCells.remove(cell);		
+		this.allCells.remove(cell);
 	}
 	private long start = System.currentTimeMillis();
 	 public void start() {

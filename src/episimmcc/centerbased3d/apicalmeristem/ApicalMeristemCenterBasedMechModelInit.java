@@ -200,6 +200,7 @@ import episimmcc.EpisimModelConnector;
 				
 			//	}
 			//}
+			cellField.clear();
 			initializeBiomechanics(standardCellEnsemble);
 			setDiffLevels(standardCellEnsemble, cellSize);
 			
@@ -208,21 +209,7 @@ import episimmcc.EpisimModelConnector;
 			return standardCellEnsemble;
 		}
 		
-		private boolean isWithinStemCellCone(Point3d cellPosition){
-			ApicalMeristemCenterBased3DModelGP mechModelGP = (ApicalMeristemCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();			
-			Point3d colonyCenter = mechModelGP.getCellColonyCenter();
-					
-			double h = mechModelGP.getCellColonyRadius();
-			
-			double angle = mechModelGP.getStemCellNicheAngleDegrees()/2;
-			double depth = mechModelGP.getStemCellNicheDepthMikron();
-			double radiusCone = Math.tan(Math.toRadians(angle))*h;
-			
-			double closedFormResult = Math.pow(((cellPosition.y-colonyCenter.y)/radiusCone),2)
-												+Math.pow(((cellPosition.z-colonyCenter.z)/radiusCone),2)
-												-Math.pow(((cellPosition.x)/h),2);			
-			return closedFormResult <= 0 && cellPosition.x > (colonyCenter.x+h-depth);
-		}
+		
 		
 		private void setDiffLevels(ArrayList<UniversalCell> standardCellEnsemble, double cellSize){
 			
@@ -239,18 +226,17 @@ import episimmcc.EpisimModelConnector;
 			for(int i=0; i < standardCellEnsemble.size(); i++){
 				
 				UniversalCell actCell 				= standardCellEnsemble.get(i);
-				EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
-				if(cellTypes.length>=2) actCell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
-				if(biomech instanceof ApicalMeristemCenterBased3DModel){
-					if(diffLevels.length>2){
-						if(isWithinStemCellCone(new Point3d(biomech.getX(), biomech.getY(), biomech.getZ()))){
+				if(cellTypes.length >= 2) actCell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+				
+				if(diffLevels.length > 2){
+					if(((ApicalMeristemCenterBased3DModel)actCell.getEpisimBioMechanicalModelObject()).isWithinStemCellCone()){
 							actCell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[1]);
-						}
-						else{
-							actCell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[2]);
-						}
+					}
+					else{
+						actCell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[2]);
 					}
 				}
+				
 			}
 		}
 		
@@ -330,7 +316,7 @@ import episimmcc.EpisimModelConnector;
 		}
 
 		protected EpisimPortrayal getCellPortrayal() {
-			ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Fish Eye");
+			ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Apical Meristem");
 			continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 			return continuousPortrayal;
 		}

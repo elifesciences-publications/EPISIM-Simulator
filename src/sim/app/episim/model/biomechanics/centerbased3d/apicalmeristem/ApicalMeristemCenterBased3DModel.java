@@ -110,7 +110,7 @@ public class ApicalMeristemCenterBased3DModel extends AbstractCenterBased3DModel
 	  		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
 	 
 	 	}
-     	
+     	if(modelConnector != null && modelConnector instanceof EpisimApicalMeristemCenterBased3DMC) this.modelConnector = (EpisimApicalMeristemCenterBased3DMC)modelConnector;
       // Wobble interval of initial cell position by applying division bias
      	// Default division bias value
      	double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
@@ -603,9 +603,7 @@ public class ApicalMeristemCenterBased3DModel extends AbstractCenterBased3DModel
 			
 			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, loc, finalSimStep);
 						
-			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
-				
-				Double3D randomPositionData = new Double3D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5),
+			Double3D randomPositionData = new Double3D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5),
 						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5),
 						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));				
 				
@@ -622,7 +620,7 @@ public class ApicalMeristemCenterBased3DModel extends AbstractCenterBased3DModel
 				else{
 					setPositionRespectingBounds(new Point3d(newX, newY, newZ),getCellWidth()/2d, getCellHeight()/2d, getCellLength()/2d, false);
 				}				
-			}			
+						
 			finalInteractionResult = interactionResult;
 		}
 	}
@@ -646,7 +644,7 @@ public class ApicalMeristemCenterBased3DModel extends AbstractCenterBased3DModel
   	 		mc.setCellSurfaceArea(getSurfaceArea());
   	 		mc.setCellVolume(getCellVolume());
   	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));
-  	 		
+  	 		mc.setInStemCellNiche(isWithinStemCellCone());
   	 		double minX = globalParameters.getCellColonyCenter().x+(globalParameters.getCellColonyRadius()-globalParameters.getCellColonyHeight());
   	 		if(getX() < minX) mc.setBoundaryCrossedMikron(minX-getX());
   	 		else mc.setBoundaryCrossedMikron(0);
@@ -883,6 +881,22 @@ public class ApicalMeristemCenterBased3DModel extends AbstractCenterBased3DModel
    	
    	return true;
    }
+   public boolean isWithinStemCellCone(){
+   	Point3d cellPosition = new Point3d(getX(), getY(), getZ());
+		ApicalMeristemCenterBased3DModelGP mechModelGP = (ApicalMeristemCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();			
+		Point3d colonyCenter = mechModelGP.getCellColonyCenter();
+				
+		double h = mechModelGP.getCellColonyRadius();
+		
+		double angle = mechModelGP.getStemCellNicheAngleDegrees()/2;
+		double depth = mechModelGP.getStemCellNicheDepthMikron();
+		double radiusCone = Math.tan(Math.toRadians(angle))*h;
+		
+		double closedFormResult = Math.pow(((cellPosition.y-colonyCenter.y)/radiusCone),2)
+											+Math.pow(((cellPosition.z-colonyCenter.z)/radiusCone),2)
+											-Math.pow(((cellPosition.x)/h),2);			
+		return closedFormResult <= 0 && cellPosition.x > (colonyCenter.x+h-depth);
+	}
    
    public double getCellHeight() {return modelConnector == null ? 0 : modelConnector.getHeight(); }	
 	public double getCellWidth()  {return modelConnector == null ? 0 : modelConnector.getWidth();  }	

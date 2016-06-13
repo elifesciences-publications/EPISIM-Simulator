@@ -243,7 +243,7 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
       		 isNucleated=((CenterBased3DModel)universalCell.getEpisimBioMechanicalModelObject()).hasNucleus();
       		 isViable=((CenterBased3DModel)universalCell.getEpisimBioMechanicalModelObject()).hasViablility();
       	 }
-			Color cellColor =universalCell.getCellColoring();
+			Color cellColor =universalCell.getCellColoring();			 
 			Shape3D shapeCell = getShape(j3dModel, 0);
 			shapeCell.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, cellColor,transparencyFactor, isViable));
 			if(optimizedGraphicsActivated){

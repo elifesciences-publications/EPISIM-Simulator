@@ -22,6 +22,7 @@ import binloc.ProjectLocator;
 
 public class EpisimProperties {
 	
+	//Singleton-Instance
 	private static EpisimProperties instance;
 	
 	private Properties properties;

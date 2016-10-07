@@ -49,6 +49,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import com.dropbox.core.DbxException;
+
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
 import episimexceptions.SimulationTriggerException;
@@ -163,6 +165,9 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
+         catch (DbxException e){
+         	EpisimExceptionHandler.getInstance().displayException(e);
+         }
 			
 			this.updateAvailable = (state==EpisimUpdateState.POSSIBLE);
 		}
@@ -440,6 +445,9 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
       }
       catch (IOException e){
 	     EpisimExceptionHandler.getInstance().displayException(e);
+      }
+		catch (DbxException e){
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	

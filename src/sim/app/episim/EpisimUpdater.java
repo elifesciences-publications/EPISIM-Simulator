@@ -2,6 +2,8 @@ package sim.app.episim;
 
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,14 +12,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -25,30 +31,29 @@ import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPListParseEngine;
 
-import binloc.ProjectLocator;
+import com.dropbox.core.DbxAppInfo;
+import com.dropbox.core.DbxClient;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.DbxUrlWithExpiration;
+import com.dropbox.core.util.IOUtil;
 
+
+
+import binloc.ProjectLocator;
 import sim.app.episim.gui.EpisimSimulator;
 
 
 public class EpisimUpdater {
-  private static int BUFFER_SIZE = 10240;
+  private static int BUFFER_SIZE = 8192;
   
   public enum EpisimUpdateState{ NOTAVAILABLE, NOTPOSSIBLE, POSSIBLE};
   
   
   
-  private FTPClient ftpClient;
-
-  // set the values for your server
+  private DbxClient dbxClient;
   
-  private static final String HOST = "filetiga.bioquant.uni-heidelberg.de";
-  
-
-  private static final String USER = "episimupdate";
-
-  private static final String PASSWORD = ".update!my!stuff.";
-
-  private static final String ROOT_DIR = "./episim_update/episim_simulator";
+  private static final String ROOT_DIR = "./episim_simulator";
   
   private static final String UPDATE_META_DATA_FILE = "update.properties";
 
@@ -67,61 +72,49 @@ public class EpisimUpdater {
   
   public EpisimUpdater() {}
   
-  private  void connect() throws  IOException{
-	 
-	      EpisimLogger.getInstance().logInfo("Connecting to EPISIM update server " + HOST);
-	      ftpClient = new FTPClient();
-	      FTPClientConfig conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
-	      ftpClient.configure(conf);
-	      ftpClient.connect(HOST);	      
-	      ftpClient.login(USER, PASSWORD);
-	      ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-	      ftpClient.enterLocalPassiveMode();
-	      ftpClient.setConnectTimeout(20000);
-	      ftpClient.setControlKeepAliveTimeout(2000);
-         ftpClient.setDataTimeout(20000);
-	      EpisimLogger.getInstance().logInfo("User " + USER + " login OK");
-	      ftpClient.changeWorkingDirectory(ROOT_DIR);	      
+  private  void connect(){	 
+	      EpisimLogger.getInstance().logInfo("Connecting to EPISIM update Server ");    
+
+	      DbxRequestConfig config = new DbxRequestConfig("EPISIM/5.2", Locale.getDefault().toString());
+	      dbxClient = new DbxClient(config, "6KOB1DFCefAAAAAAAAABMzE7I7Nmbyd4pFbkatroI3ZywC_l0fOElo_VqR-vLpdo");	       
 	      EpisimLogger.getInstance().logInfo("Connection Successful");	   
   }
   
-  public void downloadUpdate(EpisimUpdateCallback cb, boolean log) throws IOException{
+  public void downloadUpdate(EpisimUpdateCallback cb, boolean log) throws IOException, DbxException{
 	  connect();
-	  if (ftpClient != null && cb != null) {
+	  if (dbxClient != null && cb != null) {
+		  byte[] buffer = new byte[BUFFER_SIZE];  
 		  
-		  byte[] buffer = new byte[BUFFER_SIZE];
 		  if(log)EpisimLogger.getInstance().logInfo("Read EPISIM update metadata.");
 		  readUpdateMetadata();
 		  
 		  long size = 0;
-		  	  
-		  FTPFile[] file =ftpClient.listFiles(updateFile);
-		
-		  if(file!=null && file.length >0 && file[0] != null){
-			  size = file[0].getSize();
-		  }
-		  
+		  size = dbxClient.getMetadata(ROOT_DIR+"/"+updateFile).asFile().numBytes;
+		  			  
 	     if (size > 0) {
 	   	  currentFileSize=size;
+	   	  DbxUrlWithExpiration dbxUrl = dbxClient.createTemporaryDirectUrl(ROOT_DIR+"/"+updateFile);
+	   	  
+	   	  URL url= new URL(dbxUrl.url);
+	   	  HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+	   	 
 	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-Update-File " + updateFile + ": " + size + " bytes");
 	        cb.sizeOfUpdate((int)size);   
 	     
-		     InputStream in = ftpClient.retrieveFileStream(updateFile);
+		     InputStream in = con.getInputStream();
 			  
 		     String userTmpDir = System.getProperty("java.io.tmpdir", "temp");
 			  if(!userTmpDir.endsWith(System.getProperty("file.separator"))) userTmpDir = userTmpDir.concat(System.getProperty("file.separator"));		     
 			  currentUpdateFile = new File(userTmpDir+"EPISIM_Update.zip");
 			  FileOutputStream fileOut = new FileOutputStream(currentUpdateFile);
 			  if(log)EpisimLogger.getInstance().logInfo("Downloading EPISIM-Update-File");
-		     while (true) {	       
-		        int bytes = in.read(buffer);
-		        if (bytes < 0) break;
+			  int bytes =0;
+			  while ((bytes = in.read(buffer)) != -1) {	       
 		        fileOut.write(buffer, 0, bytes);
 		        cb.progressOfUpdate(bytes);
 		     }
 		     fileOut.close();
-		     in.close();
-		     if(!ftpClient.completePendingCommand()) throw new IOException("Cannot complete Download of Update File");
+		     in.close();			     
 		     if(log) EpisimLogger.getInstance().logInfo("Successfully Downloaded EPISIM-Update-File");
 	     }
 	     else throw new IOException("Cannot Download Update File");
@@ -130,43 +123,40 @@ public class EpisimUpdater {
 	  }
   }
   
-  public void downloadEXEPatch(EpisimUpdateCallback cb, boolean log) throws IOException{
+  public void downloadEXEPatch(EpisimUpdateCallback cb, boolean log) throws IOException, DbxException{
 	  final String patchFile = "./exe_patch.zip";
 	  connect();
-	  if (ftpClient != null && cb != null) {
+	  if (dbxClient != null && cb != null) {
 		  
 		  byte[] buffer = new byte[BUFFER_SIZE];
 		  
 		  
 		  long size = 0;
-		  	  
-		  FTPFile[] file =ftpClient.listFiles(patchFile);
-		
-		  if(file!=null && file.length >0 && file[0] != null){
-			  size = file[0].getSize();
-		  }
-		  
+		  size = dbxClient.getMetadata(ROOT_DIR+"/"+patchFile).asFile().numBytes;  
+		  		  
 	     if (size > 0) {
 	   	  currentFileSize=size;
+	   	  DbxUrlWithExpiration dbxUrl = dbxClient.createTemporaryDirectUrl(ROOT_DIR+"/"+updateFile);	   	  
+	   	  URL url= new URL(dbxUrl.url);
+	   	  HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-EXE-Patch-File " + patchFile + ": " + size + " bytes");
 	        cb.sizeOfUpdate((int)size);   
 	     
-		     InputStream in = ftpClient.retrieveFileStream(patchFile);
+		     InputStream in =con.getInputStream();
 			  
 		     String userTmpDir = System.getProperty("java.io.tmpdir", "temp");
 			  if(!userTmpDir.endsWith(System.getProperty("file.separator"))) userTmpDir = userTmpDir.concat(System.getProperty("file.separator"));		     
 			  currentUpdateFile = new File(userTmpDir+"EPISIM_Update.zip");
 			  FileOutputStream fileOut = new FileOutputStream(currentUpdateFile);
 			  if(log)EpisimLogger.getInstance().logInfo("Downloading EPISIM-EXE-Patch-File");
-		     while (true) {	       
-		        int bytes = in.read(buffer);
-		        if (bytes < 0) break;
+			  int bytes =0;
+			  while ((bytes = in.read(buffer)) != -1) {	       
 		        fileOut.write(buffer, 0, bytes);
 		        cb.progressOfUpdate(bytes);
 		     }
 		     fileOut.close();
 		     in.close();
-		     if(!ftpClient.completePendingCommand()) throw new IOException("Cannot complete Download of EPISIM-EXE-Patch-File");
+		     
 		     if(log) EpisimLogger.getInstance().logInfo("Successfully Downloaded EPISIM-EXE-Patch-File");
 	     }
 	     else throw new IOException("Cannot Download EPISIM-EXE-Patch-File");
@@ -268,7 +258,7 @@ public class EpisimUpdater {
   }
   
   
-  public EpisimUpdateState checkForUpdates() throws IOException{
+  public EpisimUpdateState checkForUpdates() throws IOException, DbxException{
 	  connect();
 	  readUpdateMetadata();
 	  int newVersion = Integer.parseInt(mostCurrentVersion.trim().replace(".", ""));
@@ -288,10 +278,8 @@ public class EpisimUpdater {
   
 
   private void disconnect() throws IOException {
-    if (ftpClient != null) {     
-      ftpClient.logout();
-      ftpClient.disconnect();
-      ftpClient = null;
+    if (dbxClient != null) {
+   	 dbxClient = null;   	 
     }
   }
   
@@ -303,40 +291,23 @@ public class EpisimUpdater {
       return new DecimalFormat("#,##0.#").format(currentFileSize/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
   }
   
- /* protected long getFileSize(String filename) throws FtpProtocolException, IOException{
-	  
-	   Iterator<FtpDirEntry> fileIter = ftpClient.listFiles("./");
-	   System.out.println("\n available files: ");
-	   while(fileIter.hasNext()){
-	   	FtpDirEntry entry = fileIter.next();
-	   
-	   	if(filename.endsWith(entry.getName())) return entry.getSize();
-	   }
-	   return -1;  
-  }*/
-
+  private void readUpdateMetadata() throws DbxException, IOException{ 
+	  	 
+		 
+	 	ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+	 	dbxClient.getFile(ROOT_DIR+"/"+UPDATE_META_DATA_FILE, null, byteOut);
+     		
+     if (byteOut.size() > 0) {  
+	      InputStream in = new ByteArrayInputStream(byteOut.toByteArray());
+	      Properties updateProp = new Properties();
+	      updateProp.load(in);
+	      mostCurrentVersion= updateProp.getProperty(CURRENT_VERSION);
+	      minOldVersion= updateProp.getProperty(MIN_OLD_VERSION);
+	      updateFile = updateProp.getProperty(UPDATEFILE);
+	      in.close();	     
+     } 
+  }
   
-
-  private void readUpdateMetadata() throws IOException { 
-   	 
-   	 	long size = 0;		
-		  FTPFile[] file = ftpClient.listFiles("./"+UPDATE_META_DATA_FILE);
-		  if(file!=null && file.length >0 && file[0] != null){
-			  size = file[0].getSize();
-		  }	      
-	      		
-	      if (size > 0) {  
-		      InputStream in = ftpClient.retrieveFileStream("./"+UPDATE_META_DATA_FILE);
-		      Properties updateProp = new Properties();
-		      updateProp.load(in);
-		      mostCurrentVersion= updateProp.getProperty(CURRENT_VERSION);
-		      minOldVersion= updateProp.getProperty(MIN_OLD_VERSION);
-		      updateFile = updateProp.getProperty(UPDATEFILE);
-		      in.close();
-		      if(!ftpClient.completePendingCommand()) throw new IOException("Cannot complete Download of Update Metadata File");
-	      }
-    
-  }  
   public void restartApplication() throws IOException, URISyntaxException{
 	  String episimPath = ProjectLocator.getBinPath().getParentFile().getAbsolutePath();
 	  if(!episimPath.endsWith(System.getProperty("file.separator"))) episimPath = episimPath.concat(System.getProperty("file.separator"));  

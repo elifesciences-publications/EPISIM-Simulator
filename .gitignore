@@ -1,0 +1,7 @@
+/.project
+/.classpath
+/lib/CopasiJava.dll
+/lib/gluegen-rt.jar
+/lib/copasi.jar
+/lib/copasi_gui.jar
+/bin/

@@ -25,21 +25,17 @@ import java.util.zip.ZipFile;
 
 import javax.net.ssl.HttpsURLConnection;
 
-
-
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.DbxUrlWithExpiration;
-
-
-
 
 import binloc.ProjectLocator;
 import sim.app.episim.gui.EpisimSimulator;
 
 
 public class EpisimUpdater {
+
   private static int BUFFER_SIZE = 8192;
   
   public enum EpisimUpdateState{ NOTAVAILABLE, NOTPOSSIBLE, POSSIBLE};
@@ -48,7 +44,7 @@ public class EpisimUpdater {
   
   private DbxClient dbxClient;
   
-  private static final String ROOT_DIR = "./episim_simulator";
+  private static final String ROOT_DIR = "/episim_simulator";
   
   private static final String UPDATE_META_DATA_FILE = "update.properties";
 

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2015-03-10_episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC"/>
-  <visiblename name="Psoriasis Model 2D - New 2D Center Basel Model"/>
+  <visiblename name="Psoriasis Model 2D - New Center Based Model"/>
   <modelname name="New Center Based Biomechanical Model - Psoriasis"/>
   <modelconnectorclass name="episimmcc.centerbased2d.newmodel.psoriasis.EpisimCenterBasedMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSurface"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="boolean" default="false" name="isImmuneCell"
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="epidermalSurfaceRatio" pairwise="false" readonly="true"/>

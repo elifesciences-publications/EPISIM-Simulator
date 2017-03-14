@@ -22,6 +22,8 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epider
 
 	private double immuneCellContactMikron = 50;
 	
+	private boolean isImmuneCell=false;
+	
 	public EpisimCenterBasedMC(){}
 	
 	@NoExport
@@ -63,6 +65,15 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epider
 
 	public void setImmuneCellContactMikron(double immuneCellContactMikron) {   
    	this.immuneCellContactMikron = immuneCellContactMikron >= 0 ? immuneCellContactMikron : 0;
-   } 
+   }
+	
+	public boolean getIsImmuneCell() {
+		   return this.isImmuneCell;
+	}
+
+	@Hidden
+	public void setIsImmuneCell(boolean isImmuneCell) {
+		  this.isImmuneCell = isImmuneCell;   
+	}
 }
 

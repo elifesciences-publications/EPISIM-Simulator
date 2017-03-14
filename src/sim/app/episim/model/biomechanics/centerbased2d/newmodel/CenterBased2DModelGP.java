@@ -70,11 +70,11 @@ public class CenterBased2DModelGP implements EpisimBiomechanicalModelGlobalParam
 
 	
 	
-	public double getRandomness() {
+	public double getRandomnessCellMov() {
 		return randomness;
 	}
 
-	public void setRandomness(double val) {
+	public void setRandomnessCellMov(double val) {
 		if(val >= 0.0)
 			randomness = val;
 	}

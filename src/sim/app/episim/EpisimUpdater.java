@@ -48,7 +48,7 @@ public class EpisimUpdater {
   
   private DbxClient dbxClient;
   
-  private static final String ROOT_DIR = "./episim_simulator";
+  private static final String ROOT_DIR = "/episim_simulator";
   
   private static final String UPDATE_META_DATA_FILE = "update.properties";
 

@@ -21,9 +21,7 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 
 	
 	private double adhesionBasalMembrane=0;
-	
 		
-	
 	public boolean getHasCollision() {
 	
 		return hasCollision;
@@ -115,5 +113,11 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
    public void setEpidermalSurfaceRatio(double epidermalSurfaceRatio) {
    
    	this.epidermalSurfaceRatio = epidermalSurfaceRatio;
-   }	
+   }
+
+   @Hidden
+   public abstract boolean getIsImmuneCell(); 
+
+   @Hidden
+   public abstract void setIsImmuneCell(boolean isImmuneCell);
 }

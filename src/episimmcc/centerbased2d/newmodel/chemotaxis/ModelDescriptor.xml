@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2013-10-04_episimmcc.centerbased2d.newmodel.chemotaxis.EpisimCenterBasedMC"/>
-  <visiblename name="Chemotaxis 2D - New Center Based Model"/>
+  <visiblename name="Chemotaxis Model 2D - New Center Based Model"/>
   <modelname name="New Center Based Chemotaxis Biomechanical Model"/>
   <modelconnectorclass name="episimmcc.centerbased2d.newmodel.chemotaxis.EpisimCenterBasedMC"/>
   <modelparameters>

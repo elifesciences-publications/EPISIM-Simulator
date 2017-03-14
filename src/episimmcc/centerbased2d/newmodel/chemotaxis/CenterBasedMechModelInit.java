@@ -119,7 +119,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		mechModelGP.setContinousDiffusionInXDirection(false);
 		mechModelGP.setContinousDiffusionInYDirection(false);
 		mechModelGP.setChemotaxisEnabled(true);
-		mechModelGP.setRandomness(0.1);
+		mechModelGP.setRandomnessCellMov(0.1);
 		mechModelGP.setWidthInMikron(200);
 		mechModelGP.setHeightInMikron(200);
 		mechModelGP.setNumberOfSecondsPerSimStep(1);

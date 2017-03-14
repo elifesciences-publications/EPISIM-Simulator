@@ -8,6 +8,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.NoExport;
+import episimmcc.EpisimModelConnector.Hidden;
 import episimmcc.centerbased2d.newmodel.chemotaxis.CenterBasedMechModelInit;
 
 public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.EpisimCenterBasedMC {
@@ -135,6 +136,15 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.Episim
    public void setChemotacticField(String chemotacticField){   
    	if(chemotacticField != null)this.chemotacticField=chemotacticField;
    }
-   
+   @Hidden
+   public boolean getIsImmuneCell() {
+	   // TODO Auto-generated method stub
+	   return false;
+   }
+
+	@Hidden
+   public void setIsImmuneCell(boolean isImmuneCell) {
+	   // TODO Auto-generated method stub	   
+   }
 }
 

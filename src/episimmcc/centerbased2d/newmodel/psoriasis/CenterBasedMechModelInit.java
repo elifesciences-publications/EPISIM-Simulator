@@ -157,7 +157,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 			UniversalCell immuneCell = new UniversalCell(null, null, true);
 			CenterBased2DModel mechModel = ((CenterBased2DModel) immuneCell.getEpisimBioMechanicalModelObject());
 			Point2d newCellPos =new Point2d(x, y);
-			mechModel.setImmuneCell(true);
+			((EpisimCenterBasedMC)mechModel.getEpisimModelConnector()).setIsImmuneCell(true);
 			mechModel.setImmuneCellYDelta_mikron(yDelta);
 			mechModel.setCellWidth(STEM_CELL_WIDTH);
 			mechModel.setCellHeight(STEM_CELL_HEIGHT);

@@ -252,6 +252,7 @@ public class ModelDescriptorFileGenerator {
 					parameterElement.setAttribute("name", m.substring(0,1).toLowerCase()+m.substring(1));
 					parameterElement.setAttribute("datatype", getReturnTypeString(getterMethods.get(m).getReturnType()));
 					parameterElement.setAttribute("default", ""+ (isPairwise ? 0 :getterMethods.get(m).invoke(actConnector, null)));
+					
 					parameterElement.setAttribute("readonly",""+ !setterMethods.containsKey(m));
 					parameterElement.setAttribute("pairwise", ""+ isPairwise);
 				}

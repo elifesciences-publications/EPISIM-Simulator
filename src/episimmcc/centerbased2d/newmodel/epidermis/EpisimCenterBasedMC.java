@@ -202,5 +202,16 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.Episim
    
    	this.basalCellContact = basalCellContact;
    }
+
+   @Hidden
+   public boolean getIsImmuneCell() {
+	   // TODO Auto-generated method stub
+	   return false;
+   }
+
+	@Hidden
+   public void setIsImmuneCell(boolean isImmuneCell) {
+	   // TODO Auto-generated method stub	   
+   }
 }
 

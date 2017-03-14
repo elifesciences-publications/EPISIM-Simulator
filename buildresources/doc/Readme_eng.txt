@@ -1,4 +1,4 @@
-EPISIM Simulator version 1.5.1 is a software  that enables 
+EPISIM Simulator version 1.5.2 is a software  that enables 
 users to simulate cellular behavior in a multicellular tissue
 using a multiagent-based simulation approach.
 
@@ -11,7 +11,7 @@ Some feature of the EPISIM Simulator:
   and data exports
 
 Requirements:
-- Operating system for version 1.5.1: Windows 98/2000/XP/Vista/7/8/10
+- Operating system for version 1.5.2: Windows 98/2000/XP/Vista/7/8/10
 
 Contact:
 Thomas Sütterlin
@@ -25,4 +25,4 @@ National Center for Tumor Diseases
 Hamamatsu TIGA Center
 niels.grabe@bioquant.uni-heidelberg.de
 
-Heidelberg, 2015
+Heidelberg, 2016

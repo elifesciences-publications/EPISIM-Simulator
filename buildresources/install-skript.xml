@@ -3,7 +3,7 @@
 <!-- The info section. -->
 <info>
 <appname>EPISIM Simulator</appname>
-<appversion>1.5.1</appversion>
+<appversion>1.5.2</appversion>
  <authors>
 <author name="Thomas Suetterlin" email="thomas.suetterlin@bioquant.uni-heidelberg.de"/>
 </authors>
@@ -18,8 +18,8 @@
 </native>
 
 <variables>
-<variable name="app-version" value="1.5.1"/>
-<variable name="released-on" value="06.08.2015"/>
+<variable name="app-version" value="1.5.2"/>
+<variable name="released-on" value="11.10.2016"/>
 <variable name="TargetPanel.dir.windows" value="C:\EPISIM Simulator"/>
 </variables>
 

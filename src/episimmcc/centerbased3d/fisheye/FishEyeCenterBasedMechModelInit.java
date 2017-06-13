@@ -118,7 +118,8 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	*/
 		
 		double radius    = mechModelGP.getInitialInnerEyeRadius();
-		Icosahedron ico  = new Icosahedron(5); // generate icosahedral mesh and subdivide it x times
+		// generate icosahedral mesh and subdivide it x times
+		Icosahedron ico  = new Icosahedron(5); // 5
 		int ignoredCells = 0;
 
 		// Set allowed initial cell number to given initial radius and density:		
@@ -189,7 +190,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		
 		// The following is used to calculate the x interval within which initialized cells are assigned to diffLevel[1] (proliferative)
 		// The angle subtended by the proliferative belt can be calculated for the 2D case due to symmetry
-		// The proliferative belt spans the distance as measured by a ruler
+		// The proliferative belt spans the distance as measured by a ruler (projected distance)
 		double angleIncrement = Math.PI/2d - Math.acos(prolifBeltSize/radius);
 
 		// xDelta is the arc given by the angle

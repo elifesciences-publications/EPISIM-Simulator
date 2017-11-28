@@ -1,55 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2017-03-12_episimmcc.centerbased2d.newmodel.epidermisimmune.EpisimCenterBasedMC"/>
-  <visiblename name="Epidermis Model 2D w Immune Cells - New Center Based Model 2D"/>
+  <visiblename name="immune_run_tumble"/>
   <modelname name="New Center Based Biomechanical Model - Immune Cells"/>
   <modelconnectorclass name="episimmcc.centerbased2d.newmodel.epidermisimmune.EpisimCenterBasedMC"/>
   <modelparameters>
-    <parameter datatype="boolean" default="false" name="isSurface"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="boolean" default="false" name="isImmuneCell"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0"
-      name="epidermalSurfaceRatio" pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="cellSurfaceArea"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="boolean" default="true" name="isNucleated"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="height"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="totalContactArea"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0"
-      name="scaleRWDownBiasImmCell" pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0" name="contactArea"
-      pairwise="true" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="bmContactArea"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.2" name="extCellSpaceMikron"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0" name="cellCellAdhesion"
-      pairwise="true" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="extCellSpaceVolume"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="length"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="scaleRWImmCell"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isBasal"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="width"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
-    <parameter datatype="boolean" default="false"
-      name="basalCellContact" pairwise="false" readonly="true"/>
-    <parameter datatype="boolean" default="false" name="hasCollision"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0"
-      name="scaleBMInfNeighImmCell" pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="cellVolume"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0"
-      name="adhesionBasalMembrane" pairwise="false" readonly="false"/>
+    <parameter name="isSurface" datatype="boolean" default="false"
+      readonly="true" pairwise="false"/>
+    <parameter name="isImmuneCell" datatype="boolean" default="false"
+      readonly="false" pairwise="false"/>
+    <parameter name="epidermalSurfaceRatio" datatype="double"
+      default="0.0" readonly="true" pairwise="false"/>
+    <parameter name="cellSurfaceArea" datatype="double" default="0.0"
+      readonly="true" pairwise="false"/>
+    <parameter name="isNucleated" datatype="boolean" default="true"
+      readonly="false" pairwise="false"/>
+    <parameter name="height" datatype="double" default="0.0"
+      readonly="false" pairwise="false"/>
+    <parameter name="totalContactArea" datatype="double" default="0.0"
+      readonly="true" pairwise="false"/>
+    <parameter name="scaleRWDownBiasImmCell" datatype="double"
+      default="0.0" readonly="false" pairwise="false"/>
+    <parameter name="contactArea" datatype="double" default="0"
+      readonly="true" pairwise="true"/>
+    <parameter name="bmContactArea" datatype="double" default="0.0"
+      readonly="true" pairwise="false"/>
+    <parameter name="extCellSpaceMikron" datatype="double" default="0.2"
+      readonly="false" pairwise="false"/>
+    <parameter name="cellCellAdhesion" datatype="double" default="0"
+      readonly="false" pairwise="true"/>
+    <parameter name="randomWalkY" datatype="double" default="0.0"
+      readonly="false" pairwise="false"/>
+    <parameter name="randomWalkX" datatype="double" default="0.0"
+      readonly="false" pairwise="false"/>
+    <parameter name="extCellSpaceVolume" datatype="double" default="0.0"
+      readonly="true" pairwise="false"/>
+    <parameter name="length" datatype="double" default="0.0"
+      readonly="false" pairwise="false"/>
+    <parameter name="isBasal" datatype="boolean" default="false"
+      readonly="true" pairwise="false"/>
+    <parameter name="width" datatype="double" default="0.0"
+      readonly="false" pairwise="false"/>
+    <parameter name="y" datatype="double" default="0.0" readonly="true" pairwise="false"/>
+    <parameter name="basalCellContact" datatype="boolean"
+      default="false" readonly="true" pairwise="false"/>
+    <parameter name="hasCollision" datatype="boolean" default="false"
+      readonly="true" pairwise="false"/>
+    <parameter name="x" datatype="double" default="0.0" readonly="true" pairwise="false"/>
+    <parameter name="scaleBMInfNeighImmCell" datatype="double"
+      default="0.0" readonly="false" pairwise="false"/>
+    <parameter name="cellVolume" datatype="double" default="0.0"
+      readonly="true" pairwise="false"/>
+    <parameter name="adhesionBasalMembrane" datatype="double"
+      default="0.0" readonly="false" pairwise="false"/>
   </modelparameters>
 </modeldescriptor>

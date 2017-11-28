@@ -18,7 +18,8 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epider
 	private boolean isImmuneCell=false;
 	
 	private double scaleBMInfNeighImmCell=0.0;
-	private double scaleRWImmCell=0.0;
+	private double randomWalkX=0.0;
+	private double randomWalkY=0.0;
 	private double scaleRWDownBiasImmCell=0.0;	
 	
 	public EpisimCenterBasedMC(){}
@@ -76,16 +77,23 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epider
    }
 
 	
-   public double getScaleRWImmCell() {
+   public double getRandomWalkX() {
    
-   	return scaleRWImmCell;
+   	return randomWalkX;
+   }
+	
+   public void setRandomWalkX(double randomWalkX) {
+   
+   	this.randomWalkX = randomWalkX;
    }
 
-	
-   public void setScaleRWImmCell(double scaleRWImmCell) {
-   
-   	this.scaleRWImmCell = scaleRWImmCell;
-   }
+   public double getRandomWalkY() {
+		return randomWalkY;
+	}
+
+	public void setRandomWalkY(double randomWalkY) {
+		this.randomWalkY = randomWalkY;
+	}
 
 	
    public double getScaleRWDownBiasImmCell() {
@@ -98,6 +106,7 @@ public class EpisimCenterBasedMC extends episimmcc.centerbased2d.newmodel.epider
    
    	this.scaleRWDownBiasImmCell = scaleRWDownBiasImmCell;
    }
+
 
 	
    

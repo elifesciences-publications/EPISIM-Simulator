@@ -1,12 +1,18 @@
 package sim.app.episim;
 
 import com.dropbox.core.*;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.*;
+import com.dropbox.core.v1.DbxUrlWithExpiration;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
 import java.util.Properties;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -15,16 +21,10 @@ import org.apache.commons.net.ftp.FTPFile;
 import sim.app.episim.EpisimUpdater.EpisimUpdateCallback;
 
 public class TestDropbox {
-	private DbxClient dbxClient;
+	private DbxClientV2 dbxClient;
 	
 	private static int BUFFER_SIZE = 8192;
 	public enum EpisimUpdateState{ NOTAVAILABLE, NOTPOSSIBLE, POSSIBLE};
-	  
-	  
-	  
-	 
-	  
-	  
 	  
 	  private static final String ROOT_DIR = "/episim_simulator";
 	  
@@ -33,8 +33,7 @@ public class TestDropbox {
 	  private static final String CURRENT_VERSION ="currentversion";
 	  private static final String UPDATEFILE ="updatefile";
 	  private static final String MIN_OLD_VERSION ="minoldversion";
-	  
-	  
+	  	  
 	  private String mostCurrentVersion = "";
 	  private String minOldVersion = "";
 	  private String updateFile = "";
@@ -74,25 +73,30 @@ public class TestDropbox {
       EpisimLogger.getInstance().logInfo("Connecting to EPISIM update Server ");    
 
       DbxRequestConfig config = new DbxRequestConfig("EPISIM/5.2", Locale.getDefault().toString());
-      dbxClient = new DbxClient(config, "6KOB1DFCefAAAAAAAAABMzE7I7Nmbyd4pFbkatroI3ZywC_l0fOElo_VqR-vLpdo");	       
+      dbxClient = new DbxClientV2(config, "6KOB1DFCefAAAAAAAAABMzE7I7Nmbyd4pFbkatroI3ZywC_l0fOElo_VqR-vLpdo");     
       EpisimLogger.getInstance().logInfo("Connection Successful");	   
      
 	}
 	
 	private void readUpdateMetadata() throws DbxException, IOException{ 
-	  	 
-		 
+	  	
 	 	ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-	 	dbxClient.getFile(ROOT_DIR+"/"+UPDATE_META_DATA_FILE, null, byteOut);
-      		
+	 	//dbxClient.getFile(ROOT_DIR+"/"+UPDATE_META_DATA_FILE, null, byteOut);
+	 	
+	 	Metadata fileMetaData = dbxClient.files().getMetadata(ROOT_DIR+"/"+UPDATE_META_DATA_FILE);
+	 	
+	 	// Create Dropbox Downloader
+	 	DbxDownloader<FileMetadata> dl = dbxClient.files().download(fileMetaData.getPathLower());	
+	 	dl.download(byteOut);
+
       if (byteOut.size() > 0) {  
 	      InputStream in = new ByteArrayInputStream(byteOut.toByteArray());
 	      Properties updateProp = new Properties();
 	      updateProp.load(in);
-	      mostCurrentVersion= updateProp.getProperty(CURRENT_VERSION);
-	      minOldVersion= updateProp.getProperty(MIN_OLD_VERSION);
+	      mostCurrentVersion = updateProp.getProperty(CURRENT_VERSION);
+	      minOldVersion = updateProp.getProperty(MIN_OLD_VERSION);
 	      updateFile = updateProp.getProperty(UPDATEFILE);
-	      in.close();	     
+	      in.close();
       } 
 	}
 	
@@ -105,13 +109,14 @@ public class TestDropbox {
 			  readUpdateMetadata();
 			  
 			  long size = 0;
-			  size = dbxClient.getMetadata(ROOT_DIR+"/"+updateFile).asFile().numBytes;
+			  FileMetadata fileMetaData = (FileMetadata)dbxClient.files().getMetadata(ROOT_DIR+"/"+UPDATE_META_DATA_FILE);
+			  size = fileMetaData.getSize();
 			  			  
-		     if (size > 0) {
+		      if (size > 0) {
 		   	  currentFileSize=size;
-		   	  DbxUrlWithExpiration dbxUrl = dbxClient.createTemporaryDirectUrl(ROOT_DIR+"/"+updateFile);
+		   	  GetTemporaryLinkResult dbxUrl = dbxClient.files().getTemporaryLink(ROOT_DIR+"/"+updateFile);
 		   	  
-		   	  URL url= new URL(dbxUrl.url);
+		   	  URL url= new URL(dbxUrl.getLink());
 		   	  HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 		   	 
 		   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-Update-File " + updateFile + ": " + size + " bytes");

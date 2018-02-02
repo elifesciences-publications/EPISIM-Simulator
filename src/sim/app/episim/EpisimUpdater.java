@@ -25,10 +25,9 @@ import java.util.zip.ZipFile;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import com.dropbox.core.DbxClient;
-import com.dropbox.core.DbxException;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.DbxUrlWithExpiration;
+import com.dropbox.core.*;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.*;
 
 import binloc.ProjectLocator;
 import sim.app.episim.gui.EpisimSimulator;
@@ -39,10 +38,8 @@ public class EpisimUpdater {
   private static int BUFFER_SIZE = 8192;
   
   public enum EpisimUpdateState{ NOTAVAILABLE, NOTPOSSIBLE, POSSIBLE};
-  
-  
-  
-  private DbxClient dbxClient;
+    
+  private DbxClientV2 dbxClient;
   
   private static final String ROOT_DIR = "/episim_simulator";
   
@@ -67,7 +64,7 @@ public class EpisimUpdater {
 	      EpisimLogger.getInstance().logInfo("Connecting to EPISIM update Server ");    
 
 	      DbxRequestConfig config = new DbxRequestConfig("EPISIM/5.2", Locale.getDefault().toString());
-	      dbxClient = new DbxClient(config, "6KOB1DFCefAAAAAAAAABMzE7I7Nmbyd4pFbkatroI3ZywC_l0fOElo_VqR-vLpdo");	       
+	      dbxClient = new DbxClientV2(config, "6KOB1DFCefAAAAAAAAABMzE7I7Nmbyd4pFbkatroI3ZywC_l0fOElo_VqR-vLpdo");	       
 	      EpisimLogger.getInstance().logInfo("Connection Successful");	   
   }
   
@@ -80,13 +77,14 @@ public class EpisimUpdater {
 		  readUpdateMetadata();
 		  
 		  long size = 0;
-		  size = dbxClient.getMetadata(ROOT_DIR+"/"+updateFile).asFile().numBytes;
+		  FileMetadata fileMetaData = (FileMetadata)dbxClient.files().getMetadata(ROOT_DIR+"/"+updateFile);
+		  size = fileMetaData.getSize();
 		  			  
 	     if (size > 0) {
 	   	  currentFileSize=size;
-	   	  DbxUrlWithExpiration dbxUrl = dbxClient.createTemporaryDirectUrl(ROOT_DIR+"/"+updateFile);
+	   	  GetTemporaryLinkResult dbxUrl = dbxClient.files().getTemporaryLink(ROOT_DIR+"/"+updateFile);
 	   	  
-	   	  URL url= new URL(dbxUrl.url);
+	      URL url= new URL(dbxUrl.getLink());
 	   	  HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 	   	 
 	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-Update-File " + updateFile + ": " + size + " bytes");
@@ -123,12 +121,13 @@ public class EpisimUpdater {
 		  
 		  
 		  long size = 0;
-		  size = dbxClient.getMetadata(ROOT_DIR+"/"+patchFile).asFile().numBytes;  
+		  FileMetadata fileMetaData = (FileMetadata)dbxClient.files().getMetadata(ROOT_DIR+"/"+patchFile);
+		  size = fileMetaData.getSize();
 		  		  
 	     if (size > 0) {
 	   	  currentFileSize=size;
-	   	  DbxUrlWithExpiration dbxUrl = dbxClient.createTemporaryDirectUrl(ROOT_DIR+"/"+updateFile);	   	  
-	   	  URL url= new URL(dbxUrl.url);
+	   	  GetTemporaryLinkResult dbxUrl = dbxClient.files().getTemporaryLink(ROOT_DIR+"/"+updateFile); 
+	      URL url= new URL(dbxUrl.getLink());
 	   	  HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-EXE-Patch-File " + patchFile + ": " + size + " bytes");
 	        cb.sizeOfUpdate((int)size);   
@@ -283,20 +282,25 @@ public class EpisimUpdater {
   }
   
   private void readUpdateMetadata() throws DbxException, IOException{ 
-	  	 
-		 
+	  	
 	 	ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-	 	dbxClient.getFile(ROOT_DIR+"/"+UPDATE_META_DATA_FILE, null, byteOut);
-     		
-     if (byteOut.size() > 0) {  
+	 	//dbxClient.getFile(ROOT_DIR+"/"+UPDATE_META_DATA_FILE, null, byteOut);
+	 	
+	 	Metadata fileMetaData = dbxClient.files().getMetadata(ROOT_DIR+"/"+UPDATE_META_DATA_FILE);
+	 	
+	 	// Create Dropbox Downloader
+	 	DbxDownloader<FileMetadata> dl = dbxClient.files().download(fileMetaData.getPathLower());	
+	 	dl.download(byteOut);
+
+    if (byteOut.size() > 0) {  
 	      InputStream in = new ByteArrayInputStream(byteOut.toByteArray());
 	      Properties updateProp = new Properties();
 	      updateProp.load(in);
-	      mostCurrentVersion= updateProp.getProperty(CURRENT_VERSION);
-	      minOldVersion= updateProp.getProperty(MIN_OLD_VERSION);
+	      mostCurrentVersion = updateProp.getProperty(CURRENT_VERSION);
+	      minOldVersion = updateProp.getProperty(MIN_OLD_VERSION);
 	      updateFile = updateProp.getProperty(UPDATEFILE);
-	      in.close();	     
-     } 
+	      in.close();
+    } 
   }
   
   public void restartApplication() throws IOException, URISyntaxException{

@@ -5,30 +5,27 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Enumeration;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.DbxUrlWithExpiration;
+import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.GetTemporaryLinkResult;
 
 import binloc.ProjectLocator;
 import sim.app.episim.gui.EpisimSimulator;
@@ -42,7 +39,8 @@ public class EpisimUpdater {
   
   
   
-  private DbxClient dbxClient;
+  private DbxClientV2 dbxClient;
+  private static final String ACCESS_TOKEN="6KOB1DFCefAAAAAAAAABMzE7I7Nmbyd4pFbkatroI3ZywC_l0fOElo_VqR-vLpdo";
   
   private static final String ROOT_DIR = "/episim_simulator";
   
@@ -66,8 +64,8 @@ public class EpisimUpdater {
   private  void connect(){	 
 	      EpisimLogger.getInstance().logInfo("Connecting to EPISIM update Server ");    
 
-	      DbxRequestConfig config = new DbxRequestConfig("EPISIM/5.2", Locale.getDefault().toString());
-	      dbxClient = new DbxClient(config, "6KOB1DFCefAAAAAAAAABMzE7I7Nmbyd4pFbkatroI3ZywC_l0fOElo_VqR-vLpdo");	       
+	      DbxRequestConfig config =  DbxRequestConfig.newBuilder("EPISIM/5.2").withUserLocale(Locale.getDefault().toString()).build();
+	      dbxClient = new DbxClientV2(config, ACCESS_TOKEN);	       
 	      EpisimLogger.getInstance().logInfo("Connection Successful");	   
   }
   
@@ -80,13 +78,14 @@ public class EpisimUpdater {
 		  readUpdateMetadata();
 		  
 		  long size = 0;
-		  size = dbxClient.getMetadata(ROOT_DIR+"/"+updateFile).asFile().numBytes;
-		  			  
+		  
+		  size = ((FileMetadata) dbxClient.files().getMetadata(ROOT_DIR+"/"+updateFile)).getSize();
 	     if (size > 0) {
 	   	  currentFileSize=size;
-	   	  DbxUrlWithExpiration dbxUrl = dbxClient.createTemporaryDirectUrl(ROOT_DIR+"/"+updateFile);
 	   	  
-	   	  URL url= new URL(dbxUrl.url);
+	   	  GetTemporaryLinkResult dbxUrl = dbxClient.files().getTemporaryLink(ROOT_DIR+"/"+updateFile);
+	   	  
+	   	  URL url= new URL(dbxUrl.getLink());
 	   	  HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 	   	 
 	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-Update-File " + updateFile + ": " + size + " bytes");
@@ -123,12 +122,12 @@ public class EpisimUpdater {
 		  
 		  
 		  long size = 0;
-		  size = dbxClient.getMetadata(ROOT_DIR+"/"+patchFile).asFile().numBytes;  
-		  		  
+		  size = ((FileMetadata) dbxClient.files().getMetadata(ROOT_DIR+"/"+patchFile)).getSize();		  		  
 	     if (size > 0) {
 	   	  currentFileSize=size;
-	   	  DbxUrlWithExpiration dbxUrl = dbxClient.createTemporaryDirectUrl(ROOT_DIR+"/"+updateFile);	   	  
-	   	  URL url= new URL(dbxUrl.url);
+	   	 
+	   	  GetTemporaryLinkResult dbxUrl = dbxClient.files().getTemporaryLink(ROOT_DIR+"/"+patchFile);	   	  
+	   	  URL url= new URL(dbxUrl.getLink());
 	   	  HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-EXE-Patch-File " + patchFile + ": " + size + " bytes");
 	        cb.sizeOfUpdate((int)size);   
@@ -286,7 +285,7 @@ public class EpisimUpdater {
 	  	 
 		 
 	 	ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-	 	dbxClient.getFile(ROOT_DIR+"/"+UPDATE_META_DATA_FILE, null, byteOut);
+	 	dbxClient.files().download(ROOT_DIR+"/"+UPDATE_META_DATA_FILE).download(byteOut);
      		
      if (byteOut.size() > 0) {  
 	      InputStream in = new ByteArrayInputStream(byteOut.toByteArray());

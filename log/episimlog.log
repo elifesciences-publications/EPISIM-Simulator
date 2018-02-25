@@ -1,0 +1,46 @@
+Feb 24, 2018 2:09:00 PM sim.app.episim.EpisimLogger logInfo
+Information: Connecting to EPISIM update Server 
+Feb 24, 2018 2:09:00 PM sim.app.episim.EpisimLogger logInfo
+Information: Connection Successful
+Feb 24, 2018 2:09:01 PM sim.app.episim.EpisimLogger logException
+Schwerwiegend: An error occurred during runtime of Episim-Simulator: 
+com.dropbox.core.DbxException$BadRequest: {"error": "v1_retired"}
+	at com.dropbox.core.DbxRequestUtil.unexpectedStatus(DbxRequestUtil.java:207)
+	at com.dropbox.core.DbxClient.startGetSomething(DbxClient.java:467)
+	at com.dropbox.core.DbxClient.startGetFile(DbxClient.java:452)
+	at com.dropbox.core.DbxClient.getFile(DbxClient.java:412)
+	at sim.app.episim.EpisimUpdater.readUpdateMetadata(EpisimUpdater.java:289)
+	at sim.app.episim.EpisimUpdater.checkForUpdates(EpisimUpdater.java:254)
+	at sim.app.episim.gui.EpisimSimulator.<init>(EpisimSimulator.java:162)
+	at sim.app.episim.gui.EpisimSimulator$5.run(EpisimSimulator.java:551)
+	at java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:251)
+	at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:733)
+	at java.awt.EventQueue.access$200(EventQueue.java:103)
+	at java.awt.EventQueue$3.run(EventQueue.java:694)
+	at java.awt.EventQueue$3.run(EventQueue.java:692)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(ProtectionDomain.java:76)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:703)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:242)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:150)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:146)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:138)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:91)
+
+Feb 24, 2018 3:01:06 PM sim.app.episim.EpisimLogger logInfo
+Information: Connecting to EPISIM update Server 
+Feb 24, 2018 3:01:06 PM sim.app.episim.EpisimLogger logInfo
+Information: Connection Successful
+Feb 24, 2018 3:01:51 PM sim.app.episim.EpisimLogger logInfo
+Information: Connecting to EPISIM update Server 
+Feb 24, 2018 3:01:51 PM sim.app.episim.EpisimLogger logInfo
+Information: Connection Successful
+Feb 24, 2018 3:31:37 PM sim.app.episim.EpisimLogger logInfo
+Information: Connecting to EPISIM update Server 
+Feb 24, 2018 3:31:37 PM sim.app.episim.EpisimLogger logInfo
+Information: Connection Successful
+Feb 24, 2018 3:37:45 PM sim.app.episim.EpisimLogger logInfo
+Information: Connecting to EPISIM update Server 
+Feb 24, 2018 3:37:45 PM sim.app.episim.EpisimLogger logInfo
+Information: Connection Successful

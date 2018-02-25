@@ -79,7 +79,7 @@ public class EpisimUpdaterFTP {
 	      ftpClient.enterLocalPassiveMode();
 	      ftpClient.setConnectTimeout(20000);
 	      ftpClient.setControlKeepAliveTimeout(2000);
-         ftpClient.setDataTimeout(20000);
+          ftpClient.setDataTimeout(20000);
 	      EpisimLogger.getInstance().logInfo("User " + USER + " login OK");
 	      ftpClient.changeWorkingDirectory(ROOT_DIR);	      
 	      EpisimLogger.getInstance().logInfo("Connection Successful");	   

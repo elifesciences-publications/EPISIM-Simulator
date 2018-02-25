@@ -683,14 +683,23 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 			if(isImmuneCell() && (this.modelConnector instanceof episimmcc.centerbased2d.newmodel.epidermisimmune.EpisimCenterBasedMC))
 			{
 				episimmcc.centerbased2d.newmodel.epidermisimmune.EpisimCenterBasedMC mcc = ((episimmcc.centerbased2d.newmodel.epidermisimmune.EpisimCenterBasedMC)this.modelConnector);
-				Double2D randomPositionData = new Double2D(mcc.getScaleRWImmCell()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
-						mcc.getScaleRWImmCell()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
+				// Old random walk model: randomWalkX scales RNG
+				//Double2D randomPositionData = new Double2D(mcc.getRandomWalkX()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
+				//		mcc.getRandomWalkX()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
+				
+				//Double2D randomDownwardsBias = new Double2D(0, mcc.getScaleRWDownBiasImmCell()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 1));
+				
+				//double newX = loc.x+randomPositionData.x+mcc.getScaleBMInfNeighImmCell()*((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.x+interactionResult.adhesionForce.x+interactionResult.chemotacticForce.x));
+				//double newY = loc.y+randomPositionData.y+randomDownwardsBias.y+mcc.getScaleBMInfNeighImmCell()*((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.y+interactionResult.adhesionForce.y+interactionResult.chemotacticForce.y));
+				
+				// New random walk model: random walk parameters obtained from ABM model
+				//Double2D randomPositionData = new Double2D(mcc.getRandomWalkX()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
+				//		mcc.getRandomWalkX()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
 				
 				Double2D randomDownwardsBias = new Double2D(0, mcc.getScaleRWDownBiasImmCell()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 1));
 				
-				
-				double newX = loc.x+randomPositionData.x+mcc.getScaleBMInfNeighImmCell()*((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.x+interactionResult.adhesionForce.x+interactionResult.chemotacticForce.x));
-				double newY = loc.y+randomPositionData.y+randomDownwardsBias.y+mcc.getScaleBMInfNeighImmCell()*((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.y+interactionResult.adhesionForce.y+interactionResult.chemotacticForce.y));
+				double newX = loc.x+mcc.getRandomWalkX()+mcc.getScaleBMInfNeighImmCell()*((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.x+interactionResult.adhesionForce.x+interactionResult.chemotacticForce.x));
+				double newY = loc.y+mcc.getRandomWalkY()+randomDownwardsBias.y+mcc.getScaleBMInfNeighImmCell()*((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.y+interactionResult.adhesionForce.y+interactionResult.chemotacticForce.y));
 				
 				if(Math.abs(newX-loc.x)> MAX_DISPLACEMENT
 						|| Math.abs(newY-loc.y)> MAX_DISPLACEMENT){

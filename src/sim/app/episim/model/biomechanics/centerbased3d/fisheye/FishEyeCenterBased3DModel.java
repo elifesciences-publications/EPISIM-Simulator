@@ -1072,8 +1072,10 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));		   			
 	   		}
    		}
+   		
    		double cumulativeMigrationDistance = 0;
    		double migrationDistanceThisStep = 0;
+   		
    		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
    			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
    			if(cellBM.newCellLocation!=null){

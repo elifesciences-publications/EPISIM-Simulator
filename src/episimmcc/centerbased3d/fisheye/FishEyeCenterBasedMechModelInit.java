@@ -280,7 +280,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
       }			
 		
 		double cellSize = Math.max(CELL_WIDTH, CELL_HEIGHT);
-		cellSize 		 = Math.max(cellSize, CELL_LENGTH);
+		cellSize 		= Math.max(cellSize, CELL_LENGTH);
 		FishEyeCenterBased3DModel.setDummyCellSize(cellSize);
 		
 		return loadedCells;

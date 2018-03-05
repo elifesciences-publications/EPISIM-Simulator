@@ -28,10 +28,10 @@ import episiminterfaces.EpisimPortrayal;
 
 
 public class ContinousCellPortrayal2D extends SimplePortrayal2D implements EpisimPortrayal
-{
+	{
     
-		private final String NAME = "Epidermis";	
-	 private Paint paint;  
+	private final String NAME = "Epidermis";	
+	private Paint paint;  
     private CellBehavioralModelController cBModelController;   
     private boolean drawFrame = true;
     private double implicitScale;

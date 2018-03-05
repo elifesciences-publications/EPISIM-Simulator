@@ -12,7 +12,7 @@ import episiminterfaces.EpisimPortrayal;
 
 public class ContinuousCellFieldPortrayal2D extends ContinuousPortrayal2DHack implements EpisimPortrayal {
 
-	private final String NAME = "Epidermis";
+	private String NAME = "Epidermis";
 	
 	public ContinuousCellFieldPortrayal2D(){
 		super();
@@ -20,11 +20,15 @@ public class ContinuousCellFieldPortrayal2D extends ContinuousPortrayal2DHack im
 	public String getPortrayalName() {
 		return NAME;
 	}
+	
+	public void setPortrayalName(String name) {
+		NAME = name;
+	}
 
 	public Double getViewPortRectangle() {
 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
  	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP,guiState.getEpiDisplayWidth(), guiState.getEpiDisplayHeight());
- 	   else return new Rectangle2D.Double(0,0,0, 0);
+ 	   else return new Rectangle2D.Double(0,0,0,0);
 	}
 	
 	

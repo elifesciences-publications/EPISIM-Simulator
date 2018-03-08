@@ -9,39 +9,29 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
-import org.COPASI.CCopasiDataModel;
 import org.COPASI.CCopasiMessage;
-import org.COPASI.CCopasiMethod;
-import org.COPASI.CCopasiObject;
-import org.COPASI.CCopasiObjectName;
 import org.COPASI.CCopasiParameter;
 import org.COPASI.CCopasiParameterGroup;
-import org.COPASI.CCopasiRootContainer;
 import org.COPASI.CCopasiTask;
-import org.COPASI.CFunctionParameter;
-import org.COPASI.CFunctionParameters;
+import org.COPASI.CDataModel;
+import org.COPASI.CDataObject;
 import org.COPASI.CMetab;
 import org.COPASI.CModel;
-import org.COPASI.CModelParameter;
 import org.COPASI.CModelValue;
 import org.COPASI.CReaction;
+import org.COPASI.CRootContainer;
 import org.COPASI.CTaskEnum;
 import org.COPASI.CTrajectoryMethod;
 import org.COPASI.CTrajectoryProblem;
 import org.COPASI.CTrajectoryTask;
-import org.COPASI.CVersion;
 import org.COPASI.ModelValueVectorN;
 import org.COPASI.ObjectStdVector;
-import org.COPASI.ReactionVectorNS;
 
-import sim.app.episim.EpisimExceptionHandler;
-import sim.app.episim.EpisimLogger;
-import sim.app.episim.util.ClassLoaderChangeListener;
-import sim.app.episim.util.GenericBag;
-import sim.app.episim.util.GlobalClassLoader;
 import episiminterfaces.EpisimSbmlModelConfiguration;
 import episiminterfaces.EpisimSbmlModelConfigurationEx;
-import episiminterfaces.InterfaceVersion;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 
 public class COPASIConnector implements ClassLoaderChangeListener {
 
@@ -51,19 +41,19 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 
 	private HashMap<String, String> sbmlFileCache;
 
-	private HashMap<String, CCopasiDataModel> copasiDataModels;
+	private HashMap<String, CDataModel> copasiDataModels;
 
 	private static Semaphore sem = new Semaphore(1);
 
 	private COPASIConnector(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		sbmlFileCache = new HashMap<String, String>();
-		copasiDataModels = new HashMap<String, CCopasiDataModel>();
+		copasiDataModels = new HashMap<String, CDataModel>();
 
-		CCopasiRootContainer.getRoot();
+		CRootContainer.getRoot();
 	}
 
-	protected static COPASIConnector getInstance(){		
+	protected static COPASIConnector getInstance(){
 		if(instance==null){
 			try{
 				sem.acquire();
@@ -74,35 +64,35 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 
-		}		
-		return instance;		
+		}
+		return instance;
 	}
 
 	public void registerNewCopasiDataModelWithSbmlFile(File modelArchiveFile, String sbmlFile) throws IOException, Exception{
 		if(!this.copasiDataModels.containsKey(sbmlFile)){
-			CCopasiDataModel dataModel = CCopasiRootContainer.addDatamodel();			
+			CDataModel dataModel = CRootContainer.addDatamodel();
 			if (!dataModel.importSBMLFromString(loadSBMLFile(modelArchiveFile, sbmlFile)))
 			{
 				EpisimExceptionHandler.getInstance().displayException(new Exception(CCopasiMessage.getAllMessageText()));
 			}
 			dataModel.getModel().applyInitialValues();
 			this.copasiDataModels.put(sbmlFile, dataModel);
-		}		
+		}
 	}
 
 	public void simulateSBMLModel(EpisimSbmlModelConfiguration modelConfig, SBMLModelState modelState){
 		simulateSBMLModel(modelConfig, modelState, 1);
 	}
-	
+
 	public void simulateSBMLModel(EpisimSbmlModelConfiguration modelConfig, SBMLModelState modelState, int numberOfSteps){
-		CCopasiDataModel dataModel = this.copasiDataModels.get(modelConfig.getModelFilename());
+		CDataModel dataModel = this.copasiDataModels.get(modelConfig.getModelFilename());
 		if(dataModel != null){
 			executeTrajectoryTask(dataModel, modelConfig, modelState, numberOfSteps);
 			updateStateFromCopasi(dataModel, modelState);
 		}
 	}
 
-	private void updateStateFromCopasi(CCopasiDataModel dataModel, SBMLModelState modelState){
+	private void updateStateFromCopasi(CDataModel dataModel, SBMLModelState modelState){
 		updateStateFromCopasi(dataModel.getModel(), modelState);
 	}
 
@@ -135,7 +125,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		}
 	}
 
-	private void writeStateToCopasi(CCopasiDataModel dataModel, SBMLModelState modelState){
+	private void writeStateToCopasi(CDataModel dataModel, SBMLModelState modelState){
 		writeStateToCopasi(dataModel.getModel(), modelState);
 	}
 
@@ -158,8 +148,8 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		  }*/
 		}
 		for(SBMLModelEntity entity : modelState.getSpeciesValues()){
-			CMetab metab =  model.getMetabolite(entity.name);	     
-			if(metab != null){		      
+			CMetab metab =  model.getMetabolite(entity.name);
+			if(metab != null){
 				metab.setInitialConcentration(entity.concentration);
 				if (Double.isNaN(entity.concentration))
 				{
@@ -176,20 +166,20 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		ModelValueVectorN valueVect = model.getModelValues();
 		if(valueVect != null){
 			for(long i = 0; i < valueVect.size(); i++){
-				CCopasiObject copObject = valueVect.get(i);
+				CDataObject copObject = valueVect.get(i);
 				if(copObject != null){
 					String objectName = copObject.getObjectName();
-					if(objectName != null && objectName.equals(name)){				 
+					if(objectName != null && objectName.equals(name)){
 						return model.getModelValue(name);
 					}
-				}		  
+				}
 			}
 		}
 		return null;
 	}
 
 	private CCopasiParameter findLocalParameter(CModel model, String name){
-		for(long i = 0; i < model.getNumReactions(); i++){			  
+		for(long i = 0; i < model.getNumReactions(); i++){
 			CReaction cReact = model.getReaction(i);
 
 			if(cReact != null){
@@ -203,20 +193,20 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 							return param;
 						}
 					}
-				}					  
-			}		  
+				}
+			}
 		}
 		return null;
 	}
 
-	private void executeTrajectoryTask(CCopasiDataModel dataModel, EpisimSbmlModelConfiguration modelConfig, SBMLModelState modelState, int numberOfSteps){		
+	private void executeTrajectoryTask(CDataModel dataModel, EpisimSbmlModelConfiguration modelConfig, SBMLModelState modelState, int numberOfSteps){
 		CTrajectoryTask trajectoryTask = (CTrajectoryTask)dataModel.getTask("Time-Course");
 
 		if (trajectoryTask == null)
-		{          
+		{
 			trajectoryTask = new CTrajectoryTask(dataModel);
-			trajectoryTask.setMethodType(CTaskEnum.deterministic);
-			trajectoryTask.getProblem().setModel(dataModel.getModel());			
+			trajectoryTask.setMethodType(CTaskEnum.Method_deterministic);
+			trajectoryTask.getProblem().setModel(dataModel.getModel());
 			dataModel.getTaskList().addAndOwn(trajectoryTask);
 		}
 
@@ -224,7 +214,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		//trajectoryTask.setUpdateModel(true);
 
 		// get the problem for the task to set some parameters
-		CTrajectoryProblem problem = (CTrajectoryProblem)trajectoryTask.getProblem();       
+		CTrajectoryProblem problem = (CTrajectoryProblem)trajectoryTask.getProblem();
 		//dataModel.getModel().setInitialTime(counter++);
 
 		writeStateToCopasi(dataModel, modelState);
@@ -248,7 +238,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		else{
 			CCopasiParameter absoluteTolerance = method.getParameter("Absolute Tolerance");
 			absoluteTolerance.setDblValue(modelConfig.getErrorTolerance());
-		} 
+		}
 
 		try{
 			trajectoryTask.initializeRaw((int)CCopasiTask.OUTPUT_UI);
@@ -260,7 +250,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 				sb.append("Warnings: \n");
 				sb.append(trajectoryTask.getProcessWarning() + "\n\n");
 				sb.append("Other: \n");
-				sb.append(CCopasiMessage.getAllMessageText() + "\n\n");			
+				sb.append(CCopasiMessage.getAllMessageText() + "\n\n");
 				EpisimExceptionHandler.getInstance().displayException(new Exception(sb.toString()));
 			}
 			else
@@ -272,7 +262,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		}
 		catch (Exception e){
 			EpisimExceptionHandler.getInstance().displayException(e);
-		}      
+		}
 
 	}
 
@@ -284,9 +274,9 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 			URL u = new URL("jar", "", file.toURI().toURL() + "!/" + sbmlFile);
 
 			JarURLConnection uc = (JarURLConnection)u.openConnection();
-			uc.setDefaultUseCaches(false); 
+			uc.setDefaultUseCaches(false);
 
-			BufferedReader bufferedIn = new BufferedReader(new InputStreamReader(uc.getInputStream()));	
+			BufferedReader bufferedIn = new BufferedReader(new InputStreamReader(uc.getInputStream()));
 			String input = null;
 			input = bufferedIn.readLine();
 			StringBuffer stringBuffer = new StringBuffer();

@@ -403,13 +403,13 @@ public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChang
 	      		break;
 	      	}	      	
 	    }
-	    if(copasiDetected){
-	   	 if(env.get(copasiKey) != null && new File(env.get(copasiKey)).exists()){
-	   		 JOptionPane.showMessageDialog(this.mainFrame, "EPISIM Simulator detected that you have installed COPASI\non your Windows OS:\n\n"+env.get(copasiKey)+"\n\nCOPASI installations with version numbers higher than 4.8.35\nlead to an EPISIM Simulator crash for EPISIM models containing\nan SBML-based submodel.\nEPISIM Simulator will patch the file EpisimSimulator.exe.\nMake sure that your computer has internet connection, and press ok.\nEPISIM Simulator will shut down. Restart it manually.\nWe are sorry for this inconvenience.", "COPASI installation detected", JOptionPane.WARNING_MESSAGE);
-	   		 installEpisimEXEPatch();
-	   	 }
+//	    if(copasiDetected){
+//	   	 if(env.get(copasiKey) != null && new File(env.get(copasiKey)).exists()){
+//	   		 JOptionPane.showMessageDialog(this.mainFrame, "EPISIM Simulator detected that you have installed COPASI\non your Windows OS:\n\n"+env.get(copasiKey)+"\n\nCOPASI installations with version numbers higher than 4.8.35\nlead to an EPISIM Simulator crash for EPISIM models containing\nan SBML-based submodel.\nEPISIM Simulator will patch the file EpisimSimulator.exe.\nMake sure that your computer has internet connection, and press ok.\nEPISIM Simulator will shut down. Restart it manually.\nWe are sorry for this inconvenience.", "COPASI installation detected", JOptionPane.WARNING_MESSAGE);
+//	   		 installEpisimEXEPatch();
+//	   	 }
 	    }
-	}
+//	}
 	
 	private void installEpisimEXEPatch(){
 		final EpisimUpdater updater = new EpisimUpdater();

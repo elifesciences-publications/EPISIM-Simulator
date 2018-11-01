@@ -17,34 +17,35 @@ import episimmcc.EpisimModelConnector;
 import episimmcc.EpisimModelConnector.Hidden;
 import episimmcc.EpisimModelConnector.Pairwise;
 
-public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
-	private static final String ID = "2015-01-27";
+public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector 
+{
+    private static final String ID = "2015-01-27";
 	private static final String NAME = "Fish Eye Center Based Biomechanical 3D Model";
 	
 	private HashMap<Long, Double> contactArea = new HashMap<Long, Double>();
 	private HashMap<Long, Double> cellcellAdhesion = new HashMap<Long, Double>();
-	private double bmContactArea=0;
+	private double bmContactArea = 0;
 
 	private double average_overlap = 0;
 	
 	private double cellVolume = 0;
 	private double extCellSpaceVolume = 0;
 	private double extCellSpaceMikron = 0.2d;
-	private double cellSurfaceArea=0;
-	private double totalContactArea=0;	
-	private double contactAreaInnerEye=0;	
+	private double cellSurfaceArea = 0;
+	private double totalContactArea = 0;	
+	private double contactAreaInnerEye = 0;	
    
 	private double innerEyeRadius = 100;
 	
-	private double x=0;
-	private double y=0;
-	private double z=0;
-	private double width=0;
-	private double height=0;
-	private double length=0;
-	private double biasX =0;
-	private double biasY =0;
-	private double biasZ =0;
+	private double x = 0;
+	private double y = 0;
+	private double z = 0;
+	private double width = 0;
+	private double height = 0;
+	private double length = 0;
+	private double biasX = 0;
+	private double biasY = 0;
+	private double biasZ = 0;
 	private double centerX = 50;
 	private double centerY = 1050;
 	private double centerZ = 1050;
@@ -64,7 +65,6 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 		this.x = x;
 	}
 
-	
 	public double getY() {	
 		return y;
 	}
@@ -77,6 +77,7 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 	public double getZ() {	
 		return z;
 	}
+
 	@Hidden
 	public void setZ(double z) {	
 		this.z = z;
@@ -106,15 +107,15 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 		this.length = length;
 	}	
    
-   public double getAdhesionMembrane() {      
-   	return adhesionMembrane;
-   }	
+    public double getAdhesionMembrane() {      
+   	    return adhesionMembrane;
+    }	
    
-   public void setAdhesionMembrane(double adhesionMembrane) {   
-   	this.adhesionMembrane = adhesionMembrane;
-   }
+    public void setAdhesionMembrane(double adhesionMembrane) {   
+   	    this.adhesionMembrane = adhesionMembrane;
+    }
    
-   @NoExport
+    @NoExport
 	public void resetPairwiseParameters(){
 		//this.contactArea.clear();
 	}
@@ -146,224 +147,200 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 		return FishEyeCenterBasedMechModelInit.class;
 	}	
    
-   @Hidden
-   @Pairwise
-   @NoExport
-   public void setContactArea(long cellId, double contactArea){
-   	this.contactArea.put(cellId, contactArea);
-   }
+    @Hidden
+    @Pairwise
+    @NoExport
+    public void setContactArea(long cellId, double contactArea){
+   	    this.contactArea.put(cellId, contactArea);
+    }
    
-   @Pairwise
-   @NoExport
-   public double getContactArea(long cellId){
-   	return this.contactArea.containsKey(cellId)? this.contactArea.get(cellId):0;
-   }
+    @Pairwise
+    @NoExport
+    public double getContactArea(long cellId){
+   	    return this.contactArea.containsKey(cellId)? this.contactArea.get(cellId):0;
+    }
    
-   @Hidden
-   public void setContactArea(HashMap<Long, Double> contactArea){
-   	if(contactArea != null) this.contactArea = contactArea;
-   }
+    @Hidden
+    public void setContactArea(HashMap<Long, Double> contactArea){
+   	    if(contactArea != null) this.contactArea = contactArea;
+    }
    
-   @Hidden
-   public HashMap<Long, Double> getContactArea(){
-   	return this.contactArea;
-   }   
+    @Hidden
+    public HashMap<Long, Double> getContactArea(){
+   	    return this.contactArea;
+    }   
    
-   @Pairwise
-   @NoExport
-   public void setCellCellAdhesion(long cellId, double adhesion){
-   	this.cellcellAdhesion.put(cellId, adhesion);
-   }
+    @Pairwise
+    @NoExport
+    public void setCellCellAdhesion(long cellId, double adhesion){
+   	    this.cellcellAdhesion.put(cellId, adhesion);
+    }
    
-   @Pairwise
-   @NoExport
-   public double getCellCellAdhesion(long cellId){
-   	return this.cellcellAdhesion.containsKey(cellId)? this.cellcellAdhesion.get(cellId):0;
-   }
+    @Pairwise
+    @NoExport
+    public double getCellCellAdhesion(long cellId){
+   	    return this.cellcellAdhesion.containsKey(cellId)? this.cellcellAdhesion.get(cellId):0;
+    }
    
-   @Hidden
-   public void setCellCellAdhesion(HashMap<Long, Double> cellcellAdhesion){
-   	if(cellcellAdhesion != null) this.cellcellAdhesion = cellcellAdhesion;
-   }
+    @Hidden
+    public void setCellCellAdhesion(HashMap<Long, Double> cellcellAdhesion){
+   	    if(cellcellAdhesion != null) this.cellcellAdhesion = cellcellAdhesion;
+    }
    
-   @Hidden
-   public HashMap<Long, Double> getCellCellAdhesion(){
-   	return this.cellcellAdhesion;
-   }  
+    @Hidden
+    public HashMap<Long, Double> getCellCellAdhesion(){
+   	    return this.cellcellAdhesion;
+    }  
    
 	@Hidden
 	@NoExport
-   public double getAdhesionFactorForCell(AbstractCell cell){   	 	
-   	return cell != null && this.cellcellAdhesion.containsKey(cell.getID()) ? this.cellcellAdhesion.get(cell.getID()).doubleValue():0;
-   }
+    public double getAdhesionFactorForCell(AbstractCell cell){   	 	
+   	    return cell != null && this.cellcellAdhesion.containsKey(cell.getID()) ? this.cellcellAdhesion.get(cell.getID()).doubleValue():0;
+    }
 	
-   public double getCellVolume() {   
-   	return cellVolume;
-   }
+    public double getCellVolume() {   
+   	    return cellVolume;
+    }
 
-   @Hidden
-   public void setCellVolume(double cellVolume) {   
-   	this.cellVolume = cellVolume;
-   }
+    @Hidden
+    public void setCellVolume(double cellVolume) {   
+   	    this.cellVolume = cellVolume;
+    }
 	
-   public double getExtCellSpaceVolume() {   
-   	return extCellSpaceVolume;
-   }
+    public double getExtCellSpaceVolume() {   
+   	    return extCellSpaceVolume;
+    }
 
-   @Hidden
-   public void setExtCellSpaceVolume(double extCellSpaceVolume) {   
-   	this.extCellSpaceVolume = extCellSpaceVolume;
-   }
+    @Hidden
+    public void setExtCellSpaceVolume(double extCellSpaceVolume) {   
+   	    this.extCellSpaceVolume = extCellSpaceVolume;
+    }
 	
-   public double getExtCellSpaceMikron() {   
-   	return extCellSpaceMikron;
-   }
+    public double getExtCellSpaceMikron() {   
+   	    return extCellSpaceMikron;
+    }
 	
-   public void setExtCellSpaceMikron(double extCellSpaceMikron) {   
-   	this.extCellSpaceMikron = extCellSpaceMikron;
-   }
+    public void setExtCellSpaceMikron(double extCellSpaceMikron) {   
+   	    this.extCellSpaceMikron = extCellSpaceMikron;
+    }
 	
-   public double getCellSurfaceArea() {   
-   	return cellSurfaceArea;
-   }
+    public double getCellSurfaceArea() {   
+   	    return cellSurfaceArea;
+    }
    
-   @Hidden
-   public void setCellSurfaceArea(double cellSurfaceArea) {   
-   	this.cellSurfaceArea = cellSurfaceArea;
-   }
+    @Hidden
+    public void setCellSurfaceArea(double cellSurfaceArea) {   
+   	    this.cellSurfaceArea = cellSurfaceArea;
+    }
 	
-   public double getBmContactArea() {      
-   	return bmContactArea;
-   }
+    public double getBmContactArea() {      
+   	    return bmContactArea;
+    }
 
-   @Hidden
-   public void setBmContactArea(double bmContactArea) {   
-   	this.bmContactArea = bmContactArea;
-   }
+    @Hidden
+    public void setBmContactArea(double bmContactArea) {   
+   	    this.bmContactArea = bmContactArea;
+    }
    
-   public double getTotalContactArea() {      
-   	return totalContactArea;
-   }
+    public double getTotalContactArea() {      
+   	    return totalContactArea;
+    }
 
-   @Hidden
-   public void setTotalContactArea(double totalContactArea) {   
-   	this.totalContactArea = totalContactArea;
-   }
+    @Hidden
+    public void setTotalContactArea(double totalContactArea) {   
+   	    this.totalContactArea = totalContactArea;
+    }
 
-	
-   public double getInnerEyeRadius() {
-   
-   	return innerEyeRadius;
-   }
+    public double getInnerEyeRadius() {
+   	    return innerEyeRadius;
+    }
 
-	
-   public void setInnerEyeRadius(double innerEyeRadius) {
-   
-   	this.innerEyeRadius = innerEyeRadius;
-   }
+    public void setInnerEyeRadius(double innerEyeRadius) {
+   	    this.innerEyeRadius = innerEyeRadius;
+    }
+    
+    public double getContactAreaInnerEye() {
+   	    return contactAreaInnerEye;
+    }
 
-	
-   public double getContactAreaInnerEye() {
-   
-   	return contactAreaInnerEye;
-   }
+    public void setContactAreaInnerEye(double contactAreaInnerEye) {
+   	    this.contactAreaInnerEye = contactAreaInnerEye;
+    }
 
-	
-   public void setContactAreaInnerEye(double contactAreaInnerEye) {
-   
-   	this.contactAreaInnerEye = contactAreaInnerEye;
-   }
-
-   public double getAverage_overlap() {
-
+    public double getAverage_overlap() {
 	   return average_overlap;
-   }
+    }
 	
 	@Hidden
 	public void setAverage_overlap(double average_overlap) {
-
 	   this.average_overlap = average_overlap;
-   }
+    }
 	
-   public int getCellId() {
-   
-   	return cellId;
-   }
+    public int getCellId() { 
+   	    return cellId;
+    }
 
-   @Hidden
-   public void setCellId(int cellId) {   
-   	this.cellId = cellId;
-   }
+    @Hidden
+    public void setCellId(int cellId) {   
+   	    this.cellId = cellId;
+    }
 
-	
-   public double getBiasX() {   
-   	return biasX;
-   }
+    public double getBiasX() {   
+   	    return biasX;
+    }
 
-	
-   public void setBiasX(double biasX) {   
-   	this.biasX = biasX;
-   }
+    public void setBiasX(double biasX) {   
+   	    this.biasX = biasX;
+    }
 
-	
-   public double getBiasY() {   
-   	return biasY;
-   }
+    public double getBiasY() {   
+   	    return biasY;
+    }
 
-	
-   public void setBiasY(double biasY) {   
-   	this.biasY = biasY;
-   }
+    public void setBiasY(double biasY) {   
+   	    this.biasY = biasY;
+    }
 
-	
-   public double getBiasZ() {   
-   	return biasZ;
-   }
+    public double getBiasZ() {   
+   	    return biasZ;
+    }
 
-	
-   public void setBiasZ(double biasZ) {   
-   	this.biasZ = biasZ;
-   }
+    public void setBiasZ(double biasZ) {   
+   	    this.biasZ = biasZ;
+    }
 
 	public double getCenterY() {
-
-	   return centerY;
-   }
+        return centerY;
+    }
+	
 	@Hidden
 	public void setCenterY(double centerY) {
-
 	   this.centerY = centerY;
-   }
+    }
 
 	public double getCenterX() {
-
 	   return centerX;
-   }
+    }
+	
 	@Hidden
 	public void setCenterX(double centerX) {
-
 	   this.centerX = centerX;
-   }
+    }
 
 	public double getCenterZ() {
-
 	   return centerZ;
-   }
+    }
+
 	@Hidden
 	public void setCenterZ(double centerZ) {
-
 	   this.centerZ = centerZ;
-   }
+    }
 
 	public double getEyeGrowthMode() {
-
 	   return eyeGrowthMode;
-   }
+    }
 
 	public void setEyeGrowthMode(double eyeGrowthMode) {
-
 	   this.eyeGrowthMode = eyeGrowthMode;
-   }
-	
+    }
 }
-

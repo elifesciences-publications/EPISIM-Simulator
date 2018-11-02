@@ -7,15 +7,15 @@ package episimmcc.centerbased3d.fisheye;
 import java.util.HashMap;
 
 import sim.app.episim.model.AbstractCell;
+
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.FishEyeCenterBased3DModel;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.FishEyeCenterBased3DModelGP;
+
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 import episimmcc.EpisimModelConnector;
-import episimmcc.EpisimModelConnector.Hidden;
-import episimmcc.EpisimModelConnector.Pairwise;
 
 public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector 
 {

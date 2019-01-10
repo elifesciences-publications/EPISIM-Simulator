@@ -48,3 +48,7 @@ Mar 08, 2018 11:23:33 AM sim.app.episim.EpisimLogger logInfo
 INFORMATION: Connecting to EPISIM update Server 
 Mar 08, 2018 11:23:35 AM sim.app.episim.EpisimLogger logInfo
 INFORMATION: Connection Successful
+Jan 10, 2019 11:33:51 AM sim.app.episim.EpisimLogger logInfo
+INFO: Connecting to EPISIM update Server 
+Jan 10, 2019 11:33:51 AM sim.app.episim.EpisimLogger logInfo
+INFO: Connection Successful

@@ -411,7 +411,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay
 	        				
 	        				// Get cell coordinates
 	        				Point3d location = new Point3d();
-	             	        bg.getBounds().getCenter(location);
+	        				//TODO: Fix the following line
+	             	        //bg.getBounds().getCenter(location);	// this stopped working for some reason? new version of Java3D?
 	        				
 	        				// Each branchgroup contains 1 (ONE) other transform group
 	        				while (en.hasMoreElements()) 
@@ -675,7 +676,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay
 	        				
 	        				// Get cell coordinates
 	        				Point3d location = new Point3d();
-	             	        bg.getBounds().getCenter(location);
+	        				//TODO: Fix the following line
+	             	        //bg.getBounds().getCenter(location);	// this stopped working for some reason? new version of Java3D?
 	        				
 	        				// Each branchgroup contains 1 (ONE) other transform group
 	        				while (en.hasMoreElements()) 

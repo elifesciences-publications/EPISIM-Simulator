@@ -13,7 +13,7 @@ import sim.app.episim.model.biomechanics.vertexbased2d.VertexBasedModelControlle
 import sim.app.episim.model.biomechanics.vertexbased2d.VertexBasedModelGP;
 import sim.app.episim.model.biomechanics.vertexbased2d.calc.ConjugateGradientOptimizer;
 import sim.app.episim.model.biomechanics.vertexbased2d.calc.SimulatedAnnealingForOrderingVertices;
-import sim.app.episim.model.biomechanics.vertexbased2d.calc.simanneal.VertexForcesMinimizerSimAnneal;
+//import sim.app.episim.model.biomechanics.vertexbased2d.calc.simanneal.VertexForcesMinimizerSimAnneal;
 import sim.app.episim.model.biomechanics.vertexbased2d.geom.VertexChangeEvent.VertexChangeEventType;
 import sim.app.episim.model.biomechanics.vertexbased2d.util.GlobalBiomechanicalStatistics;
 import sim.app.episim.model.biomechanics.vertexbased2d.util.GlobalBiomechanicalStatistics.GBSValue;

@@ -1,0 +1,2 @@
+buildresources/linux/jre_32bit.zip filter=lfs diff=lfs merge=lfs -text
+buildresources/linux/jre_64bit.zip filter=lfs diff=lfs merge=lfs -text
